@@ -6,7 +6,7 @@ A high-performance, custom-branded Matrix homeserver setup powered by Conduwuit 
 This repository contains the configuration and branding assets for the Sky0Cloud Matrix instance. It features a custom "Welcome" landing page integrated directly into the Element Web interface, bypassing standard iframe restrictions for a seamless user experience.
 
 ## Tech Stack
-* Homeserver: Continuwuity (High-performance Rust implementation)
+* Homeserver: Continuwuity (High-performance Matrix implementation)
 * Web Client: Element Web
 * Reverse Proxy: Caddy
 * Custom Branding: HTML5, CSS3, and Vanilla JavaScript
