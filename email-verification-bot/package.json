@@ -1,0 +1,10 @@
+{
+  "name": "email-verification-bot",
+  "version": "1.0.0",
+  "description": "Matrix email verification bot",
+  "main": "index.js",
+  "dependencies": {
+    "matrix-bot-sdk": "^0.7.1",
+    "dotenv": "^16.3.1"
+  }
+}

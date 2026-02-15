@@ -1,0 +1,19 @@
+:80 {
+    # Matrix API
+    handle /_matrix/* {
+        reverse_proxy conduwuit:6167
+    }
+    handle /_synapse/client/* {
+        reverse_proxy conduwuit:6167
+    }
+
+    # Guest token endpoint
+    handle /mint-guest {
+        reverse_proxy guest-token:5001
+    }
+
+    # Everything else to Element
+    handle {
+        reverse_proxy element-web:80
+    }
+}

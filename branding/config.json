@@ -1,0 +1,21 @@
+{
+    "default_server_config": {
+        "m.homeserver": {
+            "base_url": "https://sky0cloud.dpdns.org",
+            "server_name": "sky0cloud.dpdns.org"
+        }
+    },
+    "brand": "Sky0Cloud",
+    "disable_custom_urls": true,
+    "disable_guests": false,
+    "embedded_pages": {
+        "welcome_url": "welcome.html"
+    },
+    "branding": {
+        "welcome_background_url": "background.jpg",
+        "auth_header_logo_url": "logo.png"
+    },
+    "setting_defaults": {
+        "theme": "dark"
+    }
+}

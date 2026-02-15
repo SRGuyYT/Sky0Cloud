@@ -1,0 +1,50 @@
+services:
+  conduwuit:
+    image: forgejo.ellis.link/continuwuation/continuwuity:latest
+    container_name: conduwuit-skyservers
+    restart: unless-stopped
+    environment:
+      CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
+      CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
+      CONDUWUIT_PORT: 6167
+      CONDUWUIT_ADDRESS: "0.0.0.0"
+      CONDUWUIT_ALLOW_REGISTRATION: "true"
+      CONDUWUIT_REGISTRATION_TOKEN: "only_us"
+    volumes:
+      - ./db:/var/lib/conduwuit
+
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: element-skyservers
+    restart: always
+    volumes:
+      - ./branding/config.json:/usr/share/nginx/html/config.json
+      - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
+      - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
+      - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
+      - ./branding/logo.png:/usr/share/nginx/html/logo.png
+      - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy-proxy
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
+  guest-token:
+    image: python:3.11-slim
+    container_name: guest-token
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./guest-token/mint_token.py:/app/mint_token.py
+    environment:
+      - HOMESERVER=https://sky0cloud.dpdns.org
+      - ADMIN_SECRET=only_us
+    command: >
+      sh -c "pip install flask requests && python mint_token.py"
+    ports:
+      - "5001:5001"

@@ -1,0 +1,8 @@
+[server]
+name = "sky0cloud.dpdns.org"
+hostname = "sky0cloud.dpdns.org"
+port = 6167
+
+[registration]
+enabled = true
+guest_enabled = true

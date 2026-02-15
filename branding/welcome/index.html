@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome — Sky0Cloud</title>
+  <style>
+    *{box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif}
+    html,body{height:100%;margin:0}
+    .wrap{position:fixed;inset:0;display:grid;place-items:center;background:#07101a url('/background.jpg') center/cover no-repeat}
+    .card{width:min(96%,880px);display:flex;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#2f3136,#232428);color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+    .left{flex:1.4;padding:36px;display:flex;flex-direction:column;gap:12px}
+    .right{flex:.9;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0;font-size:22px}
+    .sub{color:#bfc6d6;margin:0}
+    .btn{width:100%;padding:12px;border-radius:8px;border:0;font-weight:700;cursor:pointer;color:#fff;font-size:15px}
+    .btn-muted{background:#4e5058}
+    .btn-cta{background:linear-gradient(180deg,#5865F2,#4752C4)}
+    .logo{width:130px;height:130px;border-radius:50%;object-fit:contain;border:3px solid rgba(0,242,255,0.08)}
+    #err{color:#ff6b6b;font-weight:600;display:none;margin-top:6px}
+    .spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);border-top-color:#fff;animation:spin .9s linear infinite;display:inline-block;margin-left:8px;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:700px){.card{flex-direction:column}.right{border-left:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="welcome-host">
+    <div class="card" role="region" aria-labelledby="welcome-title">
+      <div class="left">
+        <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
+        <p class="sub">Select an option below to enter.</p>
+
+        <button id="loginBtn" class="btn btn-muted" type="button">Login</button>
+        <button id="signupBtn" class="btn btn-muted" type="button">Sign up</button>
+        <button id="guestBtn" class="btn btn-cta" type="button">
+          <span id="guestLabel">Enter Guest Mode</span>
+          <span id="guestSpinner" class="spinner" style="display:none" aria-hidden="true"></span>
+        </button>
+
+        <div id="err" role="alert"></div>
+      </div>
+
+      <div class="right" aria-hidden="false">
+        <img src="/logo.png" alt="Sky0Cloud logo" class="logo">
+        <h2 style="margin:8px 0 0 0">SKY0CLOUD</h2>
+      </div>
+    </div>
+  </div>
+
+  <script src="/welcome.js" defer></script>
+</body>
+</html>
