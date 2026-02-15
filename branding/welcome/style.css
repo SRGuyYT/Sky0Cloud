@@ -41,3 +41,7 @@ h1{margin:0;font-size:clamp(1.45rem,2.2vw,2rem);line-height:1.2}
   .btn{font-size:.96rem;padding:12px}
   .logo{width:102px;height:102px}
 }
+
+
+.welcome-hidden{background:transparent !important}
+#matrixchat{position:relative;z-index:2147483647 !important}

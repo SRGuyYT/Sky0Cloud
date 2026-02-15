@@ -3,56 +3,98 @@
   'use strict';
 
   const CONFIG = {
-    MATRIX_BASE: 'https://sky0cloud.dpdns.org',
-    TOKEN_ENDPOINT: '', // optional external guest token mint endpoint
-    GUEST_USER: 'guest',
-    GUEST_PASSWORD: '', // optional fallback password login for a fixed guest account
-    TIMEOUT_MS: 12000
+    matrixBase: 'https://sky0cloud.dpdns.org',
+    mintGuestEndpoint: '/mint-guest',
+    loginRouteBase: 'https://sky0cloud.dpdns.org/#/login',
+    timeoutMs: 15000,
+    autoLoginDelayMs: 350,
+    storageKey: 'sky0cloud.guest.session.v1'
   };
 
-  function $(id) { return document.getElementById(id); }
+  const qs = (sel) => document.querySelector(sel);
+  const byId = (id) => document.getElementById(id);
 
-  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.TIMEOUT_MS) {
+  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.timeoutMs) {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
     try {
-      return await fetch(url, { ...options, signal: controller.signal });
+      return await fetch(url, { ...options, signal: controller.signal, credentials: 'omit' });
     } finally {
-      clearTimeout(id);
+      clearTimeout(timeoutId);
     }
   }
 
-  function buildElementGuestUrl(tokenResponse) {
-    const params = new URLSearchParams();
-    if (tokenResponse.login_token) {
-      params.set('loginToken', tokenResponse.login_token);
-    } else if (tokenResponse.access_token) {
-      // Some Matrix guest flows return access_token directly; keep as fallback.
-      params.set('access_token', tokenResponse.access_token);
+  function setStatus(message) {
+    const status = byId('status');
+    if (status) status.textContent = message;
+    console.log('[welcome]', message);
+  }
+
+  function showError(message) {
+    const errEl = byId('err');
+    if (errEl) {
+      errEl.textContent = message;
+      errEl.style.display = 'block';
     }
-
-    if (tokenResponse.user_id) params.set('user_id', tokenResponse.user_id);
-    if (tokenResponse.device_id) params.set('device_id', tokenResponse.device_id);
-
-    return CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/#/?' + params.toString();
+    setStatus('Guest auto-login unavailable. You can use Login or Sign up.');
   }
 
-  function redirectViaNativeAnchor(url) {
-    console.log('[welcome] Attempting redirect via native anchor click:', url);
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_parent';
-    link.rel = 'noopener';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => link.remove(), 0);
+  function clearError() {
+    const errEl = byId('err');
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.style.display = 'none';
+    }
   }
 
-  async function mintGuestTokenFromService() {
-    if (!CONFIG.TOKEN_ENDPOINT) {
-      console.log('[welcome] TOKEN_ENDPOINT is not configured; skipping token-service flow.');
-      return null;
+  function dockLanguagePicker() {
+    const slot = byId('languagePickerSlot');
+    if (!slot) return false;
+
+    const picker =
+      qs('.mx_LanguagePicker') ||
+      qs('.mx_LanguageDropdown') ||
+      qs('[data-testid="language-picker"]');
+
+    if (!picker) return false;
+    if (picker.parentElement === slot) return true;
+
+    slot.appendChild(picker);
+    console.log('[welcome] Language picker moved to dock.');
+    return true;
+  }
+
+  function enableLanguagePickerDocking() {
+    if (dockLanguagePicker()) return;
+
+    const observer = new MutationObserver(() => {
+      if (dockLanguagePicker()) observer.disconnect();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => observer.disconnect(), 10000);
+  }
+
+  function normalizeSession(input) {
+    if (!input || typeof input !== 'object') return null;
+    const accessToken = input.access_token || input.token || '';
+    const userId = input.user_id || '';
+    const deviceId = input.device_id || '';
+    if (!accessToken) return null;
+    return {
+      access_token: accessToken,
+      user_id: userId,
+      device_id: deviceId,
+      created_at: Date.now()
+    };
+  }
+
+  function persistSession(session) {
+    try {
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify(session));
+      console.log('[welcome] Guest session persisted in localStorage.');
+    } catch (err) {
+      console.warn('[welcome] Failed to persist guest session.', err);
     }
 
     console.log('[welcome] Starting token-service fetch:', CONFIG.TOKEN_ENDPOINT);
@@ -150,61 +192,163 @@
     errEl.style.display = 'none';
   }
 
-  function attachHandlers() {
-    const guestBtn = $('guestBtn');
-    const guestLabel = $('guestLabel');
-    const guestSpinner = $('guestSpinner');
-    const errEl = $('err');
+  function buildLoginUrl(session) {
+    const params = new URLSearchParams({
+      token: session.access_token,
+      guest: '1'
+    });
+    if (session.user_id) params.set('user_id', session.user_id);
+    if (session.device_id) params.set('device_id', session.device_id);
+    return `${CONFIG.loginRouteBase}?${params.toString()}`;
+  }
 
-    if (!guestBtn || !guestLabel || !guestSpinner || !errEl) {
-      console.error('[welcome] Missing required DOM nodes for guest flow.');
-      return;
-    } catch (err) {
-      console.warn('[welcome] parent.location redirect blocked, falling back to native link.', err);
+  function hideWelcomeOverlay() {
+    const host = byId('welcome-host');
+    if (host) {
+      host.style.opacity = '0';
+      host.style.pointerEvents = 'none';
+      host.style.display = 'none';
     }
 
-    guestBtn.addEventListener('click', async () => {
-      console.log('[welcome] Guest Mode clicked.');
-      clearError(errEl);
-      setBusy(guestBtn, guestLabel, guestSpinner, true);
+    const body = document.body;
+    if (body) {
+      body.classList.add('welcome-hidden');
+    }
 
+    console.log('[welcome] Welcome overlay hidden before redirect.');
+  }
+
+  function performNativeParentRedirect(url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_parent';
+    link.rel = 'noopener';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => link.remove(), 0);
+  }
+
+  function redirectToElement(url) {
+    console.log('[welcome] Redirecting to:', url);
+    hideWelcomeOverlay();
+
+    const isFramed = window.self !== window.top;
+    if (isFramed) {
       try {
-        let tokenResponse = null;
-
-        try {
-          tokenResponse = await mintGuestTokenFromService();
-        } catch (serviceErr) {
-          console.log('[welcome] Token-service flow failed:', serviceErr);
-        }
-
-        if (!tokenResponse) {
-          console.log('[welcome] Falling back to Matrix guest fetch flow.');
-          tokenResponse = await mintGuestTokenFromMatrix();
-        }
-
-        if (!tokenResponse) {
-          showError(errEl, 'Guest login failed. Check server config or CORS.');
-          console.log('[welcome] Guest flow ended with no token.');
-          return;
-        }
-
-        const redirectUrl = buildElementGuestUrl(tokenResponse);
-        console.log('[welcome] Redirect URL built:', redirectUrl);
-        redirectViaNativeAnchor(redirectUrl);
+        window.parent.location.href = url;
+        return;
       } catch (err) {
-        console.log('[welcome] Unexpected guest flow error:', err);
-        showError(errEl, 'Guest login failed due to an unexpected error.');
-      } finally {
-        setBusy(guestBtn, guestLabel, guestSpinner, false);
+        console.warn('[welcome] parent.location redirect blocked, trying native anchor.', err);
       }
-    });
+      performNativeParentRedirect(url);
+      return;
+    }
 
-    guestBtn.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') guestBtn.click();
+    window.location.href = url;
+  }
+
+  async function mintGuestViaMatrix() {
+    setStatus('Requesting Matrix guest registration...');
+    const payload = { kind: 'guest', inhibit_login: false };
+    const endpoints = [
+      `${CONFIG.matrixBase}/_matrix/client/v3/register?kind=guest`,
+      `${CONFIG.matrixBase}/_matrix/client/r0/register?kind=guest`
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        console.log('[welcome] Matrix guest attempt:', endpoint, payload);
+        const res = await fetchWithTimeout(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+        if (!res.ok) {
+          console.warn('[welcome] Matrix guest registration failed:', res.status, text);
+          continue;
+        }
+
+        const data = JSON.parse(text);
+        const session = normalizeSession(data);
+        if (session) {
+          setStatus('Guest account created. Redirecting...');
+          return session;
+        }
+      } catch (err) {
+        console.warn('[welcome] Matrix guest registration exception:', err);
+      }
+    }
+
+    return null;
+  }
+
+  async function mintGuestViaService() {
+    setStatus('Requesting guest token from mint service...');
+    const res = await fetchWithTimeout(CONFIG.mintGuestEndpoint, {
+      method: 'GET',
+      headers: { Accept: 'application/json' }
     });
   }
 
-    guestBtn.focus({ preventScroll: true });
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Mint service failed (${res.status}): ${text}`);
+    }
+
+    const data = JSON.parse(text);
+    const session = normalizeSession(data);
+    if (!session) {
+      throw new Error('Mint service response is missing access_token/token.');
+    }
+
+    return session;
+  }
+
+  async function runGuestAutoLogin({ manual = false } = {}) {
+    const guestBtn = byId('guestBtn');
+    const guestLabel = byId('guestLabel');
+    const guestSpinner = byId('guestSpinner');
+
+    if (guestBtn && guestLabel && guestSpinner) {
+      guestBtn.disabled = true;
+      guestLabel.textContent = manual ? 'Connecting...' : 'Auto connecting...';
+      guestSpinner.style.display = 'inline-block';
+    }
+
+    clearError();
+
+    try {
+      const matrixSession = await mintGuestViaMatrix();
+      const session = matrixSession || await mintGuestViaService();
+      persistSession(session);
+      redirectToElement(buildLoginUrl(session));
+    } catch (err) {
+      console.error('[welcome] Auto guest login failed.', err);
+      showError('Unable to start guest session right now. Please use Login or Sign up.');
+    } finally {
+      if (guestBtn && guestLabel && guestSpinner) {
+        guestBtn.disabled = false;
+        guestLabel.textContent = 'Enter Guest Mode';
+        guestSpinner.style.display = 'none';
+      }
+    }
+  }
+
+  function attachHandlers() {
+    const guestBtn = byId('guestBtn');
+    if (guestBtn) {
+      guestBtn.addEventListener('click', () => runGuestAutoLogin({ manual: true }));
+    }
+  }
+
+  function init() {
+    attachHandlers();
+    enableLanguagePickerDocking();
+    setStatus('Starting guest auto-login...');
+    setTimeout(() => runGuestAutoLogin({ manual: false }), CONFIG.autoLoginDelayMs);
   }
 
   if (document.readyState === 'loading') {
