@@ -96,6 +96,100 @@
     } catch (err) {
       console.warn('[welcome] Failed to persist guest session.', err);
     }
+
+    console.log('[welcome] Starting token-service fetch:', CONFIG.TOKEN_ENDPOINT);
+    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, CONFIG.TIMEOUT_MS);
+
+    console.log('[welcome] Token-service response status:', res.status);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '<no body>');
+      throw new Error('Token service failed: ' + res.status + ' ' + text);
+    }
+
+    const json = await res.json();
+    console.log('[welcome] Token-service payload received:', json);
+    return json;
+  }
+
+  async function mintGuestTokenFromMatrix() {
+    const base = CONFIG.MATRIX_BASE.replace(/\/+$/, '');
+    const attempts = [
+      {
+        url: base + '/_matrix/client/v3/register',
+        payload: { kind: 'guest' },
+        label: 'v3 guest register'
+      },
+      {
+        url: base + '/_matrix/client/r0/register',
+        payload: { kind: 'guest' },
+        label: 'r0 guest register'
+      }
+    ];
+
+    if (CONFIG.GUEST_PASSWORD) {
+      attempts.push(
+        {
+          url: base + '/_matrix/client/v3/login',
+          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
+          label: 'v3 password login (fallback)'
+        },
+        {
+          url: base + '/_matrix/client/r0/login',
+          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
+          label: 'r0 password login (fallback)'
+        }
+      );
+    }
+
+    for (const attempt of attempts) {
+      try {
+        console.log('[welcome] Starting fetch:', attempt.label, attempt.url, attempt.payload);
+        const res = await fetchWithTimeout(attempt.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(attempt.payload)
+        }, CONFIG.TIMEOUT_MS);
+
+        console.log('[welcome] Fetch completed:', attempt.label, 'status=', res.status);
+        if (!res.ok) {
+          const text = await res.text().catch(() => '<no body>');
+          console.log('[welcome] Fetch non-ok response:', attempt.label, text);
+          continue;
+        }
+
+        const json = await res.json().catch(() => null);
+        console.log('[welcome] Fetch successful payload:', attempt.label, json);
+        if (json && (json.access_token || json.login_token)) {
+          console.log('[welcome] Token received from', attempt.label);
+          return json;
+        }
+
+        console.log('[welcome] No usable token in response for', attempt.label);
+      } catch (err) {
+        console.log('[welcome] Fetch threw error for', attempt.label, err);
+      }
+    }
+
+    return null;
+  }
+
+  function setBusy(guestBtn, guestLabel, guestSpinner, isBusy) {
+    guestBtn.disabled = isBusy;
+    guestLabel.textContent = isBusy ? 'Connecting...' : 'Enter Guest Mode';
+    guestSpinner.style.display = isBusy ? 'inline-block' : 'none';
+  }
+
+  function showError(errEl, message) {
+    errEl.textContent = message;
+    errEl.style.display = 'block';
+  }
+
+  function clearError(errEl) {
+    errEl.textContent = '';
+    errEl.style.display = 'none';
   }
 
   function buildLoginUrl(session) {
@@ -197,6 +291,7 @@
       method: 'GET',
       headers: { Accept: 'application/json' }
     });
+  }
 
     const text = await res.text();
     if (!res.ok) {
