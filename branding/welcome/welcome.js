@@ -159,6 +159,8 @@
     if (!guestBtn || !guestLabel || !guestSpinner || !errEl) {
       console.error('[welcome] Missing required DOM nodes for guest flow.');
       return;
+    } catch (err) {
+      console.warn('[welcome] parent.location redirect blocked, falling back to native link.', err);
     }
 
     guestBtn.addEventListener('click', async () => {

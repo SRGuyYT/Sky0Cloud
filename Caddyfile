@@ -20,6 +20,7 @@
     handle /_matrix/* {
         reverse_proxy conduwuit-skyservers:6167
     }
+
     handle /_synapse/client/* {
         reverse_proxy conduwuit-skyservers:6167
     }

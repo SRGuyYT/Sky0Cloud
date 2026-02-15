@@ -26,6 +26,7 @@ services:
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
+      - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
 
   caddy:
     image: caddy:latest
@@ -46,6 +47,11 @@ services:
     environment:
       - HOMESERVER=https://sky0cloud.dpdns.org
       - ADMIN_SECRET=only_us
+      - PUBLIC_MINT=true
+      - MINT_RATE_LIMIT_PER_MIN=15
+      - MINT_TIMEOUT_S=12
+      - SHARED_GUEST_USER=
+      - SHARED_GUEST_PASSWORD=
     command: >
       sh -c "pip install flask requests && python mint_token.py"
     ports:
