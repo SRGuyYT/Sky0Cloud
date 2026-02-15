@@ -3,8 +3,10 @@
   'use strict';
 
   const CONFIG = {
-    TOKEN_ENDPOINT: 'https://sky0cloud.dpdns.org/guest-token-api/get-token',
-    LOGIN_WITH_TOKEN_BASE: 'https://sky0cloud.dpdns.org/#/login?token=',
+    MATRIX_BASE: 'https://sky0cloud.dpdns.org',
+    TOKEN_ENDPOINT: '', // optional external guest token mint endpoint
+    GUEST_USER: 'guest',
+    GUEST_PASSWORD: '', // optional fallback password login for a fixed guest account
     TIMEOUT_MS: 12000
   };
 
@@ -12,44 +14,124 @@
 
   async function fetchWithTimeout(url, options = {}, timeout = CONFIG.TIMEOUT_MS) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const id = setTimeout(() => controller.abort(), timeout);
     try {
       return await fetch(url, { ...options, signal: controller.signal });
     } finally {
-      clearTimeout(timeoutId);
+      clearTimeout(id);
     }
   }
 
-  function dockLanguagePicker() {
-    const slot = $('languagePickerSlot');
-    if (!slot) return false;
+  function buildElementGuestUrl(tokenResponse) {
+    const params = new URLSearchParams();
+    if (tokenResponse.login_token) {
+      params.set('loginToken', tokenResponse.login_token);
+    } else if (tokenResponse.access_token) {
+      // Some Matrix guest flows return access_token directly; keep as fallback.
+      params.set('access_token', tokenResponse.access_token);
+    }
 
-    const picker =
-      document.querySelector('.mx_LanguagePicker') ||
-      document.querySelector('.mx_LanguageDropdown') ||
-      document.querySelector('[data-testid="language-picker"]');
+    if (tokenResponse.user_id) params.set('user_id', tokenResponse.user_id);
+    if (tokenResponse.device_id) params.set('device_id', tokenResponse.device_id);
 
-    if (!picker) return false;
-    if (picker.parentElement === slot) return true;
-
-    slot.appendChild(picker);
-    console.log('[welcome] Language picker moved to dock.');
-    return true;
+    return CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/#/?' + params.toString();
   }
 
-  function enableLanguagePickerDocking() {
-    if (dockLanguagePicker()) return;
+  function redirectViaNativeAnchor(url) {
+    console.log('[welcome] Attempting redirect via native anchor click:', url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_parent';
+    link.rel = 'noopener';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => link.remove(), 0);
+  }
 
-    const observer = new MutationObserver(() => {
-      if (dockLanguagePicker()) observer.disconnect();
-    });
+  async function mintGuestTokenFromService() {
+    if (!CONFIG.TOKEN_ENDPOINT) {
+      console.log('[welcome] TOKEN_ENDPOINT is not configured; skipping token-service flow.');
+      return null;
+    }
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    console.log('[welcome] Starting token-service fetch:', CONFIG.TOKEN_ENDPOINT);
+    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, CONFIG.TIMEOUT_MS);
 
-    setTimeout(() => {
-      observer.disconnect();
-      dockLanguagePicker();
-    }, 10000);
+    console.log('[welcome] Token-service response status:', res.status);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '<no body>');
+      throw new Error('Token service failed: ' + res.status + ' ' + text);
+    }
+
+    const json = await res.json();
+    console.log('[welcome] Token-service payload received:', json);
+    return json;
+  }
+
+  async function mintGuestTokenFromMatrix() {
+    const base = CONFIG.MATRIX_BASE.replace(/\/+$/, '');
+    const attempts = [
+      {
+        url: base + '/_matrix/client/v3/register',
+        payload: { kind: 'guest' },
+        label: 'v3 guest register'
+      },
+      {
+        url: base + '/_matrix/client/r0/register',
+        payload: { kind: 'guest' },
+        label: 'r0 guest register'
+      }
+    ];
+
+    if (CONFIG.GUEST_PASSWORD) {
+      attempts.push(
+        {
+          url: base + '/_matrix/client/v3/login',
+          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
+          label: 'v3 password login (fallback)'
+        },
+        {
+          url: base + '/_matrix/client/r0/login',
+          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
+          label: 'r0 password login (fallback)'
+        }
+      );
+    }
+
+    for (const attempt of attempts) {
+      try {
+        console.log('[welcome] Starting fetch:', attempt.label, attempt.url, attempt.payload);
+        const res = await fetchWithTimeout(attempt.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(attempt.payload)
+        }, CONFIG.TIMEOUT_MS);
+
+        console.log('[welcome] Fetch completed:', attempt.label, 'status=', res.status);
+        if (!res.ok) {
+          const text = await res.text().catch(() => '<no body>');
+          console.log('[welcome] Fetch non-ok response:', attempt.label, text);
+          continue;
+        }
+
+        const json = await res.json().catch(() => null);
+        console.log('[welcome] Fetch successful payload:', attempt.label, json);
+        if (json && (json.access_token || json.login_token)) {
+          console.log('[welcome] Token received from', attempt.label);
+          return json;
+        }
+
+        console.log('[welcome] No usable token in response for', attempt.label);
+      } catch (err) {
+        console.log('[welcome] Fetch threw error for', attempt.label, err);
+      }
+    }
+
+    return null;
   }
 
   function setBusy(guestBtn, guestLabel, guestSpinner, isBusy) {
@@ -66,41 +148,6 @@
   function clearError(errEl) {
     errEl.textContent = '';
     errEl.style.display = 'none';
-  }
-
-  function extractToken(payload) {
-    if (!payload || typeof payload !== 'object') return '';
-    return payload.token || payload.access_token || payload.login_token || '';
-  }
-
-  function redirectParentWithToken(token) {
-    const redirectUrl = CONFIG.LOGIN_WITH_TOKEN_BASE + encodeURIComponent(token);
-    console.log('[welcome] Redirecting parent to:', redirectUrl);
-    window.parent.location.href = redirectUrl;
-  }
-
-  async function getGuestToken() {
-    console.log('[welcome] Starting guest token fetch:', CONFIG.TOKEN_ENDPOINT);
-    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
-      method: 'GET',
-      headers: { Accept: 'application/json' }
-    }, CONFIG.TIMEOUT_MS);
-
-    console.log('[welcome] Guest token response status:', res.status);
-    if (!res.ok) {
-      const text = await res.text().catch(() => '<no body>');
-      throw new Error('Token endpoint failed: ' + res.status + ' ' + text);
-    }
-
-    const json = await res.json();
-    console.log('[welcome] Guest token response payload:', json);
-    const token = extractToken(json);
-    if (!token) {
-      throw new Error('Token field missing in response payload.');
-    }
-
-    console.log('[welcome] Guest token received.');
-    return token;
   }
 
   function attachHandlers() {
@@ -120,12 +167,31 @@
       setBusy(guestBtn, guestLabel, guestSpinner, true);
 
       try {
-        const token = await getGuestToken();
-        console.log('[welcome] Attempting redirect with guest token.');
-        redirectParentWithToken(token);
+        let tokenResponse = null;
+
+        try {
+          tokenResponse = await mintGuestTokenFromService();
+        } catch (serviceErr) {
+          console.log('[welcome] Token-service flow failed:', serviceErr);
+        }
+
+        if (!tokenResponse) {
+          console.log('[welcome] Falling back to Matrix guest fetch flow.');
+          tokenResponse = await mintGuestTokenFromMatrix();
+        }
+
+        if (!tokenResponse) {
+          showError(errEl, 'Guest login failed. Check server config or CORS.');
+          console.log('[welcome] Guest flow ended with no token.');
+          return;
+        }
+
+        const redirectUrl = buildElementGuestUrl(tokenResponse);
+        console.log('[welcome] Redirect URL built:', redirectUrl);
+        redirectViaNativeAnchor(redirectUrl);
       } catch (err) {
-        console.log('[welcome] Guest login flow failed:', err);
-        showError(errEl, 'Guest login failed. Please try again.');
+        console.log('[welcome] Unexpected guest flow error:', err);
+        showError(errEl, 'Guest login failed due to an unexpected error.');
       } finally {
         setBusy(guestBtn, guestLabel, guestSpinner, false);
       }
@@ -136,9 +202,7 @@
     });
   }
 
-  function init() {
-    attachHandlers();
-    enableLanguagePickerDocking();
+    guestBtn.focus({ preventScroll: true });
   }
 
   if (document.readyState === 'loading') {
