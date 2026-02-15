@@ -1,21 +1,36 @@
 {
-    "default_server_config": {
-        "m.homeserver": {
-            "base_url": "https://sky0cloud.dpdns.org",
-            "server_name": "sky0cloud.dpdns.org"
-        }
-    },
-    "brand": "Sky0Cloud",
-    "disable_custom_urls": true,
-    "disable_guests": false,
-    "embedded_pages": {
-        "welcome_url": "welcome.html"
-    },
-    "branding": {
-        "welcome_background_url": "background.jpg",
-        "auth_header_logo_url": "logo.png"
-    },
-    "setting_defaults": {
-        "theme": "dark"
+  "default_server_name": "sky0cloud.dpdns.org",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
     }
+  },
+  "brand": "Sky0Cloud",
+  "disable_custom_urls": true,
+  "disable_guests": false,
+  "default_theme": "dark",
+  "room_directory": {
+    "servers": [
+      "sky0cloud.dpdns.org"
+    ]
+  },
+  "embedded_pages": {
+    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
+    "home_url": "https://sky0cloud.dpdns.org/welcome.html"
+  },
+  "branding": {
+    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png",
+    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg"
+  },
+  "setting_defaults": {
+    "theme": "dark",
+    "breadcrumbs": true,
+    "always_show_emoji_picker": false
+  },
+  "bug_report_endpoint_url": "",
+  "integrations_ui_url": "",
+  "integrations_rest_url": "",
+  "show_labs_settings": false,
+  "mobile_builds_url": "https://element.io/download"
 }

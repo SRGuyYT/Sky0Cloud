@@ -3,159 +3,235 @@
   'use strict';
 
   const CONFIG = {
-    MATRIX_BASE: 'https://sky0cloud.dpdns.org',
-    LOGIN_PAGE: 'https://sky0cloud.dpdns.org/#/login',
-    REGISTER_PAGE: 'https://sky0cloud.dpdns.org/#/register',
-    TOKEN_ENDPOINT: '', // set to token service URL if you run one
-    GUEST_USER: 'guest',
-    GUEST_PASSWORD: '', // set only if you accept embedding a password
-    TIMEOUT_MS: 12000
+    matrixBase: 'https://sky0cloud.dpdns.org',
+    mintGuestEndpoint: '/mint-guest',
+    loginRouteBase: 'https://sky0cloud.dpdns.org/#/login',
+    timeoutMs: 12000,
+    autoLoginDelayMs: 350,
+    storageKey: 'sky0cloud.guest.session.v1'
   };
 
-  function navigateTop(url){
-    try { window.top.location.assign(url); }
-    catch(e){ window.top.location.href = url; }
-  }
+  const qs = (sel) => document.querySelector(sel);
+  const byId = (id) => document.getElementById(id);
 
-  async function fetchWithTimeout(url, options={}, timeout=CONFIG.TIMEOUT_MS){
+  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.timeoutMs) {
     const controller = new AbortController();
-    const id = setTimeout(()=>controller.abort(), timeout);
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
     try {
-      const res = await fetch(url, {...options, signal: controller.signal});
-      clearTimeout(id);
-      return res;
-    } catch (err) {
-      clearTimeout(id);
-      throw err;
+      return await fetch(url, { ...options, signal: controller.signal, credentials: 'omit' });
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
-  function $(id){ return document.getElementById(id); }
+  function setStatus(message) {
+    const status = byId('status');
+    if (status) status.textContent = message;
+    console.log('[welcome]', message);
+  }
 
-  async function mintGuestToken() {
-    if (!CONFIG.TOKEN_ENDPOINT) return null;
+  function showError(message) {
+    const errEl = byId('err');
+    if (errEl) {
+      errEl.textContent = message;
+      errEl.style.display = 'block';
+    }
+    setStatus('Guest auto-login unavailable. You can use Login or Sign up.');
+  }
+
+  function clearError() {
+    const errEl = byId('err');
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.style.display = 'none';
+    }
+  }
+
+  function dockLanguagePicker() {
+    const slot = byId('languagePickerSlot');
+    if (!slot) return false;
+
+    const picker =
+      qs('.mx_LanguagePicker') ||
+      qs('.mx_LanguageDropdown') ||
+      qs('[data-testid="language-picker"]');
+
+    if (!picker) return false;
+    if (picker.parentElement === slot) return true;
+
+    slot.appendChild(picker);
+    console.log('[welcome] Language picker moved to dock.');
+    return true;
+  }
+
+  function enableLanguagePickerDocking() {
+    if (dockLanguagePicker()) return;
+
+    const observer = new MutationObserver(() => {
+      if (dockLanguagePicker()) observer.disconnect();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => observer.disconnect(), 10000);
+  }
+
+  function normalizeSession(input) {
+    if (!input || typeof input !== 'object') return null;
+    const accessToken = input.access_token || input.token || '';
+    const userId = input.user_id || '';
+    const deviceId = input.device_id || '';
+    if (!accessToken) return null;
+    return {
+      access_token: accessToken,
+      user_id: userId,
+      device_id: deviceId,
+      created_at: Date.now()
+    };
+  }
+
+  function persistSession(session) {
     try {
-      const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, { method: 'POST' }, CONFIG.TIMEOUT_MS);
-      if (!res.ok) throw new Error('token endpoint ' + res.status);
-      const j = await res.json();
-      return j && j.access_token ? j : null;
-    } catch (e) {
-      console.warn('Token mint failed', e);
-      return null;
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify(session));
+      console.log('[welcome] Guest session persisted in localStorage.');
+    } catch (err) {
+      console.warn('[welcome] Failed to persist guest session.', err);
+    }
+  }
+
+  function buildLoginUrl(session) {
+    const params = new URLSearchParams({
+      token: session.access_token,
+      guest: '1'
+    });
+    if (session.user_id) params.set('user_id', session.user_id);
+    if (session.device_id) params.set('device_id', session.device_id);
+    return `${CONFIG.loginRouteBase}?${params.toString()}`;
+  }
+
+  function redirectToElement(url) {
+    console.log('[welcome] Redirecting to:', url);
+    try {
+      window.parent.location.href = url;
+      return;
+    } catch (err) {
+      console.warn('[welcome] parent.location redirect blocked, falling back to native link.', err);
+    }
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_parent';
+    link.rel = 'noopener';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => link.remove(), 0);
+  }
+
+  async function mintGuestViaMatrix() {
+    setStatus('Requesting Matrix guest registration...');
+    const payload = { kind: 'guest', inhibit_login: false };
+    const endpoints = [
+      `${CONFIG.matrixBase}/_matrix/client/v3/register?kind=guest`,
+      `${CONFIG.matrixBase}/_matrix/client/r0/register?kind=guest`
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        console.log('[welcome] Matrix guest attempt:', endpoint, payload);
+        const res = await fetchWithTimeout(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+        if (!res.ok) {
+          console.warn('[welcome] Matrix guest registration failed:', res.status, text);
+          continue;
+        }
+
+        const data = JSON.parse(text);
+        const session = normalizeSession(data);
+        if (session) {
+          setStatus('Guest account created. Redirecting...');
+          return session;
+        }
+      } catch (err) {
+        console.warn('[welcome] Matrix guest registration exception:', err);
+      }
+    }
+
+    return null;
+  }
+
+  async function mintGuestViaService() {
+    setStatus('Requesting guest token from mint service...');
+    const res = await fetchWithTimeout(CONFIG.mintGuestEndpoint, {
+      method: 'GET',
+      headers: { Accept: 'application/json' }
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Mint service failed (${res.status}): ${text}`);
+    }
+
+    const data = JSON.parse(text);
+    const session = normalizeSession(data);
+    if (!session) {
+      throw new Error('Mint service response is missing access_token/token.');
+    }
+
+    return session;
+  }
+
+  async function runGuestAutoLogin({ manual = false } = {}) {
+    const guestBtn = byId('guestBtn');
+    const guestLabel = byId('guestLabel');
+    const guestSpinner = byId('guestSpinner');
+
+    if (guestBtn && guestLabel && guestSpinner) {
+      guestBtn.disabled = true;
+      guestLabel.textContent = manual ? 'Connecting...' : 'Auto connecting...';
+      guestSpinner.style.display = 'inline-block';
+    }
+
+    clearError();
+
+    try {
+      const matrixSession = await mintGuestViaMatrix();
+      const session = matrixSession || await mintGuestViaService();
+      persistSession(session);
+      redirectToElement(buildLoginUrl(session));
+    } catch (err) {
+      console.error('[welcome] Auto guest login failed.', err);
+      showError('Unable to start guest session right now. Please use Login or Sign up.');
+    } finally {
+      if (guestBtn && guestLabel && guestSpinner) {
+        guestBtn.disabled = false;
+        guestLabel.textContent = 'Enter Guest Mode';
+        guestSpinner.style.display = 'none';
+      }
     }
   }
 
   function attachHandlers() {
-    const loginBtn = $('loginBtn');
-    const signupBtn = $('signupBtn');
-    const guestBtn = $('guestBtn');
-    const guestLabel = $('guestLabel');
-    const guestSpinner = $('guestSpinner');
-    const errEl = $('err');
-
-    if (!loginBtn || !signupBtn || !guestBtn) {
-      console.error('Welcome: missing buttons');
-      return;
+    const guestBtn = byId('guestBtn');
+    if (guestBtn) {
+      guestBtn.addEventListener('click', () => runGuestAutoLogin({ manual: true }));
     }
+  }
 
-    loginBtn.addEventListener('click', () => navigateTop(CONFIG.LOGIN_PAGE));
-    signupBtn.addEventListener('click', () => navigateTop(CONFIG.REGISTER_PAGE));
-
-    guestBtn.addEventListener('click', async () => {
-      errEl.style.display = 'none';
-      guestBtn.disabled = true;
-      guestLabel.textContent = 'Connecting...';
-      guestSpinner.style.display = 'inline-block';
-
-      const tokenResponse = await mintGuestToken();
-      if (tokenResponse && tokenResponse.access_token) {
-        const fragment = new URLSearchParams({
-          access_token: tokenResponse.access_token,
-          user_id: tokenResponse.user_id || '',
-          device_id: tokenResponse.device_id || ''
-        }).toString();
-        setTimeout(()=> navigateTop('/#/?' + fragment), 200);
-        return;
-      }
-
-      if (!CONFIG.GUEST_PASSWORD) {
-        errEl.textContent = 'Guest login not available. Contact admin.';
-        errEl.style.display = 'block';
-        guestBtn.disabled = false;
-        guestLabel.textContent = 'Enter Guest Mode';
-        guestSpinner.style.display = 'none';
-        return;
-      }
-
-      const endpoints = ['/ _matrix/client/v3/login'.replace(' ',''), '/_matrix/client/r0/login'];
-      const payloads = [
-        { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-        { type: 'm.login.password', identifier: { type: 'm.id.user', user: CONFIG.GUEST_USER }, password: CONFIG.GUEST_PASSWORD }
-      ];
-
-      let gotToken = false;
-      for (const ep of endpoints) {
-        const url = CONFIG.MATRIX_BASE.replace(/\/+$/,'') + ep;
-        for (const payload of payloads) {
-          try {
-            console.info('Guest attempt', url, payload);
-            const res = await fetchWithTimeout(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            }, CONFIG.TIMEOUT_MS);
-
-            if (!res) continue;
-            if (!res.ok) {
-              const text = await res.text().catch(()=>res.statusText||String(res.status));
-              console.warn('Guest login non-ok', res.status, text);
-              continue;
-            }
-
-            const data = await res.json().catch(()=>null);
-            console.info('Guest login response', data);
-            if (data && data.access_token) {
-              gotToken = true;
-              const fragment = new URLSearchParams({
-                access_token: data.access_token,
-                user_id: data.user_id || '',
-                device_id: data.device_id || ''
-              }).toString();
-              setTimeout(()=> navigateTop('/#/?' + fragment), 200);
-              break;
-            } else {
-              const msg = (data && (data.errcode || data.error)) ? (data.errcode || data.error) : 'no token';
-              errEl.textContent = 'Guest login failed: ' + msg;
-              errEl.style.display = 'block';
-            }
-          } catch (e) {
-            console.warn('Guest attempt error', url, e && e.name);
-          }
-        }
-        if (gotToken) break;
-      }
-
-      if (!gotToken && errEl.style.display === 'none') {
-        errEl.textContent = 'Guest login failed. Check server or CORS.';
-        errEl.style.display = 'block';
-      }
-
-      guestBtn.disabled = false;
-      guestLabel.textContent = 'Enter Guest Mode';
-      guestSpinner.style.display = 'none';
-    });
-
-    [loginBtn, signupBtn, guestBtn].forEach(b => {
-      b.addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === ' ') b.click(); });
-    });
-
-    loginBtn.focus({preventScroll:true});
+  function init() {
+    attachHandlers();
+    enableLanguagePickerDocking();
+    setStatus('Starting guest auto-login...');
+    setTimeout(() => runGuestAutoLogin({ manual: false }), CONFIG.autoLoginDelayMs);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachHandlers);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    attachHandlers();
+    init();
   }
-
 })();
