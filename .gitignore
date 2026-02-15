@@ -1,12 +1,7 @@
-# Don't upload the actual database or logs
-data/
-secrets/
+db/
+conduwuit/
+email-verification-bot/
+email-verifier/
+guest-token/
 *.log
 .env
-
-# Don't upload the heavy local files
-node_modules/
-.git/
-
-# Only upload config.json if you want people to see your public settings
-# (Remove this line if you want to keep your HS URL private)
