@@ -9,6 +9,7 @@ services:
       CONDUWUIT_PORT: 6167
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
+      CONDUWUIT_ALLOW_GUESTS: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
     volumes:
       - ./db:/var/lib/conduwuit

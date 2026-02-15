@@ -1,19 +1,68 @@
 :80 {
-    # Matrix API
-    handle /_matrix/* {
-        reverse_proxy conduwuit:6167
-    }
-    handle /_synapse/client/* {
-        reverse_proxy conduwuit:6167
+    # ============================
+    # 1. Matrix Discovery (for iPhone/Element X)
+    # ============================
+    handle_path /.well-known/matrix/client {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/json"
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
     }
 
-    # Guest token endpoint
+    handle_path /.well-known/element/element.json {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/json"
+        respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
+    }
+
+    # ============================
+    # 2. Matrix API / Synapse
+    # ============================
+    handle /_matrix/* {
+        reverse_proxy conduwuit-skyservers:6167
+    }
+    handle /_synapse/client/* {
+        reverse_proxy conduwuit-skyservers:6167
+    }
+
+    # ============================
+    # 3. Guest token endpoint
+    # ============================
     handle /mint-guest {
         reverse_proxy guest-token:5001
     }
 
-    # Everything else to Element
+    # ============================
+    # 4. Element Web frontend (everything else)
+    # ============================
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy element-skyservers:80 {
+            # Remove backend CSP headers
+            header_down -Content-Security-Policy
+            header_down -X-Content-Security-Policy
+        }
+
+        # Set a CSP header that allows:
+        # - Google Tag Manager / Analytics
+        # - Cloudflare Insights
+        # - reCAPTCHA
+        # - Inline scripts (needed for GTM)
+        header {
+            Content-Security-Policy "default-src 'self' data: blob:; \
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' \
+                https://www.recaptcha.net \
+                https://www.gstatic.com \
+                https://www.googletagmanager.com \
+                https://www.google-analytics.com \
+                https://static.cloudflareinsights.com; \
+            connect-src 'self' \
+                https://sky0cloud.dpdns.org \
+                wss://sky0cloud.dpdns.org \
+                https://www.google-analytics.com \
+                https://www.googletagmanager.com \
+                https://static.cloudflareinsights.com; \
+            img-src 'self' data: https://www.google-analytics.com; \
+            style-src 'self' 'unsafe-inline'; \
+            frame-src https://www.recaptcha.net;"
+        }
     }
 }
