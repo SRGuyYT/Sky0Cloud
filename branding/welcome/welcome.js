@@ -200,13 +200,14 @@
     guestBtn.addEventListener('keyup', (e) => {
       if (e.key === 'Enter' || e.key === ' ') guestBtn.click();
     });
+  }
 
     guestBtn.focus({ preventScroll: true });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachHandlers);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    attachHandlers();
+    init();
   }
 })();
