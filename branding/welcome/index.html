@@ -16,6 +16,7 @@
     .btn{width:100%;padding:12px;border-radius:8px;border:0;font-weight:700;cursor:pointer;color:#fff;font-size:15px}
     .btn-muted{background:#4e5058}
     .btn-cta{background:linear-gradient(180deg,#5865F2,#4752C4)}
+    .btn-link{display:block;text-align:center;text-decoration:none}
     .logo{width:130px;height:130px;border-radius:50%;object-fit:contain;border:3px solid rgba(0,242,255,0.08)}
     #err{color:#ff6b6b;font-weight:600;display:none;margin-top:6px}
     .spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);border-top-color:#fff;animation:spin .9s linear infinite;display:inline-block;margin-left:8px;vertical-align:middle}
@@ -30,8 +31,8 @@
         <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
         <p class="sub">Select an option below to enter.</p>
 
-        <button id="loginBtn" class="btn btn-muted" type="button">Login</button>
-        <button id="signupBtn" class="btn btn-muted" type="button">Sign up</button>
+        <a id="loginLink" class="btn btn-muted btn-link" href="/#/login" target="_parent">Login</a>
+        <a id="signupLink" class="btn btn-muted btn-link" href="/#/register" target="_parent">Sign up</a>
         <button id="guestBtn" class="btn btn-cta" type="button">
           <span id="guestLabel">Enter Guest Mode</span>
           <span id="guestSpinner" class="spinner" style="display:none" aria-hidden="true"></span>
