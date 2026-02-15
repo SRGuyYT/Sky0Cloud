@@ -4,17 +4,32 @@
 
   const CONFIG = {
     MATRIX_BASE: 'https://sky0cloud.dpdns.org',
-    LOGIN_PAGE: 'https://sky0cloud.dpdns.org/#/login',
-    REGISTER_PAGE: 'https://sky0cloud.dpdns.org/#/register',
+    LOGIN_HASH: '/login',
+    REGISTER_HASH: '/register',
     TOKEN_ENDPOINT: '', // set to token service URL if you run one
     GUEST_USER: 'guest',
     GUEST_PASSWORD: '', // set only if you accept embedding a password
     TIMEOUT_MS: 12000
   };
 
-  function navigateTop(url){
-    try { window.top.location.assign(url); }
-    catch(e){ window.top.location.href = url; }
+  function navigateTopHash(hashPath) {
+    try {
+      const topLocation = window.top.location;
+      topLocation.hash = hashPath;
+      if (!topLocation.hash || topLocation.hash !== '#' + hashPath) {
+        topLocation.assign(CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/#' + hashPath);
+      }
+    } catch (e) {
+      window.location.hash = hashPath;
+    }
+  }
+
+  function navigateTopUrl(url) {
+    try {
+      window.top.location.assign(url);
+    } catch (e) {
+      window.location.assign(url);
+    }
   }
 
   async function fetchWithTimeout(url, options={}, timeout=CONFIG.TIMEOUT_MS){
@@ -58,8 +73,8 @@
       return;
     }
 
-    loginBtn.addEventListener('click', () => navigateTop(CONFIG.LOGIN_PAGE));
-    signupBtn.addEventListener('click', () => navigateTop(CONFIG.REGISTER_PAGE));
+    loginBtn.addEventListener('click', () => navigateTopHash(CONFIG.LOGIN_HASH));
+    signupBtn.addEventListener('click', () => navigateTopHash(CONFIG.REGISTER_HASH));
 
     guestBtn.addEventListener('click', async () => {
       errEl.style.display = 'none';
@@ -74,7 +89,7 @@
           user_id: tokenResponse.user_id || '',
           device_id: tokenResponse.device_id || ''
         }).toString();
-        setTimeout(()=> navigateTop('/#/?' + fragment), 200);
+        setTimeout(() => navigateTopUrl(CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/#/?' + fragment), 200);
         return;
       }
 
@@ -87,15 +102,17 @@
         return;
       }
 
-      const endpoints = ['/ _matrix/client/v3/login'.replace(' ',''), '/_matrix/client/r0/login'];
+      const endpoints = [
+        CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/_matrix/client/v3/login',
+        CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/_matrix/client/r0/login'
+      ];
       const payloads = [
         { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
         { type: 'm.login.password', identifier: { type: 'm.id.user', user: CONFIG.GUEST_USER }, password: CONFIG.GUEST_PASSWORD }
       ];
 
       let gotToken = false;
-      for (const ep of endpoints) {
-        const url = CONFIG.MATRIX_BASE.replace(/\/+$/,'') + ep;
+      for (const url of endpoints) {
         for (const payload of payloads) {
           try {
             console.info('Guest attempt', url, payload);
@@ -121,7 +138,7 @@
                 user_id: data.user_id || '',
                 device_id: data.device_id || ''
               }).toString();
-              setTimeout(()=> navigateTop('/#/?' + fragment), 200);
+              setTimeout(() => navigateTopUrl(CONFIG.MATRIX_BASE.replace(/\/+$/, '') + '/#/?' + fragment), 200);
               break;
             } else {
               const msg = (data && (data.errcode || data.error)) ? (data.errcode || data.error) : 'no token';
