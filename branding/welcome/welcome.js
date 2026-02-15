@@ -3,159 +3,147 @@
   'use strict';
 
   const CONFIG = {
-    MATRIX_BASE: 'https://sky0cloud.dpdns.org',
-    LOGIN_PAGE: 'https://sky0cloud.dpdns.org/#/login',
-    REGISTER_PAGE: 'https://sky0cloud.dpdns.org/#/register',
-    TOKEN_ENDPOINT: '', // set to token service URL if you run one
-    GUEST_USER: 'guest',
-    GUEST_PASSWORD: '', // set only if you accept embedding a password
+    TOKEN_ENDPOINT: 'https://sky0cloud.dpdns.org/guest-token-api/get-token',
+    LOGIN_WITH_TOKEN_BASE: 'https://sky0cloud.dpdns.org/#/login?token=',
     TIMEOUT_MS: 12000
   };
 
-  function navigateTop(url){
-    try { window.top.location.assign(url); }
-    catch(e){ window.top.location.href = url; }
-  }
+  function $(id) { return document.getElementById(id); }
 
-  async function fetchWithTimeout(url, options={}, timeout=CONFIG.TIMEOUT_MS){
+  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.TIMEOUT_MS) {
     const controller = new AbortController();
-    const id = setTimeout(()=>controller.abort(), timeout);
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
     try {
-      const res = await fetch(url, {...options, signal: controller.signal});
-      clearTimeout(id);
-      return res;
-    } catch (err) {
-      clearTimeout(id);
-      throw err;
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
-  function $(id){ return document.getElementById(id); }
+  function dockLanguagePicker() {
+    const slot = $('languagePickerSlot');
+    if (!slot) return false;
 
-  async function mintGuestToken() {
-    if (!CONFIG.TOKEN_ENDPOINT) return null;
-    try {
-      const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, { method: 'POST' }, CONFIG.TIMEOUT_MS);
-      if (!res.ok) throw new Error('token endpoint ' + res.status);
-      const j = await res.json();
-      return j && j.access_token ? j : null;
-    } catch (e) {
-      console.warn('Token mint failed', e);
-      return null;
+    const picker =
+      document.querySelector('.mx_LanguagePicker') ||
+      document.querySelector('.mx_LanguageDropdown') ||
+      document.querySelector('[data-testid="language-picker"]');
+
+    if (!picker) return false;
+    if (picker.parentElement === slot) return true;
+
+    slot.appendChild(picker);
+    console.log('[welcome] Language picker moved to dock.');
+    return true;
+  }
+
+  function enableLanguagePickerDocking() {
+    if (dockLanguagePicker()) return;
+
+    const observer = new MutationObserver(() => {
+      if (dockLanguagePicker()) observer.disconnect();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(() => {
+      observer.disconnect();
+      dockLanguagePicker();
+    }, 10000);
+  }
+
+  function setBusy(guestBtn, guestLabel, guestSpinner, isBusy) {
+    guestBtn.disabled = isBusy;
+    guestLabel.textContent = isBusy ? 'Connecting...' : 'Enter Guest Mode';
+    guestSpinner.style.display = isBusy ? 'inline-block' : 'none';
+  }
+
+  function showError(errEl, message) {
+    errEl.textContent = message;
+    errEl.style.display = 'block';
+  }
+
+  function clearError(errEl) {
+    errEl.textContent = '';
+    errEl.style.display = 'none';
+  }
+
+  function extractToken(payload) {
+    if (!payload || typeof payload !== 'object') return '';
+    return payload.token || payload.access_token || payload.login_token || '';
+  }
+
+  function redirectParentWithToken(token) {
+    const redirectUrl = CONFIG.LOGIN_WITH_TOKEN_BASE + encodeURIComponent(token);
+    console.log('[welcome] Redirecting parent to:', redirectUrl);
+    window.parent.location.href = redirectUrl;
+  }
+
+  async function getGuestToken() {
+    console.log('[welcome] Starting guest token fetch:', CONFIG.TOKEN_ENDPOINT);
+    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
+      method: 'GET',
+      headers: { Accept: 'application/json' }
+    }, CONFIG.TIMEOUT_MS);
+
+    console.log('[welcome] Guest token response status:', res.status);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '<no body>');
+      throw new Error('Token endpoint failed: ' + res.status + ' ' + text);
     }
+
+    const json = await res.json();
+    console.log('[welcome] Guest token response payload:', json);
+    const token = extractToken(json);
+    if (!token) {
+      throw new Error('Token field missing in response payload.');
+    }
+
+    console.log('[welcome] Guest token received.');
+    return token;
   }
 
   function attachHandlers() {
-    const loginBtn = $('loginBtn');
-    const signupBtn = $('signupBtn');
     const guestBtn = $('guestBtn');
     const guestLabel = $('guestLabel');
     const guestSpinner = $('guestSpinner');
     const errEl = $('err');
 
-    if (!loginBtn || !signupBtn || !guestBtn) {
-      console.error('Welcome: missing buttons');
+    if (!guestBtn || !guestLabel || !guestSpinner || !errEl) {
+      console.error('[welcome] Missing required DOM nodes for guest flow.');
       return;
     }
 
-    loginBtn.addEventListener('click', () => navigateTop(CONFIG.LOGIN_PAGE));
-    signupBtn.addEventListener('click', () => navigateTop(CONFIG.REGISTER_PAGE));
-
     guestBtn.addEventListener('click', async () => {
-      errEl.style.display = 'none';
-      guestBtn.disabled = true;
-      guestLabel.textContent = 'Connecting...';
-      guestSpinner.style.display = 'inline-block';
+      console.log('[welcome] Guest Mode clicked.');
+      clearError(errEl);
+      setBusy(guestBtn, guestLabel, guestSpinner, true);
 
-      const tokenResponse = await mintGuestToken();
-      if (tokenResponse && tokenResponse.access_token) {
-        const fragment = new URLSearchParams({
-          access_token: tokenResponse.access_token,
-          user_id: tokenResponse.user_id || '',
-          device_id: tokenResponse.device_id || ''
-        }).toString();
-        setTimeout(()=> navigateTop('/#/?' + fragment), 200);
-        return;
+      try {
+        const token = await getGuestToken();
+        console.log('[welcome] Attempting redirect with guest token.');
+        redirectParentWithToken(token);
+      } catch (err) {
+        console.log('[welcome] Guest login flow failed:', err);
+        showError(errEl, 'Guest login failed. Please try again.');
+      } finally {
+        setBusy(guestBtn, guestLabel, guestSpinner, false);
       }
-
-      if (!CONFIG.GUEST_PASSWORD) {
-        errEl.textContent = 'Guest login not available. Contact admin.';
-        errEl.style.display = 'block';
-        guestBtn.disabled = false;
-        guestLabel.textContent = 'Enter Guest Mode';
-        guestSpinner.style.display = 'none';
-        return;
-      }
-
-      const endpoints = ['/ _matrix/client/v3/login'.replace(' ',''), '/_matrix/client/r0/login'];
-      const payloads = [
-        { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-        { type: 'm.login.password', identifier: { type: 'm.id.user', user: CONFIG.GUEST_USER }, password: CONFIG.GUEST_PASSWORD }
-      ];
-
-      let gotToken = false;
-      for (const ep of endpoints) {
-        const url = CONFIG.MATRIX_BASE.replace(/\/+$/,'') + ep;
-        for (const payload of payloads) {
-          try {
-            console.info('Guest attempt', url, payload);
-            const res = await fetchWithTimeout(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            }, CONFIG.TIMEOUT_MS);
-
-            if (!res) continue;
-            if (!res.ok) {
-              const text = await res.text().catch(()=>res.statusText||String(res.status));
-              console.warn('Guest login non-ok', res.status, text);
-              continue;
-            }
-
-            const data = await res.json().catch(()=>null);
-            console.info('Guest login response', data);
-            if (data && data.access_token) {
-              gotToken = true;
-              const fragment = new URLSearchParams({
-                access_token: data.access_token,
-                user_id: data.user_id || '',
-                device_id: data.device_id || ''
-              }).toString();
-              setTimeout(()=> navigateTop('/#/?' + fragment), 200);
-              break;
-            } else {
-              const msg = (data && (data.errcode || data.error)) ? (data.errcode || data.error) : 'no token';
-              errEl.textContent = 'Guest login failed: ' + msg;
-              errEl.style.display = 'block';
-            }
-          } catch (e) {
-            console.warn('Guest attempt error', url, e && e.name);
-          }
-        }
-        if (gotToken) break;
-      }
-
-      if (!gotToken && errEl.style.display === 'none') {
-        errEl.textContent = 'Guest login failed. Check server or CORS.';
-        errEl.style.display = 'block';
-      }
-
-      guestBtn.disabled = false;
-      guestLabel.textContent = 'Enter Guest Mode';
-      guestSpinner.style.display = 'none';
     });
 
-    [loginBtn, signupBtn, guestBtn].forEach(b => {
-      b.addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === ' ') b.click(); });
+    guestBtn.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') guestBtn.click();
     });
+  }
 
-    loginBtn.focus({preventScroll:true});
+  function init() {
+    attachHandlers();
+    enableLanguagePickerDocking();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachHandlers);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    attachHandlers();
+    init();
   }
-
 })();

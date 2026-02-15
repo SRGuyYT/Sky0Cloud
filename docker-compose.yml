@@ -22,6 +22,7 @@ services:
       - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
+      - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
 

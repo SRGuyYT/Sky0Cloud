@@ -1,0 +1,29 @@
+*{box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif}
+html,body{height:100%;margin:0}
+.wrap{position:fixed;inset:0;display:grid;place-items:center;background:#07101a url('/background.jpg') center/cover no-repeat}
+.card{position:relative;width:min(96%,880px);display:flex;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#2f3136,#232428);color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.left{flex:1.4;padding:36px;display:flex;flex-direction:column;gap:12px}
+.right{position:relative;flex:.9;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,0.03)}
+h1{margin:0;font-size:22px}
+.sub{color:#bfc6d6;margin:0}
+.btn{width:100%;padding:12px;border-radius:8px;border:0;font-weight:700;cursor:pointer;color:#fff;font-size:15px}
+.btn-muted{background:#4e5058}
+.btn-cta{background:linear-gradient(180deg,#5865F2,#4752C4)}
+.btn-link{display:block;text-align:center;text-decoration:none}
+.logo{width:130px;height:130px;border-radius:50%;object-fit:contain;border:3px solid rgba(0,242,255,0.08)}
+.brand-title{margin:8px 0 0 0}
+#err{color:#ff6b6b;font-weight:600;display:none;margin-top:6px}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.12);border-top-color:#fff;animation:spin .9s linear infinite;display:inline-block;margin-left:8px;vertical-align:middle}
+.language-dock{position:absolute;right:24px;bottom:24px;display:flex;align-items:center;gap:8px;font-size:12px;color:#dce3f1;z-index:2}
+.language-label{opacity:.8}
+#languagePickerSlot{min-width:110px;display:flex;align-items:center;justify-content:flex-end}
+#languagePickerSlot .mx_LanguagePicker,
+#languagePickerSlot .mx_LanguageDropdown,
+#languagePickerSlot select{font-size:12px;background:transparent;color:#dce3f1;border:0;outline:none}
+#languagePickerSlot select option{color:#111}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:700px){
+  .card{flex-direction:column}
+  .right{border-left:none;padding-bottom:72px}
+  .language-dock{right:16px;bottom:16px}
+}
