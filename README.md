@@ -17,7 +17,7 @@ The project uses a custom welcome screen located in branding/welcome/.
 ### Key Features:
 * CSP-Compliant: All JavaScript is externalized to welcome.js to satisfy strict Content Security Policies and prevent inline script blocking.
 * Sandbox Breakout: Uses native HTML anchor tags with target="_parent" to allow Login and Sign-up buttons to navigate the top-level window from within the Element iframe.
-* Automated Guest Access: Includes a robust guest token flow with verbose console logging for real-time debugging of the Matrix API handshake.
+* Streamlined Authentication Entry: Welcome screen offers focused Login and Sign-up actions with consistent branding.
 
 ## Deployment
 

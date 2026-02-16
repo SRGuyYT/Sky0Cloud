@@ -28,18 +28,12 @@
     <main class="card" role="region" aria-labelledby="welcome-title">
       <section class="left">
         <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
-        <p class="sub">Private Matrix chat, auto-connected guest sessions, and secure messaging.</p>
+        <p class="sub">Private Matrix chat and secure messaging.</p>
 
-        <a id="loginLink" class="btn btn-muted btn-link" href="/#/login" target="_parent">Login</a>
-        <a id="signupLink" class="btn btn-muted btn-link" href="/#/register" target="_parent">Sign up</a>
-
-        <button id="guestBtn" class="btn btn-cta" type="button">
-          <span id="guestLabel">Enter Guest Mode</span>
-          <span id="guestSpinner" class="spinner" style="display:none" aria-hidden="true"></span>
-        </button>
-
-        <p id="status" class="status" aria-live="polite">Preparing secure guest session...</p>
-        <div id="err" role="alert"></div>
+        <div class="auth-actions" aria-label="Authentication actions">
+          <a id="loginLink" class="btn btn-muted btn-link" href="/#/login" target="_parent">Login</a>
+          <a id="signupLink" class="btn btn-cta btn-link" href="/#/register" target="_parent">Sign up</a>
+        </div>
       </section>
 
       <aside class="right" aria-hidden="false">
