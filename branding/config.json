@@ -8,7 +8,7 @@
   },
   "brand": "Sky0Cloud",
   "disable_custom_urls": true,
-  "disable_guests": false,
+  "disable_guests": true,
   "default_theme": "dark",
   "room_directory": {
     "servers": [
@@ -32,5 +32,6 @@
   "integrations_ui_url": "",
   "integrations_rest_url": "",
   "show_labs_settings": false,
-  "mobile_builds_url": "https://element.io/download"
+  "mobile_builds_url": "https://element.io/download",
+  "features": {}
 }
