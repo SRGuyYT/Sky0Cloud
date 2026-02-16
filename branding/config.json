@@ -8,7 +8,7 @@
   },
   "brand": "Sky0Cloud",
   "disable_custom_urls": true,
-  "disable_guests": false,
+  "disable_guests": true,
   "default_theme": "dark",
   "room_directory": {
     "servers": [
