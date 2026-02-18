@@ -47,42 +47,48 @@ create_folders() {
 
 fetch_latest_continuwuity() {
   log "downloading latest Continuwuity release"
-  local json asset url tmp
+  local json asset_url tmp arch asset_name
   tmp="$(mktemp -d)"
   json="$tmp/continuwuity-release.json"
   curl -fsSL "$CONTINUWUITY_RELEASE_API" -o "$json"
 
-  asset="$(python3 - <<'PY' "$json"
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64) asset_name="conduwuit-linux-amd64" ;;
+    aarch64) asset_name="conduwuit-linux-arm64" ;;
+    *)
+      err "unsupported architecture: $arch (expected x86_64 or aarch64)"
+      rm -rf "$tmp"
+      exit 1
+      ;;
+  esac
+
+  asset_url="$(python3 - <<'PY_ASSET' "$json" "$asset_name"
 import json,sys
 j=json.load(open(sys.argv[1]))
-assets=j.get('assets',[])
-for a in assets:
-    name=a.get('name','').lower()
-    if ('linux' in name and ('x86_64' in name or 'amd64' in name) and (name.endswith('.tar.gz') or name.endswith('.tgz'))):
+target=sys.argv[2]
+for a in j.get('assets',[]):
+    name=a.get('name','')
+    if name == target:
         print(a.get('browser_download_url',''))
         break
-PY
+PY_ASSET
 )"
 
-  if [[ -z "$asset" ]]; then
-    err "unable to find linux amd64 tarball in Continuwuity release"
+  if [[ -z "$asset_url" ]]; then
+    err "unable to find release asset '$asset_name' in Continuwuity release"
+    rm -rf "$tmp"
     exit 1
   fi
 
-  url="$asset"
-  curl -fsSL "$url" -o "$tmp/continuwuity.tar.gz"
-  tar -xzf "$tmp/continuwuity.tar.gz" -C "$tmp"
-
-  local bin
-  bin="$(find "$tmp" -type f \( -name continuwuity -o -name conduwuit \) | head -n1)"
-  if [[ -z "$bin" ]]; then
-    err "continuwuity binary not found after extraction"
-    exit 1
-  fi
-
-  install -m 0750 -o "$SKY_USER" -g "$SKY_GROUP" "$bin" "$CONTINUWUITY_DIR/continuwuity"
+  curl -fsSL "$asset_url" -o "$tmp/continuwuity"
+  install -m 0755 "$tmp/continuwuity" /usr/local/bin/continuwuity
+  install -d -m 0750 -o "$SKY_USER" -g "$SKY_GROUP" "$CONTINUWUITY_DIR"
+  ln -sf /usr/local/bin/continuwuity "$CONTINUWUITY_DIR/continuwuity"
+  chown -h "$SKY_USER:$SKY_GROUP" "$CONTINUWUITY_DIR/continuwuity" || true
   rm -rf "$tmp"
 }
+
 
 fetch_latest_element() {
   log "downloading latest Element Web release"
