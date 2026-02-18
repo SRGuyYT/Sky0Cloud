@@ -1,82 +1,75 @@
-const CACHE_NAME = 'sky0cloud-shell-v3';
-const OFFLINE_FALLBACK_URL = '/welcome.html';
-const DEFAULT_TARGET_URL = '/#/home';
+/* global self, clients, registration, navigator */
+
+const CACHE_NAME = 'sky0cloud-runtime-v1';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE_NAME);
-    await cache.addAll([OFFLINE_FALLBACK_URL, '/welcome-style.css', '/logo.png']);
-    await self.skipWaiting();
-  })());
+  event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const names = await caches.keys();
-    await Promise.all(names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)));
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)));
     await self.clients.claim();
   })());
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+function parsePushPayload(data) {
+  if (!data) return {};
 
-  const requestUrl = new URL(event.request.url);
-  const isHtmlNavigation = event.request.mode === 'navigate';
-  const sameOrigin = requestUrl.origin === self.location.origin;
-
-  if (isHtmlNavigation && sameOrigin) {
-    event.respondWith((async () => {
-      try {
-        return await fetch(event.request);
-      } catch (_) {
-        const cache = await caches.open(CACHE_NAME);
-        const fallback = await cache.match(OFFLINE_FALLBACK_URL);
-        return fallback || Response.error();
-      }
-    })());
+  try {
+    return data.json();
+  } catch (_) {
+    try {
+      return { body: data.text() };
+    } catch (_) {
+      return {};
+    }
   }
-});
+}
+
+function normalizeRoute(rawRoute) {
+  if (!rawRoute || typeof rawRoute !== 'string') return '/#/home';
+  if (rawRoute.startsWith('/#/')) return rawRoute;
+  if (rawRoute.startsWith('#/')) return `/${rawRoute}`;
+  if (rawRoute.startsWith('/')) return rawRoute;
+  return `/#/${rawRoute.replace(/^#?\/?/, '')}`;
+}
+
+async function syncBadge(count) {
+  if (!('setAppBadge' in navigator) || !('clearAppBadge' in navigator)) return;
+
+  const numericCount = Number(count) || 0;
+  try {
+    if (numericCount > 0) {
+      await navigator.setAppBadge(numericCount);
+    } else {
+      await navigator.clearAppBadge();
+    }
+  } catch (_) {
+    // Best-effort only.
+  }
+}
 
 self.addEventListener('push', (event) => {
+  const payload = parsePushPayload(event.data);
+  const title = payload.title || payload.sender_display_name || 'Sky0Cloud';
+  const body = payload.body || payload.content?.body || 'You have a new message.';
+  const route = normalizeRoute(payload.route || payload.url || '/#/home');
+  const unreadCount = Number(payload.unread_count ?? payload.badge ?? 0) || 0;
+
   event.waitUntil((async () => {
-    let payload = {};
-    try {
-      payload = event.data ? event.data.json() : {};
-    } catch (_) {
-      const text = event.data ? event.data.text() : '';
-      payload = { body: text };
-    }
-
-    const title = payload.title || payload.sender_display_name || 'Sky0Cloud';
-    const body = payload.body || payload.content?.body || 'You have a new message';
-    const unread = Number(payload.unread ?? payload.counts?.unread ?? 0);
-    const targetUrl = payload.url || payload.click_action || DEFAULT_TARGET_URL;
-
-    if ('setAppBadge' in self.registration) {
-      try {
-        await self.registration.setAppBadge(Math.max(0, Number.isFinite(unread) ? unread : 0));
-      } catch (_) {
-        // ignored on unsupported platforms
-      }
-    }
-
-    const clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
-    for (const client of clients) {
-      client.postMessage({
-        type: 'SYNC_BADGE',
-        payload: { unread },
-      });
-    }
+    await syncBadge(unreadCount);
 
     await self.registration.showNotification(title, {
       body,
       icon: '/logo.png',
       badge: '/apple-touch-icon.png',
-      tag: payload.tag || payload.room_id || 'matrix-message',
-      renotify: true,
+      tag: payload.tag || `mx-${Date.now()}`,
+      renotify: false,
+      requireInteraction: false,
       data: {
-        url: targetUrl,
+        route,
       },
     });
   })());
@@ -84,43 +77,47 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
-  const target = event.notification?.data?.url || DEFAULT_TARGET_URL;
+  const route = normalizeRoute(event.notification.data?.route || '/#/home');
 
   event.waitUntil((async () => {
-    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
 
-    for (const client of windows) {
-      const clientUrl = new URL(client.url);
-      const targetUrl = new URL(target, self.location.origin);
+    for (const client of clientList) {
+      const url = new URL(client.url);
+      if (url.origin !== self.location.origin) continue;
 
-      if (clientUrl.origin === targetUrl.origin) {
-        await client.focus();
-        client.navigate(targetUrl.href);
-        return;
-      }
+      const focused = await client.focus();
+      await focused.navigate(route);
+      return;
     }
 
-    await self.clients.openWindow(target);
+    await clients.openWindow(route);
   })());
 });
 
 self.addEventListener('message', (event) => {
-  if (!event.data || typeof event.data !== 'object') return;
+  const data = event.data || {};
 
-  if (event.data.type === 'SKIP_WAITING') {
+  if (data.type === 'SKIP_WAITING') {
     self.skipWaiting();
     return;
   }
 
-  if (event.data.type === 'SYNC_BADGE') {
-    const count = Number(event.data.count || 0);
-    if ('setAppBadge' in self.registration) {
-      if (count > 0) {
-        self.registration.setAppBadge(count).catch(() => {});
-      } else if ('clearAppBadge' in self.registration) {
-        self.registration.clearAppBadge().catch(() => {});
-      }
-    }
+  if (data.type === 'SET_BADGE') {
+    event.waitUntil(syncBadge(data.count));
+    return;
   }
+
+  if (data.type === 'CLEAR_BADGE') {
+    event.waitUntil(syncBadge(0));
+  }
+});
+
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil((async () => {
+    const clientsList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clientsList) {
+      client.postMessage({ type: 'PUSH_SUBSCRIPTION_CHANGED' });
+    }
+  })());
 });

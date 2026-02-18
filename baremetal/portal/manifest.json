@@ -1,0 +1,16 @@
+{
+  "name": "Sky0Cloud Portal",
+  "short_name": "Sky0Cloud",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07101a",
+  "theme_color": "#1f2330",
+  "icons": [
+    { "src": "/logo.png?v=2", "sizes": "120x120", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png?v=2", "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png?v=2", "sizes": "167x167", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png?v=2", "sizes": "180x180", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

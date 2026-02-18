@@ -23,15 +23,15 @@
         reverse_proxy conduwuit-skyservers:6167
     }
 
-    # 3. Welcome Assets
-
+    # 3. Service Worker
     handle /sw.js {
-        reverse_proxy element-skyservers:80
-        header Cache-Control "no-store, no-cache, must-revalidate"
         header Service-Worker-Allowed "/"
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        reverse_proxy element-skyservers:80
     }
 
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /background.jpg /apple-touch-icon.png
+    # 4. Welcome Assets
+    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /sw.js /logo.png /apple-touch-icon.png /background.jpg
     handle @welcome {
         reverse_proxy element-skyservers:80
     }

@@ -1,0 +1,25 @@
+[global]
+server_name = "sky0cloud.dpdns.org"
+address = "127.0.0.1"
+port = 6167
+database_path = "/opt/skyserver/continuwuity/db"
+
+[registration]
+enabled = true
+guest_enabled = false
+registration_token = "only_us"
+
+[security]
+allow_federation = true
+trusted_reverse_proxies = ["127.0.0.1", "::1"]
+
+[rooms]
+autojoin = [
+  "#info:sky0cloud.dpdns.org",
+  "#idk:sky0cloud.dpdns.org",
+  "!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org",
+  "!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org"
+]
+
+[logging]
+level = "info"

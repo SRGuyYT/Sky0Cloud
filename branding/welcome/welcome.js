@@ -1,15 +1,58 @@
 (() => {
   'use strict';
 
-  const SW_URL = '/sw.js';
-  const STATUS_READY = 'Registration requires an invite token.';
-
   const qs = (sel) => document.querySelector(sel);
   const byId = (id) => document.getElementById(id);
 
-  function setStatus(message) {
-    const status = byId('status');
-    if (status) status.textContent = message;
+  function hasExistingSession() {
+    try {
+      return Boolean(localStorage.getItem('mx_access_token'));
+    } catch (error) {
+      console.warn('[welcome] Unable to inspect session storage.', error);
+      return false;
+    }
+  }
+
+  function redirectLoggedInUser() {
+    if (!hasExistingSession()) return;
+    window.location.replace('/#/home');
+  }
+
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            installing.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!window.__sky0cloudSwRefreshed) {
+          window.__sky0cloudSwRefreshed = true;
+          window.location.reload();
+        }
+      });
+
+      const unreadCount = Number(localStorage.getItem('mx_unread_notifications') || '0');
+      if (navigator.serviceWorker.controller && Number.isFinite(unreadCount)) {
+        navigator.serviceWorker.controller.postMessage({ type: 'SET_BADGE', count: Math.max(0, unreadCount) });
+      }
+    } catch (error) {
+      console.warn('[welcome] Service worker registration failed.', error);
+    }
   }
 
   function dockLanguagePicker() {
@@ -42,99 +85,10 @@
     setTimeout(() => observer.disconnect(), 10000);
   }
 
-  async function updateAppBadge(count) {
-    if (!('setAppBadge' in navigator) || !('clearAppBadge' in navigator)) return;
-    try {
-      if (count > 0) {
-        await navigator.setAppBadge(count);
-      } else {
-        await navigator.clearAppBadge();
-      }
-    } catch (error) {
-      console.warn('[welcome] App badge update failed.', error);
-    }
-  }
-
-  function readUnreadCount(payload) {
-    const candidates = [
-      payload?.unread,
-      payload?.counts?.unread,
-      payload?.counts?.notifications,
-      payload?.notification_count,
-      payload?.notification?.counts?.unread,
-    ];
-
-    for (const value of candidates) {
-      const number = Number(value);
-      if (!Number.isNaN(number) && Number.isFinite(number) && number >= 0) {
-        return Math.floor(number);
-      }
-    }
-
-    return null;
-  }
-
-  function bindServiceWorkerMessages() {
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      const message = event.data || {};
-      if (message.type !== 'SYNC_BADGE') return;
-      const unread = readUnreadCount(message.payload || {});
-      if (unread !== null) {
-        updateAppBadge(unread);
-      }
-    });
-  }
-
-  function enableImmediateUpdates(registration) {
-    if (!registration) return;
-
-    const sendSkipWaiting = (worker) => {
-      if (!worker) return;
-      worker.postMessage({ type: 'SKIP_WAITING' });
-    };
-
-    if (registration.waiting) {
-      sendSkipWaiting(registration.waiting);
-    }
-
-    registration.addEventListener('updatefound', () => {
-      const worker = registration.installing;
-      if (!worker) return;
-
-      worker.addEventListener('statechange', () => {
-        if (worker.state === 'installed') {
-          sendSkipWaiting(worker);
-        }
-      });
-    });
-  }
-
-  async function initServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
-      setStatus(STATUS_READY);
-      return;
-    }
-
-    try {
-      const registration = await navigator.serviceWorker.register(SW_URL, { scope: '/' });
-      bindServiceWorkerMessages();
-      enableImmediateUpdates(registration);
-
-      if (registration.active) {
-        registration.active.postMessage({ type: 'PING' });
-      }
-
-      await updateAppBadge(0);
-      setStatus(STATUS_READY);
-    } catch (error) {
-      console.error('[welcome] Service worker registration failed.', error);
-      setStatus('Welcome loaded. Notifications may be limited until the app is refreshed.');
-    }
-  }
-
   function init() {
+    redirectLoggedInUser();
+    void registerServiceWorker();
     enableLanguagePickerDocking();
-    void initServiceWorker();
   }
 
   if (document.readyState === 'loading') {
