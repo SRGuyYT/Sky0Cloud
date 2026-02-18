@@ -1,7 +1,7 @@
 :80 {
     encode zstd gzip
 
-    # 1. Matrix Discovery (Critical for iPhone/Element X)
+    # 1. Matrix Discovery
     handle_path /.well-known/matrix/client {
         header Access-Control-Allow-Origin "*"
         header Content-Type "application/json"
@@ -23,23 +23,20 @@
         reverse_proxy conduwuit-skyservers:6167
     }
 
-    # 3. Guest Token API
-    handle /mint-guest {
-        reverse_proxy guest-token:5001
+    # 3. Welcome Assets
+
+    handle /sw.js {
+        reverse_proxy element-skyservers:80
+        header Cache-Control "no-store, no-cache, must-revalidate"
+        header Service-Worker-Allowed "/"
     }
 
-    handle /guest-token-api/get-token {
-        rewrite * /mint-guest
-        reverse_proxy guest-token:5001
-    }
-
-    # 4. Welcome Assets Matcher
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /background.jpg
+    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /background.jpg /apple-touch-icon.png
     handle @welcome {
         reverse_proxy element-skyservers:80
     }
 
-    # 5. Element Web Frontend (Everything Else)
+    # 4. Element Web Frontend (Everything Else)
     handle {
         reverse_proxy element-skyservers:80 {
             header_down -Content-Security-Policy
@@ -52,7 +49,6 @@
             X-Frame-Options "SAMEORIGIN"
             Referrer-Policy "strict-origin-when-cross-origin"
             Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
-            # CONSOLIDATED CSP: ONE LINE, NO BACKSLASHES
             Content-Security-Policy "default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src 'self' https://www.recaptcha.net https://recaptcha.google.com; worker-src 'self' blob:; manifest-src 'self';"
         }
     }
