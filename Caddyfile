@@ -24,7 +24,14 @@
     }
 
     # 3. Welcome Assets
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /background.jpg
+
+    handle /sw.js {
+        reverse_proxy element-skyservers:80
+        header Cache-Control "no-store, no-cache, must-revalidate"
+        header Service-Worker-Allowed "/"
+    }
+
+    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /background.jpg /apple-touch-icon.png
     handle @welcome {
         reverse_proxy element-skyservers:80
     }

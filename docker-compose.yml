@@ -30,6 +30,7 @@ services:
       - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
       - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
+      - ./branding/sw.js:/usr/share/nginx/html/sw.js
 
   caddy:
     image: caddy:latest
