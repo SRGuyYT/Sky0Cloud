@@ -36,7 +36,7 @@
         reverse_proxy element-skyservers:80
     }
 
-    # 5. Element Web Frontend (Everything Else)
+    # 4. Element Web Frontend (Everything Else)
     handle {
         reverse_proxy element-skyservers:80 {
             header_down -Content-Security-Policy

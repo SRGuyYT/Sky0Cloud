@@ -1,7 +1,4 @@
 db/
 conduwuit/
-email-verification-bot/
-email-verifier/
-guest-token/
 *.log
 .env
