@@ -1,15 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2V9ZFLQQSD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2V9ZFLQQSD');
-</script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Sky0Cloud</title>
@@ -19,7 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
   <meta name="application-name" content="Sky0Cloud" />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/welcome-style.css" />
 </head>
@@ -28,22 +19,18 @@
     <main class="card" role="region" aria-labelledby="welcome-title">
       <section class="left">
         <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
-        <p class="sub">Private Matrix chat, auto-connected guest sessions, and secure messaging.</p>
+        <p class="sub">Secure Matrix messaging for your community.</p>
 
-        <a id="loginLink" class="btn btn-muted btn-link" href="/#/login" target="_parent">Login</a>
-        <a id="signupLink" class="btn btn-muted btn-link" href="/#/register" target="_parent">Sign up</a>
+        <div class="actions" role="navigation" aria-label="Authentication actions">
+          <a id="loginLink" class="btn btn-primary btn-link" href="/#/login" target="_parent">Login</a>
+          <a id="signupLink" class="btn btn-secondary btn-link" href="/#/register" target="_parent">Sign up</a>
+        </div>
 
-        <button id="guestBtn" class="btn btn-cta" type="button">
-          <span id="guestLabel">Enter Guest Mode</span>
-          <span id="guestSpinner" class="spinner" style="display:none" aria-hidden="true"></span>
-        </button>
-
-        <p id="status" class="status" aria-live="polite">Preparing secure guest session...</p>
-        <div id="err" role="alert"></div>
+        <p class="status" aria-live="polite">Registration requires an invite token.</p>
       </section>
 
       <aside class="right" aria-hidden="false">
-        <img src="/logo.png" alt="Sky0Cloud logo" class="logo">
+        <img src="/logo.png" alt="Sky0Cloud logo" class="logo" />
         <h2 class="brand-title">SKY0CLOUD</h2>
 
         <div class="language-dock" aria-label="Language selector dock">
