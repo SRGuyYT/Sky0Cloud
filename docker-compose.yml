@@ -27,6 +27,7 @@ services:
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
+      - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
       - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
 
