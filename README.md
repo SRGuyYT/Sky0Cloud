@@ -1,43 +1,33 @@
 # Sky0Cloud Matrix Server
 
-A high-performance, custom-branded Matrix homeserver setup powered by Conduwuit and Element Web, reverse-proxied with Caddy.
+Sky0Cloud now includes a production-ready **bare-metal deployment bundle** (no Docker required) for:
+- Continuwuity (homeserver)
+- Element Web (frontend)
+- Caddy (reverse proxy)
+- Custom Sky0Cloud portal + PWA
 
-## Overview
-This repository contains the configuration and branding assets for the Sky0Cloud Matrix instance. It features a custom "Welcome" landing page integrated directly into the Element Web interface, bypassing standard iframe restrictions for a seamless user experience.
+## Bare-metal deployment assets
 
-## Tech Stack
-* Homeserver: Continuwuity (High-performance Matrix implementation)
-* Web Client: Element Web
-* Reverse Proxy: Caddy
-* Custom Branding: HTML5, CSS3, and Vanilla JavaScript
+All migration assets are in [`baremetal/`](baremetal):
 
-## Custom Branding and Iframe Fixes
-The project uses a custom welcome screen located in branding/welcome/. 
+- `baremetal/scripts/skyserver.sh` – master install/upgrade/remove/repair control script
+- `baremetal/systemd/*.service` – native systemd unit files
+- `baremetal/caddy/Caddyfile` – Cloudflare-aware reverse proxy config
+- `baremetal/continuwuity/config.toml` – homeserver config with token registration + auto-join
+- `baremetal/element/config.json` – Element config
+- `baremetal/portal/*` – custom portal (`index.html`, `manifest.json`, `sw.js`)
+- `baremetal/docs/BAREMETAL_MIGRATION.md` – setup + operations instructions
 
-### Key Features:
-* CSP-Compliant: All JavaScript is externalized to welcome.js to satisfy strict Content Security Policies and prevent inline script blocking.
-* Sandbox Breakout: Uses native HTML anchor tags with target="_parent" to allow Login and Sign-up buttons to navigate the top-level window from within the Element iframe.
-* Automated Guest Access: Includes a robust guest token flow with verbose console logging for real-time debugging of the Matrix API handshake.
+## Security and policy defaults
 
-## Deployment
+- Guest access: disabled
+- Registration: enabled with token `only_us`
+- Auto-join rooms:
+  - `#info:sky0cloud.dpdns.org`
+  - `#idk:sky0cloud.dpdns.org`
+  - `!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org`
+  - `!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org`
 
-### Prerequisites
-* Docker and Docker Compose
-* A domain pointed at your server (e.g., sky0cloud.dpdns.org)
+## Legacy Docker
 
-### Installation
-1. Clone the repository:
-   git clone https://github.com/SRGuyYT/Sky0Cloud.git
-   cd Sky0Cloud
-
-2. Configuration:
-   Ensure your config.json and docker-compose.yml paths match your local environment.
-
-3. Launch:
-   docker compose up -d
-
-## Security Note
-Private data, including the Matrix database (db/), server configurations (conduwuit/), and .env files, are explicitly excluded from this repository via .gitignore to protect server integrity and user privacy.
-
----
-Maintained by SRGuyYT
+Docker files are retained only for historical reference. Stable deployment target is bare-metal + systemd.
