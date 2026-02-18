@@ -33,7 +33,9 @@
     if (dockLanguagePicker()) return;
 
     const observer = new MutationObserver(() => {
-      if (dockLanguagePicker()) observer.disconnect();
+      if (dockLanguagePicker()) {
+        observer.disconnect();
+      }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });

@@ -23,7 +23,6 @@ services:
     restart: always
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
-      - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
