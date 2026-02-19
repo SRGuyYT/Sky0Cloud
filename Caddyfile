@@ -10,17 +10,39 @@
     }
 }
 
-:80 {
+:8081 {
     encode zstd gzip
 
-    # Real IP extraction from Cloudflare
     @from_cf header CF-Connecting-IP *
     request_header @from_cf X-Forwarded-For {http.request.header.CF-Connecting-IP}
     request_header @from_cf X-Real-IP {http.request.header.CF-Connecting-IP}
 
-    # Matrix API Proxy with stability tuning
-    handle /_matrix/* {
-        reverse_proxy conduwuit-skyservers:8008 {
+    handle_path /.well-known/matrix/client {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/json"
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
+    }
+
+    handle_path /.well-known/element/element.json {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/json"
+        respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
+    }
+
+    # Home route lands users on the custom welcome screen.
+    @root path /
+    redir @root /welcome.html 302
+
+    # Real-time sync endpoint with disabled buffering for streaming updates.
+    handle /_matrix/client/v3/sync* {
+        reverse_proxy conduwuit-skyservers:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            flush_interval -1
+            request_buffers 0
+            response_buffers 0
             transport http {
                 dial_timeout 30s
                 response_header_timeout 300s
@@ -28,15 +50,71 @@
         }
     }
 
-    # iOS PWA / Service Worker optimization
+    # Push endpoints with long timeout to avoid dropped heartbeats.
+    @push_paths path /_matrix/push* /_matrix/client/v3/pushrules*
+    handle @push_paths {
+        reverse_proxy conduwuit-skyservers:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            transport http {
+                dial_timeout 30s
+                response_header_timeout 300s
+            }
+        }
+    }
+
+    handle /_matrix/* {
+        reverse_proxy conduwuit-skyservers:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            transport http {
+                dial_timeout 30s
+                response_header_timeout 300s
+            }
+        }
+    }
+
+    handle /_synapse/client/* {
+        reverse_proxy conduwuit-skyservers:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            transport http {
+                dial_timeout 30s
+                response_header_timeout 300s
+            }
+        }
+    }
+
     handle /sw.js {
         header Service-Worker-Allowed "/"
         header Cache-Control "no-cache, no-store, must-revalidate"
         reverse_proxy element-skyservers:80
     }
 
-    # Everything else to Element Web
-    handle {
+    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /apple-touch-icon.png /background.jpg
+    handle @welcome {
         reverse_proxy element-skyservers:80
+    }
+
+    handle {
+        reverse_proxy element-skyservers:80 {
+            header_down -Content-Security-Policy
+            header_down -X-Content-Security-Policy
+        }
+
+        header {
+            Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+            X-Content-Type-Options "nosniff"
+            X-Frame-Options "SAMEORIGIN"
+            Referrer-Policy "strict-origin-when-cross-origin"
+            Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
+            Content-Security-Policy "default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src 'self'; worker-src 'self' blob:; manifest-src 'self';"
+        }
     }
 }

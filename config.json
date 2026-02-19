@@ -16,11 +16,11 @@
     ]
   },
   "embedded_pages": {
-    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html"
+    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html?v=2"
   },
   "branding": {
     "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png?v=2",
-    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg"
+    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg?v=2"
   },
   "setting_defaults": {
     "theme": "dark",

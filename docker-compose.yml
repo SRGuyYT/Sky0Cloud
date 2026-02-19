@@ -11,13 +11,19 @@ services:
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
+      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
-      CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300 #
-      CONDUWUIT_FEDERATION_TIMEOUT: 120 #
-      CONDUWUIT_MAX_BODY_SIZE: "100MB" #
+      CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
+      CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
+      CONDUWUIT_FEDERATION_TIMEOUT: 120
+      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
+    ports:
+      - "6167:6167"
+    networks:
+      - sky0cloud-net
 
   element-web:
     image: vectorim/element-web:latest
@@ -30,19 +36,30 @@ services:
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
-      - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
-      - ./branding/sw.js:/usr/share/nginx/html/sw.js
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
+      - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
+      - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
+      - ./branding/sw.js:/usr/share/nginx/html/sw.js
+    ports:
+      - "8082:80"
+    networks:
+      - sky0cloud-net
 
   caddy:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
-    ports:
-      - "8081:80" # Caddy listens on 8081 for external traffic from Coolify
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:
       - conduwuit
       - element-web
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - sky0cloud-net
+
+networks:
+  sky0cloud-net:
+    driver: bridge

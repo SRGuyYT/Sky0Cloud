@@ -46,6 +46,22 @@
     }
   };
 
+
+  function hasExistingSession() {
+    try {
+      return Boolean(localStorage.getItem('mx_access_token'));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function redirectLoggedInUser() {
+    if (!hasExistingSession()) return;
+    if (window.location.hash !== '#/home') {
+      window.location.replace('/#/home');
+    }
+  }
+
   function applyLanguage(lang) {
     const dict = I18N[lang] || I18N.en;
     document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -129,11 +145,13 @@
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+      redirectLoggedInUser();
       initLanguage();
       initRefreshPermissionButton();
       void registerServiceWorker();
     });
   } else {
+    redirectLoggedInUser();
     initLanguage();
     initRefreshPermissionButton();
     void registerServiceWorker();
