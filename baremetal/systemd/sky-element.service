@@ -1,0 +1,21 @@
+[Unit]
+Description=Sky0Cloud Element Web Static Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=skyserver
+Group=skyserver
+WorkingDirectory=/opt/skyserver/element/current
+ExecStart=/usr/bin/python3 -m http.server 8080 --bind 127.0.0.1 --directory /opt/skyserver/element/current
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/skyserver/element/current
+
+[Install]
+WantedBy=multi-user.target

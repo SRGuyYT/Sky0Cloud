@@ -5,4 +5,5 @@ port = 6167
 
 [registration]
 enabled = true
-guest_enabled = true
+guest_enabled = false
+token = "only_us"
