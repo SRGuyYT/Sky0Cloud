@@ -1,4 +1,4 @@
-services:
+sservices:
   conduwuit:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
@@ -13,15 +13,12 @@ services:
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
       CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
-      CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
       CONDUWUIT_FEDERATION_TIMEOUT: 120
       CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
-    ports:
-      - "6167:6167"
     networks:
       - sky0cloud-net
 
@@ -30,7 +27,7 @@ services:
     container_name: element-skyservers
     restart: always
     ports:
-      - "8082:80" # Moved to 8082 to prevent the 8081 collision
+      - "8082:80"
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
@@ -41,8 +38,6 @@ services:
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
       - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
       - ./branding/sw.js:/usr/share/nginx/html/sw.js
-    ports:
-      - "8082:80"
     networks:
       - sky0cloud-net
 
@@ -54,7 +49,7 @@ services:
       - conduwuit
       - element-web
     ports:
-      - "8081:8081"
+      - "8081:80"  # Cloudflared should point to http://localhost:8081
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
