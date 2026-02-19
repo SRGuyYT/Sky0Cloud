@@ -1,4 +1,4 @@
-sservices:
+services:
   conduwuit:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
