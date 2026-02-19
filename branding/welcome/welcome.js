@@ -1,32 +1,27 @@
-(() => {
-  'use strict';
-
-  const byId = (id) => document.getElementById(id);
-
-  const I18N = {
+const I18N = {
     en: {
       lang: 'Language',
       title: 'Welcome to Sky0Cloud',
-      subtitle: 'Secure Matrix messaging for your community.',
+      subtitle: 'Messaging for the communities.',
       login: 'Login',
       signup: 'Sign up',
-      token: 'Registration requires an invite token.'
+      token: "Registration requires an invite token. (it's in your email or i told you)"
     },
     es: {
       lang: 'Idioma',
       title: 'Bienvenido a Sky0Cloud',
-      subtitle: 'Mensajería Matrix segura para tu comunidad.',
+      subtitle: 'Mensajería para las comunidades.',
       login: 'Iniciar sesión',
       signup: 'Registrarse',
-      token: 'El registro requiere un token de invitación.'
+      token: 'El registro requiere un token de invitación. (está en tu correo o te lo dije)'
     },
     fr: {
       lang: 'Langue',
       title: 'Bienvenue sur Sky0Cloud',
-      subtitle: 'Messagerie Matrix sécurisée pour votre communauté.',
+      subtitle: 'Messagerie pour les communautés.',
       login: 'Connexion',
       signup: 'Inscription',
-      token: "L'inscription nécessite un jeton d'invitation."
+      token: "L'inscription nécessite un jeton d'invitation. (c'est dans votre e-mail ou je vous l'ai dit)"
     }
   };
 
@@ -46,12 +41,19 @@
 
   function applyLanguage(lang) {
     const t = I18N[lang] || I18N.en;
-    byId('langLabel').textContent = t.lang;
-    byId('welcome-title').textContent = t.title;
-    byId('welcomeSub').textContent = t.subtitle;
-    byId('loginLink').textContent = t.login;
-    byId('signupLink').textContent = t.signup;
-    byId('tokenHint').textContent = t.token;
+    const langLabel = byId('langLabel');
+    const welcomeTitle = byId('welcome-title');
+    const welcomeSub = byId('welcomeSub');
+    const loginLink = byId('loginLink');
+    const signupLink = byId('signupLink');
+    const tokenHint = byId('tokenHint');
+
+    if (langLabel) langLabel.textContent = t.lang;
+    if (welcomeTitle) welcomeTitle.textContent = t.title;
+    if (welcomeSub) welcomeSub.textContent = t.subtitle;
+    if (loginLink) loginLink.textContent = t.login;
+    if (signupLink) signupLink.textContent = t.signup;
+    if (tokenHint) tokenHint.textContent = t.token;
 
     try {
       localStorage.setItem('sky0cloud.lang', lang);
