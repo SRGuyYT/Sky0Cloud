@@ -1,67 +1,33 @@
-{
-    servers {
-        trusted_proxies static \
-            173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 \
-            141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 \
-            197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 \
-            104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 \
-            2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 \
-            2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
-    }
-}
-
 :80 {
     encode zstd gzip
 
-    # Header restoration
-    @from_cf header CF-Connecting-IP *
-    request_header @from_cf X-Forwarded-For {http.request.header.CF-Connecting-IP}
-    request_header @from_cf X-Real-IP {http.request.header.CF-Connecting-IP}
+    # 1. FIX THE 404: Redirect the empty root to the welcome page
+    redir / /welcome.html 302
 
-    # Well-knowns
+    # 2. Well-Knowns (Matrix Handshake)
     handle_path /.well-known/matrix/client {
         header Access-Control-Allow-Origin "*"
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
     }
 
-    # Root redirect to Welcome Screen
-    @root path /
-    redir @root /welcome.html 302
-
-    # Notification & Sync Stability (The "School WiFi" Fix)
-    handle /_matrix/client/v3/sync* {
-        reverse_proxy conduwuit:8008 {
-            flush_interval -1
-            request_buffers 0
-            response_buffers 0
-            transport http {
-                response_header_timeout 300s
-            }
-        }
-    }
-
-    # General Matrix API
+    # 3. Matrix API (Conduwuit) - Optimized for Notifications
     handle /_matrix/* {
-        reverse_proxy conduwuit:8008 {
+        reverse_proxy conduwuit-skyservers:8008 {
+            flush_interval -1
             transport http {
                 response_header_timeout 300s
             }
         }
     }
 
-    # Welcome Screen Assets
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /apple-touch-icon.png /background.jpg
+    # 4. Welcome Assets (Static)
+    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /logo.png /apple-touch-icon.png /background.jpg /sw.js
     handle @welcome {
-        reverse_proxy element-web:80
+        reverse_proxy element-skyservers:80
     }
 
-    # Default to Element Web
+    # 5. Fallback (The actual Element Web App)
     handle {
-        reverse_proxy element-web:80
-    }
-
-    header {
-        Strict-Transport-Security "max-age=31536000;"
-        X-Content-Type-Options "nosniff"
+        reverse_proxy element-skyservers:80
     }
 }
