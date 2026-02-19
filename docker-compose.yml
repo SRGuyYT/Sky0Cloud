@@ -11,10 +11,10 @@ services:
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
-      # --- Timeouts & Request Handling ---
-      CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
-      CONDUWUIT_FEDERATION_TIMEOUT: 120
-      CONDUWUIT_MAX_BODY_SIZE: "100MB"
+      CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
+      CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300 #
+      CONDUWUIT_FEDERATION_TIMEOUT: 120 #
+      CONDUWUIT_MAX_BODY_SIZE: "100MB" #
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
@@ -24,9 +24,7 @@ services:
     container_name: element-skyservers
     restart: always
     ports:
-      - "8082:80" # Moved to 8082 to avoid conflict with Caddy
-    environment:
-      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - "8082:80" # Moved to 8082 to prevent the 8081 collision
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
@@ -42,7 +40,7 @@ services:
     container_name: caddy-proxy
     restart: unless-stopped
     ports:
-      - "8081:80" # Caddy takes 8081 for Coolify/External access
+      - "8081:80" # Caddy listens on 8081 for external traffic from Coolify
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:
