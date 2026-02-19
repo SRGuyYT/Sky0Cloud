@@ -14,10 +14,6 @@
 :80 {
     encode zstd gzip
 
-    @from_cf header Cf-Connecting-Ip *
-    request_header @from_cf X-Forwarded-For {http.request.header.Cf-Connecting-Ip}
-    request_header @from_cf X-Real-IP {http.request.header.Cf-Connecting-Ip}
-
     # Matrix Client Discovery
     handle_path /.well-known/matrix/client {
         header Access-Control-Allow-Origin "*"
@@ -25,52 +21,32 @@
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
     }
 
-    # Element Mobile Discovery
-    handle_path /.well-known/element/element.json {
-        header Access-Control-Allow-Origin "*"
-        header Content-Type "application/json"
-        respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
-    }
-
-    # Proxy to Conduwuit (using host IP since it's on host network)
+    # Proxy to Conduwuit (Using container name)
     handle /_matrix/* {
-        reverse_proxy 172.17.0.1:6167 {
+        reverse_proxy conduwuit:6167 {
             header_up X-Forwarded-Proto https
-            header_up X-Forwarded-Host {host}
             header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
         }
     }
 
     handle /_synapse/client/* {
-        reverse_proxy 172.17.0.1:6167 {
+        reverse_proxy conduwuit:6167 {
             header_up X-Forwarded-Proto https
-            header_up X-Forwarded-Host {host}
             header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
         }
     }
 
-    # Proxy to Element-Web (mapped to 8081 on host)
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /sw.js /logo.png /apple-touch-icon.png /background.jpg
-    handle @welcome {
-        reverse_proxy 172.17.0.1:8081
-    }
-
-    handle /sw.js {
-        header Service-Worker-Allowed "/"
-        header Cache-Control "no-cache, no-store, must-revalidate"
-        reverse_proxy 172.17.0.1:8081
-    }
-
+    # Proxy to Element-Web (Using container name)
     handle {
-        reverse_proxy 172.17.0.1:8081
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto https
+        }
 
         header {
             Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
             X-Content-Type-Options "nosniff"
             X-Frame-Options "SAMEORIGIN"
             Referrer-Policy "strict-origin-when-cross-origin"
-            Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
-            # Added connect-src for the specific domain and WS
             Content-Security-Policy "default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org; worker-src 'self' blob:; manifest-src 'self';"
         }
     }
