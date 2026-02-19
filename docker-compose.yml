@@ -17,8 +17,7 @@ services:
       CONDUWUIT_FEDERATION_TIMEOUT: 120
       CONDUWUIT_MAX_BODY_SIZE: "100MB"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
-      # FIXED: Conduwuit env vars handle lists better with spaces or actual YAML lists
-      CONDUWUIT_AUTO_JOIN_ROOMS: "#info:sky0cloud.dpdns.org #idk:sky0cloud.dpdns.org"
+      CONDUWUIT_AUTO_JOIN_ROOMS: '["!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org", "!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org"]'
     volumes:
       - ./db:/var/lib/conduwuit
 
