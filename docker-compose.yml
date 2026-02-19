@@ -3,7 +3,7 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
-    network_mode: host
+    network_mode: bridge
     environment:
       CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
       CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
