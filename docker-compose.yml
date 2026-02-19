@@ -3,6 +3,7 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
+    # We use 8008 internally; 6167 is just for your manual checks
     ports:
       - "6167:8008"
     environment:
@@ -11,11 +12,8 @@ services:
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
-      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
-      CONDUWUIT_FEDERATION_TIMEOUT: 120
-      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
@@ -26,8 +24,7 @@ services:
     image: vectorim/element-web:latest
     container_name: element-skyservers
     restart: always
-    ports:
-      - "8082:80"
+    # No ports needed here; Caddy talks to it over the internal network
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
@@ -45,11 +42,8 @@ services:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
-    depends_on:
-      - conduwuit
-      - element-web
     ports:
-      - "8081:80"  # Cloudflared should point to http://localhost:8081
+      - "8081:80" # CLOUDFLARE/COOLIFY points here
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
