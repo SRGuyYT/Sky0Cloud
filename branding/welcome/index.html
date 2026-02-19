@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2V9ZFLQQSD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2V9ZFLQQSD');
-</script>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('mx_access_token')) {
+          window.location.replace('/#/home');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Sky0Cloud</title>
@@ -17,44 +17,55 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
   <meta name="application-name" content="Sky0Cloud" />
-  <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="icon" type="image/png" href="/logo.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/welcome-style.css" />
 </head>
 <body>
+  <header class="download-bar" role="navigation" aria-label="Client downloads">
+    <a href="https://apps.apple.com/app/element-messenger/id1083446067" target="_blank" rel="noopener noreferrer" data-i18n="element_ios">Element iOS</a>
+    <a href="https://play.google.com/store/apps/details?id=im.vector.app" target="_blank" rel="noopener noreferrer" data-i18n="element_android">Element Android</a>
+    <a href="https://apps.apple.com/app/fluffychat/id1551469600" target="_blank" rel="noopener noreferrer" data-i18n="fluffy_ios">FluffyChat iOS</a>
+    <a href="https://play.google.com/store/apps/details?id=chat.fluffy.fluffychat" target="_blank" rel="noopener noreferrer" data-i18n="fluffy_android">FluffyChat Android</a>
+    <a href="https://schildi.chat/android/" target="_blank" rel="noopener noreferrer" data-i18n="schildi_android">SchildiChat Android</a>
+  </header>
+
   <div class="wrap" id="welcome-host">
     <main class="card" role="region" aria-labelledby="welcome-title">
       <section class="left">
-        <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
-        <p class="sub">Private Matrix chat, auto-connected guest sessions, and secure messaging.</p>
+        <div class="top-row">
+          <h1 id="welcome-title" data-i18n="welcome_title">Welcome to Sky0Cloud</h1>
+          <select id="langPicker" class="lang-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
 
-        <a id="loginLink" class="btn btn-muted btn-link" href="/#/login" target="_parent">Login</a>
-        <a id="signupLink" class="btn btn-muted btn-link" href="/#/register" target="_parent">Sign up</a>
+        <p class="sub" data-i18n="subtitle">Secure Matrix messaging for your community.</p>
 
-        <button id="guestBtn" class="btn btn-cta" type="button">
-          <span id="guestLabel">Enter Guest Mode</span>
-          <span id="guestSpinner" class="spinner" style="display:none" aria-hidden="true"></span>
-        </button>
+        <div class="actions" role="navigation" aria-label="Authentication actions">
+          <a id="loginLink" class="btn btn-primary btn-link" href="/#/login" target="_parent" data-i18n="login">Login</a>
+          <a id="signupLink" class="btn btn-secondary btn-link" href="/#/register" target="_parent" data-i18n="signup">Sign up</a>
+        </div>
 
-        <p id="status" class="status" aria-live="polite">Preparing secure guest session...</p>
-        <div id="err" role="alert"></div>
+        <p class="status" aria-live="polite" data-i18n="status">Registration requires an invite token.</p>
+
+        <button id="refreshPermBtn" class="btn btn-secondary" type="button" data-i18n="refresh_perm">Enable Background Refresh</button>
+        <p id="refreshPermStatus" class="status small" data-i18n="refresh_note">Enable notifications for better background refresh behavior on iOS PWA.</p>
       </section>
 
       <aside class="right" aria-hidden="false">
-        <img src="/logo.png" alt="Sky0Cloud logo" class="logo">
+        <img src="/logo.png?v=2" alt="Sky0Cloud logo" class="logo" />
         <h2 class="brand-title">SKY0CLOUD</h2>
-
-        <div class="language-dock" aria-label="Language selector dock">
-          <span class="language-label">&gt;&gt;</span>
-          <div id="languagePickerSlot"></div>
-          <span class="language-label">&lt;&lt;</span>
-        </div>
       </aside>
     </main>
   </div>
 
-  <script src="/welcome.js" defer></script>
+  <script src="/welcome.js?v=2" defer></script>
 </body>
 </html>
