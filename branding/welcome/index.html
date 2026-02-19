@@ -17,6 +17,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
   <meta name="application-name" content="Sky0Cloud" />
   <link rel="icon" type="image/png" href="/logo.png?v=2" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
@@ -24,33 +26,37 @@
   <link rel="stylesheet" href="/welcome-style.css" />
 </head>
 <body>
-  <header class="client-bar" aria-label="Other Clients">
-    <a href="https://sky0cloud.dpdns.org" target="_blank" rel="noopener noreferrer">Element (your current one)</a>
-    <a href="https://app.cinny.in/" target="_blank" rel="noopener noreferrer">Cinny</a>
-    <a href="https://fluffychat.im/web/#/home" target="_blank" rel="noopener noreferrer">FluffyChat</a>
-    <a href="https://schildi.hotlinesinc.com/" target="_blank" rel="noopener noreferrer">SchildiChat</a>
-    <label class="lang-wrap" for="langSelect">
-      <span id="langLabel">Language</span>
-      <select id="langSelect" aria-label="Language selector">
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="fr">Français</option>
-      </select>
-    </label>
+  <header class="download-bar" role="navigation" aria-label="Client downloads">
+    <a href="https://apps.apple.com/app/element-messenger/id1083446067" target="_blank" rel="noopener noreferrer" data-i18n="element_ios">Element iOS</a>
+    <a href="https://play.google.com/store/apps/details?id=im.vector.app" target="_blank" rel="noopener noreferrer" data-i18n="element_android">Element Android</a>
+    <a href="https://apps.apple.com/app/fluffychat/id1551469600" target="_blank" rel="noopener noreferrer" data-i18n="fluffy_ios">FluffyChat iOS</a>
+    <a href="https://play.google.com/store/apps/details?id=chat.fluffy.fluffychat" target="_blank" rel="noopener noreferrer" data-i18n="fluffy_android">FluffyChat Android</a>
+    <a href="https://schildi.chat/android/" target="_blank" rel="noopener noreferrer" data-i18n="schildi_android">SchildiChat Android</a>
   </header>
 
   <div class="wrap" id="welcome-host">
     <main class="card" role="region" aria-labelledby="welcome-title">
       <section class="left">
-        <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
-        <p id="welcomeSub" class="sub">Messaging for the communities.</p>
-
-        <div class="actions" role="navigation" aria-label="Authentication actions">
-          <a id="loginLink" class="btn btn-primary btn-link" href="/#/login" target="_parent">Login</a>
-          <a id="signupLink" class="btn btn-secondary btn-link" href="/#/register" target="_parent">Sign up</a>
+        <div class="top-row">
+          <h1 id="welcome-title" data-i18n="welcome_title">Welcome to Sky0Cloud</h1>
+          <select id="langPicker" class="lang-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
         </div>
 
-        <p id="tokenHint" class="status" aria-live="polite">Registration requires an invite token.</p>
+        <p class="sub" data-i18n="subtitle">Secure Matrix messaging for your community.</p>
+
+        <div class="actions" role="navigation" aria-label="Authentication actions">
+          <a id="loginLink" class="btn btn-primary btn-link" href="/#/login" target="_parent" data-i18n="login">Login</a>
+          <a id="signupLink" class="btn btn-secondary btn-link" href="/#/register" target="_parent" data-i18n="signup">Sign up</a>
+        </div>
+
+        <p class="status" aria-live="polite" data-i18n="status">Registration requires an invite token.</p>
+
+        <button id="refreshPermBtn" class="btn btn-secondary" type="button" data-i18n="refresh_perm">Enable Background Refresh</button>
+        <p id="refreshPermStatus" class="status small" data-i18n="refresh_note">Enable notifications for better background refresh behavior on iOS PWA.</p>
       </section>
 
       <aside class="right" aria-hidden="false">
@@ -60,6 +66,6 @@
     </main>
   </div>
 
-  <script src="/welcome.js" defer></script>
+  <script src="/welcome.js?v=2" defer></script>
 </body>
 </html>

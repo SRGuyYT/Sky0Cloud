@@ -7,3 +7,9 @@ port = 6167
 enabled = true
 guest_enabled = false
 token = "only_us"
+
+[security]
+trusted_reverse_proxies = ["127.0.0.1", "::1"]
+
+[rooms]
+autojoin = ["#info:sky0cloud.dpdns.org", "#idk:sky0cloud.dpdns.org"]

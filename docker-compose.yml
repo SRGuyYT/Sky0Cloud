@@ -14,13 +14,14 @@ services:
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
       CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
+      CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
       CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
       CONDUWUIT_FEDERATION_TIMEOUT: 120
-      CONDUWUIT_AUTO_JOIN_ROOMS: '["!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org", "!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org"]'
-
+      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
+      - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
 
   element-web:
     image: vectorim/element-web:latest
@@ -44,6 +45,17 @@ services:
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
-      - ./branding/element-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./branding/manifest.json:/usr/share/nginx/html/manifest.json
+      - ./branding/sw.js:/usr/share/nginx/html/sw.js
 
-    entrypoint: ["nginx", "-g", "daemon off;"]
+  caddy:
+    image: caddy:latest
+    container_name: caddy-proxy
+    restart: unless-stopped
+    depends_on:
+      - conduwuit
+      - element-web
+    ports:
+      - "8081:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
