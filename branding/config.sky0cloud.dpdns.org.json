@@ -20,7 +20,6 @@
   },
   "branding": {
     "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png?v=2",
-    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png",
     "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg"
   },
   "setting_defaults": {

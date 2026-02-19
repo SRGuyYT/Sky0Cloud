@@ -5,11 +5,7 @@ Docker-based Matrix stack for `sky0cloud.dpdns.org` using:
 - Element Web (client)
 - Caddy (reverse proxy)
 
-- Guest access: disabled
-- Registration: enabled with token `only_us`
-- Auto-join rooms:
-  - `!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org`
-  - `!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org`
+## Deployment
 
 ```bash
 docker compose up -d
