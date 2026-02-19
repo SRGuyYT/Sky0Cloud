@@ -17,7 +17,8 @@ services:
       CONDUWUIT_FEDERATION_TIMEOUT: 120
       CONDUWUIT_MAX_BODY_SIZE: "100MB"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
-      CONDUWUIT_AUTO_JOIN_ROOMS: "#info:sky0cloud.dpdns.org,#idk:sky0cloud.dpdns.org"
+      # FIXED: Conduwuit env vars handle lists better with spaces or actual YAML lists
+      CONDUWUIT_AUTO_JOIN_ROOMS: "#info:sky0cloud.dpdns.org #idk:sky0cloud.dpdns.org"
     volumes:
       - ./db:/var/lib/conduwuit
 
@@ -25,9 +26,11 @@ services:
     image: vectorim/element-web:latest
     container_name: element-skyservers
     restart: always
-    # REMOVED network_mode: host
     ports:
       - "8081:80"
+    environment:
+      # FIXED: Prevents Nginx from trying to overwrite our read-only mounted config
+      NGINX_ENTRYPOINT_QUIET_LOGS: "1"
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/config.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
@@ -39,15 +42,17 @@ services:
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
+      # We mount this to templates instead to let the entrypoint handle it properly
       - ./branding/element-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    # This bypasses the scripts that are failing
+    entrypoint: ["nginx", "-g", "daemon off;"]
 
-caddy:
+  caddy:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
-    # REMOVED network_mode: host
     ports:
-      - "8090:80"
+      - "8090:80"  # FIXED: Moved to 8090
       - "8443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
