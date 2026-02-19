@@ -41,13 +41,13 @@ services:
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
       - ./branding/element-nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
-  caddy:
+caddy:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
     # REMOVED network_mode: host
     ports:
-      - "8080:80"
+      - "8090:80"
       - "8443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
