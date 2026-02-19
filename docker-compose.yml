@@ -1,22 +1,26 @@
 services:
   conduwuit:
-    image: forgejo.ellis.link/continuwuation/continuwuity:latest
-    container_name: conduwuit-skyservers
-    restart: unless-stopped
-    environment:
-      CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
-      CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
-      CONDUWUIT_PORT: 6167
-      CONDUWUIT_ADDRESS: "0.0.0.0"
-      CONDUWUIT_ALLOW_REGISTRATION: "true"
-      CONDUWUIT_REGISTRATION_TOKEN: "only_us"
-      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
-      CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
-      CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
-      CONDUWUIT_FEDERATION_TIMEOUT: 120
-      CONDUWUIT_AUTO_JOIN_ROOMS: '["!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org", "!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org"]'
-    volumes:
-      - ./db:/var/lib/conduwuit
+  image: forgejo.ellis.link/continuwuation/continuwuity:latest
+  container_name: conduwuit-skyservers
+  restart: unless-stopped
+
+  ports:
+    - "6167:8008"
+
+  environment:
+    CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
+    CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
+    CONDUWUIT_ADDRESS: "0.0.0.0"
+    CONDUWUIT_ALLOW_REGISTRATION: "true"
+    CONDUWUIT_REGISTRATION_TOKEN: "only_us"
+    CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
+    CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
+    CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
+    CONDUWUIT_FEDERATION_TIMEOUT: 120
+    CONDUWUIT_AUTO_JOIN_ROOMS: '["!0FP8Rnybqr2M8o4kPr:sky0cloud.dpdns.org", "!rbqTJXu2gXnXw1Dy86:sky0cloud.dpdns.org"]'
+
+  volumes:
+    - ./db:/var/lib/conduwuit
 
   element-web:
     image: vectorim/element-web:latest
