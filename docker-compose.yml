@@ -25,7 +25,9 @@ services:
     image: vectorim/element-web:latest
     container_name: element-skyservers
     restart: always
-    network_mode: host
+    # REMOVED network_mode: host
+    ports:
+      - "8081:80"
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/config.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
@@ -43,6 +45,9 @@ services:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
-    network_mode: host
+    # REMOVED network_mode: host
+    ports:
+      - "8080:80"
+      - "8443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
