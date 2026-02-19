@@ -1,8 +1,29 @@
-(() => {
-  'use strict';
-
-  const qs = (sel) => document.querySelector(sel);
-  const byId = (id) => document.getElementById(id);
+const I18N = {
+    en: {
+      lang: 'Language',
+      title: 'Welcome to Sky0Cloud',
+      subtitle: 'Messaging for the communities.',
+      login: 'Login',
+      signup: 'Sign up',
+      token: "Registration requires an invite token. (it's in your email or i told you)"
+    },
+    es: {
+      lang: 'Idioma',
+      title: 'Bienvenido a Sky0Cloud',
+      subtitle: 'Mensajería para las comunidades.',
+      login: 'Iniciar sesión',
+      signup: 'Registrarse',
+      token: 'El registro requiere un token de invitación. (está en tu correo o te lo dije)'
+    },
+    fr: {
+      lang: 'Langue',
+      title: 'Bienvenue sur Sky0Cloud',
+      subtitle: 'Messagerie pour les communautés.',
+      login: 'Connexion',
+      signup: 'Inscription',
+      token: "L'inscription nécessite un jeton d'invitation. (c'est dans votre e-mail ou je vous l'ai dit)"
+    }
+  };
 
   function hasExistingSession() {
     try {
@@ -18,11 +39,32 @@
     window.location.replace('/#/home');
   }
 
+  function applyLanguage(lang) {
+    const t = I18N[lang] || I18N.en;
+    const langLabel = byId('langLabel');
+    const welcomeTitle = byId('welcome-title');
+    const welcomeSub = byId('welcomeSub');
+    const loginLink = byId('loginLink');
+    const signupLink = byId('signupLink');
+    const tokenHint = byId('tokenHint');
+
+    if (langLabel) langLabel.textContent = t.lang;
+    if (welcomeTitle) welcomeTitle.textContent = t.title;
+    if (welcomeSub) welcomeSub.textContent = t.subtitle;
+    if (loginLink) loginLink.textContent = t.login;
+    if (signupLink) signupLink.textContent = t.signup;
+    if (tokenHint) tokenHint.textContent = t.token;
+
+    try {
+      localStorage.setItem('sky0cloud.lang', lang);
+    } catch (_) {}
+  }
+
   async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
 
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      const registration = await navigator.serviceWorker.register('/sw.js?v=2', { scope: '/' });
 
       if (registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -45,50 +87,32 @@
           window.location.reload();
         }
       });
-
-      const unreadCount = Number(localStorage.getItem('mx_unread_notifications') || '0');
-      if (navigator.serviceWorker.controller && Number.isFinite(unreadCount)) {
-        navigator.serviceWorker.controller.postMessage({ type: 'SET_BADGE', count: Math.max(0, unreadCount) });
-      }
     } catch (error) {
       console.warn('[welcome] Service worker registration failed.', error);
     }
   }
 
-  function dockLanguagePicker() {
-    const slot = byId('languagePickerSlot');
-    if (!slot) return false;
+  function initLanguageDropdown() {
+    const langSelect = byId('langSelect');
+    if (!langSelect) return;
 
-    const picker =
-      qs('.mx_LanguagePicker') ||
-      qs('.mx_LanguageDropdown') ||
-      qs('[data-testid="language-picker"]');
-
-    if (!picker) return false;
-    if (picker.parentElement !== slot) {
-      slot.appendChild(picker);
-    }
-
-    return true;
-  }
-
-  function enableLanguagePickerDocking() {
-    if (dockLanguagePicker()) return;
-
-    const observer = new MutationObserver(() => {
-      if (dockLanguagePicker()) {
-        observer.disconnect();
+    const storedLang = (() => {
+      try {
+        return localStorage.getItem('sky0cloud.lang') || 'en';
+      } catch (_) {
+        return 'en';
       }
-    });
+    })();
 
-    observer.observe(document.body, { childList: true, subtree: true });
-    setTimeout(() => observer.disconnect(), 10000);
+    langSelect.value = storedLang;
+    applyLanguage(storedLang);
+    langSelect.addEventListener('change', () => applyLanguage(langSelect.value));
   }
 
   function init() {
     redirectLoggedInUser();
+    initLanguageDropdown();
     void registerServiceWorker();
-    enableLanguagePickerDocking();
   }
 
   if (document.readyState === 'loading') {

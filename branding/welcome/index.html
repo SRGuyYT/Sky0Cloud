@@ -18,35 +18,44 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
   <meta name="application-name" content="Sky0Cloud" />
-  <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="/logo.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="/welcome-style.css" />
 </head>
 <body>
+  <header class="client-bar" aria-label="Other Clients">
+    <a href="https://sky0cloud.dpdns.org" target="_blank" rel="noopener noreferrer">Element (your current one)</a>
+    <a href="https://app.cinny.in/" target="_blank" rel="noopener noreferrer">Cinny</a>
+    <a href="https://fluffychat.im/web/#/home" target="_blank" rel="noopener noreferrer">FluffyChat</a>
+    <a href="https://schildi.hotlinesinc.com/" target="_blank" rel="noopener noreferrer">SchildiChat</a>
+    <label class="lang-wrap" for="langSelect">
+      <span id="langLabel">Language</span>
+      <select id="langSelect" aria-label="Language selector">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+      </select>
+    </label>
+  </header>
+
   <div class="wrap" id="welcome-host">
     <main class="card" role="region" aria-labelledby="welcome-title">
       <section class="left">
         <h1 id="welcome-title">Welcome to Sky0Cloud</h1>
-        <p class="sub">Secure Matrix messaging for your community.</p>
+        <p id="welcomeSub" class="sub">Messaging for the communities.</p>
 
         <div class="actions" role="navigation" aria-label="Authentication actions">
           <a id="loginLink" class="btn btn-primary btn-link" href="/#/login" target="_parent">Login</a>
           <a id="signupLink" class="btn btn-secondary btn-link" href="/#/register" target="_parent">Sign up</a>
         </div>
 
-        <p class="status" aria-live="polite">Registration requires an invite token.</p>
+        <p id="tokenHint" class="status" aria-live="polite">Registration requires an invite token.</p>
       </section>
 
       <aside class="right" aria-hidden="false">
-        <img src="/logo.png" alt="Sky0Cloud logo" class="logo" />
+        <img src="/logo.png?v=2" alt="Sky0Cloud logo" class="logo" />
         <h2 class="brand-title">SKY0CLOUD</h2>
-
-        <div class="language-dock" aria-label="Language selector dock">
-          <span class="language-label">&gt;&gt;</span>
-          <div id="languagePickerSlot"></div>
-          <span class="language-label">&lt;&lt;</span>
-        </div>
       </aside>
     </main>
   </div>
