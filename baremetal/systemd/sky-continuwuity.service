@@ -1,0 +1,22 @@
+[Unit]
+Description=Sky0Cloud Continuwuity Matrix Homeserver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=skyserver
+Group=skyserver
+WorkingDirectory=/opt/skyserver/continuwuity
+ExecStart=/opt/skyserver/continuwuity/continuwuity --config /opt/skyserver/continuwuity/config.toml
+Restart=always
+RestartSec=2
+LimitNOFILE=65535
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/skyserver/continuwuity /opt/skyserver/backups
+
+[Install]
+WantedBy=multi-user.target

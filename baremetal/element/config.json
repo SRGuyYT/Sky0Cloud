@@ -16,11 +16,10 @@
     ]
   },
   "embedded_pages": {
-    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html"
+    "welcome_url": "https://sky0cloud.dpdns.org/"
   },
   "branding": {
     "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png?v=2",
-    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png",
     "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg"
   },
   "setting_defaults": {
@@ -28,10 +27,6 @@
     "breadcrumbs": true,
     "always_show_emoji_picker": false
   },
-  "bug_report_endpoint_url": "",
-  "integrations_ui_url": "",
-  "integrations_rest_url": "",
   "show_labs_settings": false,
-  "mobile_builds_url": "https://element.io/download",
   "features": {}
 }
