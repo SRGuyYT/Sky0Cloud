@@ -1,1 +1,36 @@
-/home/ssadmin/matrix-new/branding/config.json
+{
+  "default_server_name": "sky0cloud.dpdns.org",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
+    }
+  },
+  "brand": "Sky0Cloud",
+  "disable_custom_urls": true,
+  "disable_guests": true,
+  "default_theme": "dark",
+  "room_directory": {
+    "servers": [
+      "sky0cloud.dpdns.org"
+    ]
+  },
+  "embedded_pages": {
+    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html?v=2"
+  },
+  "branding": {
+    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png?v=2",
+    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg?v=2"
+  },
+  "setting_defaults": {
+    "theme": "dark",
+    "breadcrumbs": true,
+    "always_show_emoji_picker": false
+  },
+  "bug_report_endpoint_url": "",
+  "integrations_ui_url": "",
+  "integrations_rest_url": "",
+  "show_labs_settings": false,
+  "mobile_builds_url": "https://element.io/download",
+  "features": {}
+}

@@ -1,359 +1,159 @@
-// welcome.js
 (() => {
   'use strict';
 
-  const CONFIG = {
-    matrixBase: 'https://sky0cloud.dpdns.org',
-    mintGuestEndpoint: '/mint-guest',
-    loginRouteBase: 'https://sky0cloud.dpdns.org/#/login',
-    timeoutMs: 15000,
-    autoLoginDelayMs: 350,
-    storageKey: 'sky0cloud.guest.session.v1'
+  const I18N = {
+    en: {
+      welcome_title: 'Welcome to Sky0Cloud',
+      subtitle: 'Secure Matrix messaging for your community.',
+      login: 'Login',
+      signup: 'Sign up',
+      status: 'Registration requires an invite token.',
+      element_ios: 'Element iOS',
+      element_android: 'Element Android',
+      fluffy_ios: 'FluffyChat iOS',
+      fluffy_android: 'FluffyChat Android',
+      schildi_android: 'SchildiChat Android',
+      refresh_perm: 'Enable Background Refresh',
+      refresh_note: 'Enable notifications for better background refresh behavior on iOS PWA.'
+    },
+    es: {
+      welcome_title: 'Bienvenido a Sky0Cloud',
+      subtitle: 'Mensajería Matrix segura para tu comunidad.',
+      login: 'Iniciar sesión',
+      signup: 'Registrarse',
+      status: 'El registro requiere un token de invitación.',
+      element_ios: 'Element iOS',
+      element_android: 'Element Android',
+      fluffy_ios: 'FluffyChat iOS',
+      fluffy_android: 'FluffyChat Android',
+      schildi_android: 'SchildiChat Android',
+      refresh_perm: 'Activar actualización en segundo plano',
+      refresh_note: 'Activa notificaciones para mejorar la actualización en segundo plano en iOS PWA.'
+    },
+    fr: {
+      welcome_title: 'Bienvenue sur Sky0Cloud',
+      subtitle: 'Messagerie Matrix sécurisée pour votre communauté.',
+      login: 'Connexion',
+      signup: 'Inscription',
+      status: 'L’inscription nécessite un jeton d’invitation.',
+      element_ios: 'Element iOS',
+      element_android: 'Element Android',
+      fluffy_ios: 'FluffyChat iOS',
+      fluffy_android: 'FluffyChat Android',
+      schildi_android: 'SchildiChat Android',
+      refresh_perm: 'Activer l’actualisation en arrière-plan',
+      refresh_note: 'Activez les notifications pour améliorer l’actualisation en arrière-plan sur iOS PWA.'
+    }
   };
 
-  const qs = (sel) => document.querySelector(sel);
-  const byId = (id) => document.getElementById(id);
 
-  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.timeoutMs) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+  function hasExistingSession() {
     try {
-      return await fetch(url, { ...options, signal: controller.signal, credentials: 'omit' });
-    } finally {
-      clearTimeout(timeoutId);
+      return Boolean(localStorage.getItem('mx_access_token'));
+    } catch (_) {
+      return false;
     }
   }
 
-  function setStatus(message) {
-    const status = byId('status');
-    if (status) status.textContent = message;
-    console.log('[welcome]', message);
-  }
-
-  function showError(message) {
-    const errEl = byId('err');
-    if (errEl) {
-      errEl.textContent = message;
-      errEl.style.display = 'block';
-    }
-    setStatus('Guest auto-login unavailable. You can use Login or Sign up.');
-  }
-
-  function clearError() {
-    const errEl = byId('err');
-    if (errEl) {
-      errEl.textContent = '';
-      errEl.style.display = 'none';
+  function redirectLoggedInUser() {
+    if (!hasExistingSession()) return;
+    if (window.location.hash !== '#/home') {
+      window.location.replace('/#/home');
     }
   }
 
-  function dockLanguagePicker() {
-    const slot = byId('languagePickerSlot');
-    if (!slot) return false;
-
-    const picker =
-      qs('.mx_LanguagePicker') ||
-      qs('.mx_LanguageDropdown') ||
-      qs('[data-testid="language-picker"]');
-
-    if (!picker) return false;
-    if (picker.parentElement === slot) return true;
-
-    slot.appendChild(picker);
-    console.log('[welcome] Language picker moved to dock.');
-    return true;
-  }
-
-  function enableLanguagePickerDocking() {
-    if (dockLanguagePicker()) return;
-
-    const observer = new MutationObserver(() => {
-      if (dockLanguagePicker()) observer.disconnect();
+  function applyLanguage(lang) {
+    const dict = I18N[lang] || I18N.en;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) el.textContent = dict[key];
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    setTimeout(() => observer.disconnect(), 10000);
+    localStorage.setItem('sky0cloud.lang', lang);
   }
 
-  function normalizeSession(input) {
-    if (!input || typeof input !== 'object') return null;
-    const accessToken = input.access_token || input.token || '';
-    const userId = input.user_id || '';
-    const deviceId = input.device_id || '';
-    if (!accessToken) return null;
-    return {
-      access_token: accessToken,
-      user_id: userId,
-      device_id: deviceId,
-      created_at: Date.now()
-    };
+  function initLanguage() {
+    const picker = document.getElementById('langPicker');
+    if (!picker) return;
+
+    const lang = localStorage.getItem('sky0cloud.lang') || 'en';
+    picker.value = lang;
+    applyLanguage(lang);
+    picker.addEventListener('change', () => applyLanguage(picker.value));
   }
 
-  function persistSession(session) {
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
     try {
-      localStorage.setItem(CONFIG.storageKey, JSON.stringify(session));
-      console.log('[welcome] Guest session persisted in localStorage.');
-    } catch (err) {
-      console.warn('[welcome] Failed to persist guest session.', err);
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      registration.addEventListener('updatefound', () => {
+        const installing = registration.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            installing.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    } catch (error) {
+      console.warn('[welcome] Service worker registration failed.', error);
     }
-
-    console.log('[welcome] Starting token-service fetch:', CONFIG.TOKEN_ENDPOINT);
-    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }, CONFIG.TIMEOUT_MS);
-
-    console.log('[welcome] Token-service response status:', res.status);
-    if (!res.ok) {
-      const text = await res.text().catch(() => '<no body>');
-      throw new Error('Token service failed: ' + res.status + ' ' + text);
-    }
-
-    const json = await res.json();
-    console.log('[welcome] Token-service payload received:', json);
-    return json;
   }
 
-  async function mintGuestTokenFromMatrix() {
-    const base = CONFIG.MATRIX_BASE.replace(/\/+$/, '');
-    const attempts = [
-      {
-        url: base + '/_matrix/client/v3/register',
-        payload: { kind: 'guest' },
-        label: 'v3 guest register'
-      },
-      {
-        url: base + '/_matrix/client/r0/register',
-        payload: { kind: 'guest' },
-        label: 'r0 guest register'
-      }
-    ];
+  async function requestBackgroundRefreshPermission() {
+    const status = document.getElementById('refreshPermStatus');
 
-    if (CONFIG.GUEST_PASSWORD) {
-      attempts.push(
-        {
-          url: base + '/_matrix/client/v3/login',
-          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-          label: 'v3 password login (fallback)'
-        },
-        {
-          url: base + '/_matrix/client/r0/login',
-          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-          label: 'r0 password login (fallback)'
-        }
-      );
-    }
-
-    for (const attempt of attempts) {
-      try {
-        console.log('[welcome] Starting fetch:', attempt.label, attempt.url, attempt.payload);
-        const res = await fetchWithTimeout(attempt.url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(attempt.payload)
-        }, CONFIG.TIMEOUT_MS);
-
-        console.log('[welcome] Fetch completed:', attempt.label, 'status=', res.status);
-        if (!res.ok) {
-          const text = await res.text().catch(() => '<no body>');
-          console.log('[welcome] Fetch non-ok response:', attempt.label, text);
-          continue;
-        }
-
-        const json = await res.json().catch(() => null);
-        console.log('[welcome] Fetch successful payload:', attempt.label, json);
-        if (json && (json.access_token || json.login_token)) {
-          console.log('[welcome] Token received from', attempt.label);
-          return json;
-        }
-
-        console.log('[welcome] No usable token in response for', attempt.label);
-      } catch (err) {
-        console.log('[welcome] Fetch threw error for', attempt.label, err);
-      }
-    }
-
-    return null;
-  }
-
-  function setBusy(guestBtn, guestLabel, guestSpinner, isBusy) {
-    guestBtn.disabled = isBusy;
-    guestLabel.textContent = isBusy ? 'Connecting...' : 'Enter Guest Mode';
-    guestSpinner.style.display = isBusy ? 'inline-block' : 'none';
-  }
-
-  function showError(errEl, message) {
-    errEl.textContent = message;
-    errEl.style.display = 'block';
-  }
-
-  function clearError(errEl) {
-    errEl.textContent = '';
-    errEl.style.display = 'none';
-  }
-
-  function buildLoginUrl(session) {
-    const params = new URLSearchParams({
-      token: session.access_token,
-      guest: '1'
-    });
-    if (session.user_id) params.set('user_id', session.user_id);
-    if (session.device_id) params.set('device_id', session.device_id);
-    return `${CONFIG.loginRouteBase}?${params.toString()}`;
-  }
-
-  function hideWelcomeOverlay() {
-    const host = byId('welcome-host');
-    if (host) {
-      host.style.opacity = '0';
-      host.style.pointerEvents = 'none';
-      host.style.display = 'none';
-    }
-
-    const body = document.body;
-    if (body) {
-      body.classList.add('welcome-hidden');
-    }
-
-    console.log('[welcome] Welcome overlay hidden before redirect.');
-  }
-
-  function performNativeParentRedirect(url) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_parent';
-    link.rel = 'noopener';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => link.remove(), 0);
-  }
-
-  function redirectToElement(url) {
-    console.log('[welcome] Redirecting to:', url);
-    hideWelcomeOverlay();
-
-    const isFramed = window.self !== window.top;
-    if (isFramed) {
-      try {
-        window.parent.location.href = url;
-        return;
-      } catch (err) {
-        console.warn('[welcome] parent.location redirect blocked, trying native anchor.', err);
-      }
-      performNativeParentRedirect(url);
+    if (!('Notification' in window)) {
+      if (status) status.textContent = 'Notifications are not supported in this browser.';
       return;
     }
 
-    window.location.href = url;
-  }
-
-  async function mintGuestViaMatrix() {
-    setStatus('Requesting Matrix guest registration...');
-    const payload = { kind: 'guest', inhibit_login: false };
-    const endpoints = [
-      `${CONFIG.matrixBase}/_matrix/client/v3/register?kind=guest`,
-      `${CONFIG.matrixBase}/_matrix/client/r0/register?kind=guest`
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        console.log('[welcome] Matrix guest attempt:', endpoint, payload);
-        const res = await fetchWithTimeout(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const text = await res.text();
-        if (!res.ok) {
-          console.warn('[welcome] Matrix guest registration failed:', res.status, text);
-          continue;
+    try {
+      const permission = await Notification.requestPermission();
+      if (status) {
+        if (permission === 'granted') {
+          status.textContent = 'Notifications enabled. iOS can use this to improve background refresh behavior.';
+        } else {
+          status.textContent = 'Notifications not enabled. Background refresh may be limited by iOS.';
         }
-
-        const data = JSON.parse(text);
-        const session = normalizeSession(data);
-        if (session) {
-          setStatus('Guest account created. Redirecting...');
-          return session;
-        }
-      } catch (err) {
-        console.warn('[welcome] Matrix guest registration exception:', err);
       }
-    }
 
-    return null;
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        if ('periodicSync' in reg && permission === 'granted') {
+          try {
+            await reg.periodicSync.register('sky0cloud-refresh', { minInterval: 24 * 60 * 60 * 1000 });
+          } catch (_) {
+            // Optional capability, not available on all browsers.
+          }
+        }
+      }
+    } catch (error) {
+      if (status) status.textContent = 'Unable to request notification permission.';
+      console.warn('[welcome] Notification permission request failed.', error);
+    }
   }
 
-  async function mintGuestViaService() {
-    setStatus('Requesting guest token from mint service...');
-    const res = await fetchWithTimeout(CONFIG.mintGuestEndpoint, {
-      method: 'GET',
-      headers: { Accept: 'application/json' }
+  function initRefreshPermissionButton() {
+    const btn = document.getElementById('refreshPermBtn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      void requestBackgroundRefreshPermission();
     });
   }
 
-    const text = await res.text();
-    if (!res.ok) {
-      throw new Error(`Mint service failed (${res.status}): ${text}`);
-    }
-
-    const data = JSON.parse(text);
-    const session = normalizeSession(data);
-    if (!session) {
-      throw new Error('Mint service response is missing access_token/token.');
-    }
-
-    return session;
-  }
-
-  async function runGuestAutoLogin({ manual = false } = {}) {
-    const guestBtn = byId('guestBtn');
-    const guestLabel = byId('guestLabel');
-    const guestSpinner = byId('guestSpinner');
-
-    if (guestBtn && guestLabel && guestSpinner) {
-      guestBtn.disabled = true;
-      guestLabel.textContent = manual ? 'Connecting...' : 'Auto connecting...';
-      guestSpinner.style.display = 'inline-block';
-    }
-
-    clearError();
-
-    try {
-      const matrixSession = await mintGuestViaMatrix();
-      const session = matrixSession || await mintGuestViaService();
-      persistSession(session);
-      redirectToElement(buildLoginUrl(session));
-    } catch (err) {
-      console.error('[welcome] Auto guest login failed.', err);
-      showError('Unable to start guest session right now. Please use Login or Sign up.');
-    } finally {
-      if (guestBtn && guestLabel && guestSpinner) {
-        guestBtn.disabled = false;
-        guestLabel.textContent = 'Enter Guest Mode';
-        guestSpinner.style.display = 'none';
-      }
-    }
-  }
-
-  function attachHandlers() {
-    const guestBtn = byId('guestBtn');
-    if (guestBtn) {
-      guestBtn.addEventListener('click', () => runGuestAutoLogin({ manual: true }));
-    }
-  }
-
-  function init() {
-    attachHandlers();
-    enableLanguagePickerDocking();
-    setStatus('Starting guest auto-login...');
-    setTimeout(() => runGuestAutoLogin({ manual: false }), CONFIG.autoLoginDelayMs);
-  }
-
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      redirectLoggedInUser();
+      initLanguage();
+      initRefreshPermissionButton();
+      void registerServiceWorker();
+    });
   } else {
-    init();
+    redirectLoggedInUser();
+    initLanguage();
+    initRefreshPermissionButton();
+    void registerServiceWorker();
   }
 })();
