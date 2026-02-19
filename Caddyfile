@@ -14,31 +14,30 @@
 :80 {
     encode zstd gzip
 
-    # Matrix Client Discovery
     handle_path /.well-known/matrix/client {
         header Access-Control-Allow-Origin "*"
         header Content-Type "application/json"
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
     }
 
-    # Proxy to Conduwuit (Using container name)
+    # FIX: Point to the actual container name from your logs
     handle /_matrix/* {
-        reverse_proxy conduwuit:6167 {
+        reverse_proxy conduwuit-skyservers:6167 {
             header_up X-Forwarded-Proto https
             header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
         }
     }
 
     handle /_synapse/client/* {
-        reverse_proxy conduwuit:6167 {
+        reverse_proxy conduwuit-skyservers:6167 {
             header_up X-Forwarded-Proto https
             header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
         }
     }
 
-    # Proxy to Element-Web (Using container name)
+    # FIX: Point to the actual element container name
     handle {
-        reverse_proxy element-web:80 {
+        reverse_proxy element-skyservers:80 {
             header_up X-Forwarded-Proto https
         }
 
