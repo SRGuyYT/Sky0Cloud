@@ -3,10 +3,11 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
+    ports:
+      - "6167:8008"
     environment:
       CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
       CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
-      CONDUWUIT_PORT: 6167
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
@@ -28,9 +29,10 @@ services:
     image: vectorim/element-web:latest
     container_name: element-skyservers
     restart: always
+    ports:
+      - "8082:80" # Moved to 8082 to prevent the 8081 collision
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
-      - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
