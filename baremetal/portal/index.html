@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('mx_access_token')) {
+          window.location.replace('/app/#/home');
+        }
+      } catch (_) {}
+    })();
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#1f2330" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
+  <title>Sky0Cloud Portal</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/logo.png?v=2" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" sizes="180x180" />
+  <style>
+    :root { --bg:#07101a; --card:#262a33f0; --text:#eef2ff; --muted:#b9c2d9; --accent:#5d6eff; }
+    * { box-sizing:border-box; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    body { margin:0; min-height:100svh; color:var(--text); background:#07101a url('/background.jpg') center/cover no-repeat fixed; }
+    .topbar { position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; padding:12px 16px; backdrop-filter:blur(8px); background:#0d1425cc; border-bottom:1px solid #ffffff1e; }
+    .nav { display:flex; gap:10px; flex-wrap:wrap; }
+    .nav a { color:var(--text); text-decoration:none; padding:8px 12px; border-radius:8px; background:#1b2238; border:1px solid #ffffff1a; }
+    .nav a:hover { background:#253154; }
+    .lang { background:#1b2238; color:var(--text); border:1px solid #ffffff29; border-radius:8px; padding:8px; }
+    main { max-width:900px; margin:8vh auto; padding:24px; }
+    .card { display:flex; gap:24px; align-items:center; justify-content:space-between; padding:24px; border-radius:16px; background:var(--card); box-shadow:0 20px 60px #0008; }
+    .actions { display:grid; gap:10px; width:min(100%,380px); }
+    .btn { text-decoration:none; text-align:center; color:#fff; padding:12px; border-radius:10px; font-weight:700; }
+    .primary { background:linear-gradient(180deg,#5d6eff,#4b57cc); }
+    .muted { background:#5a5f70; }
+    .hint { color:var(--muted); margin-top:10px; }
+    .install { margin-top:12px; display:none; }
+    .logo { width:120px; height:120px; border-radius:50%; border:3px solid #00f2ff2e; }
+    @media (max-width:720px){ .card{flex-direction:column; text-align:center;} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Clients">
+      <a href="/app/#/home" target="_blank" rel="noopener noreferrer" data-i18n="element">Element</a>
+      <a href="https://fluffychat.im/web" target="_blank" rel="noopener noreferrer" data-i18n="fluffychat">FluffyChat</a>
+      <a href="https://schildi.chat/" target="_blank" rel="noopener noreferrer" data-i18n="schildichat">SchildiChat</a>
+      <a href="https://cinny.in/" target="_blank" rel="noopener noreferrer" data-i18n="cinny">Cinny</a>
+    </nav>
+    <label>
+      <span class="sr-only" data-i18n="language">Language</span>
+      <select id="lang" class="lang" aria-label="Language">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+      </select>
+    </label>
+  </header>
+
+  <main>
+    <section class="card">
+      <div>
+        <h1 data-i18n="welcome">Welcome to Sky0Cloud</h1>
+        <p data-i18n="subtitle">Secure Matrix messaging for your community.</p>
+        <div class="actions">
+          <a class="btn primary" href="/app/#/login" data-i18n="login">Login</a>
+          <a class="btn muted" href="/app/#/register" data-i18n="signup">Sign up</a>
+        </div>
+        <p class="hint" data-i18n="token">Registration requires invite token: only_us</p>
+        <button id="installBtn" class="btn primary install" type="button" data-i18n="install">Install App</button>
+      </div>
+      <img class="logo" src="/logo.png?v=2" alt="Sky0Cloud logo" />
+    </section>
+  </main>
+
+  <script>
+    // GA is loaded by Cloudflare Zaraz; do not inline GA scripts here.
+    const MESSAGES = {
+      en: { language: 'Language', welcome: 'Welcome to Sky0Cloud', subtitle: 'Secure Matrix messaging for your community.', login: 'Login', signup: 'Sign up', token: 'Registration requires invite token: only_us', install: 'Install App', element: 'Element', fluffychat: 'FluffyChat', schildichat: 'SchildiChat', cinny: 'Cinny' },
+      es: { language: 'Idioma', welcome: 'Bienvenido a Sky0Cloud', subtitle: 'Mensajería Matrix segura para tu comunidad.', login: 'Iniciar sesión', signup: 'Registrarse', token: 'El registro requiere token de invitación: only_us', install: 'Instalar app', element: 'Element', fluffychat: 'FluffyChat', schildichat: 'SchildiChat', cinny: 'Cinny' },
+      fr: { language: 'Langue', welcome: 'Bienvenue sur Sky0Cloud', subtitle: 'Messagerie Matrix sécurisée pour votre communauté.', login: 'Connexion', signup: 'Inscription', token: 'L\'inscription nécessite un jeton d\'invitation : only_us', install: 'Installer l\'app', element: 'Element', fluffychat: 'FluffyChat', schildichat: 'SchildiChat', cinny: 'Cinny' }
+    };
+
+    const langSelect = document.getElementById('lang');
+    function applyLanguage(lang) {
+      const dict = MESSAGES[lang] || MESSAGES.en;
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.dataset.i18n;
+        if (dict[key]) el.textContent = dict[key];
+      });
+      localStorage.setItem('sky.lang', lang);
+    }
+    langSelect.addEventListener('change', () => applyLanguage(langSelect.value));
+    const initLang = localStorage.getItem('sky.lang') || 'en';
+    langSelect.value = initLang;
+    applyLanguage(initLang);
+
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+    }
+  </script>
+</body>
+</html>
