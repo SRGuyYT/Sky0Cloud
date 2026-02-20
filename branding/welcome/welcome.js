@@ -4,24 +4,24 @@
   const I18N = {
     en: {
       title: 'Sky0Cloud v4',
-      subtitle: 'Messaging built for your life.',
+      subtitle: 'Secure, fast Matrix messaging built for your network.',
       create_account: 'Create an Account',
       login: 'Already have an account? Login',
-      status: 'Registration requires invite token: check your email'
+      status: 'Registration requires invite token: only_us'
     },
     es: {
       title: 'Sky0Cloud v4',
       subtitle: 'Mensajería Matrix segura y rápida para tu red.',
       create_account: 'Crear una cuenta',
       login: '¿Ya tienes una cuenta? Iniciar sesión',
-      status: 'El registro requiere token de invitación: check your email'
+      status: 'El registro requiere token de invitación: only_us'
     },
     fr: {
       title: 'Sky0Cloud v4',
       subtitle: 'Messagerie Matrix sécurisée et rapide pour votre réseau.',
       create_account: 'Créer un compte',
       login: 'Vous avez déjà un compte ? Connexion',
-      status: 'Inscription avec jeton requis : check your email'
+      status: 'Inscription avec jeton requis : only_us'
     }
   };
 

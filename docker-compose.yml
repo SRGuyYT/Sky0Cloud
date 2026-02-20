@@ -24,6 +24,12 @@ services:
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
     networks:
       - sky0cloud-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -T 5 -O - http://127.0.0.1:8008/_matrix/client/versions >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
 
   element-web:
     image: vectorim/element-web:latest
@@ -47,8 +53,10 @@ services:
     container_name: caddy-proxy
     restart: unless-stopped
     depends_on:
-      - conduwuit
-      - element-web
+      conduwuit:
+        condition: service_healthy
+      element-web:
+        condition: service_started
     ports:
       - "8081:80" # CLOUDFLARE/COOLIFY points here
     volumes:
