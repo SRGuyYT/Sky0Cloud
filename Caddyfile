@@ -13,90 +13,51 @@
 :80 {
     encode zstd gzip
 
+    # Header Restoration (Fixes the Google 404 proxy logic)
     @from_cf header CF-Connecting-IP *
     request_header @from_cf X-Forwarded-For {http.request.header.CF-Connecting-IP}
     request_header @from_cf X-Real-IP {http.request.header.CF-Connecting-IP}
 
+    # Matrix Well-Knowns
     handle_path /.well-known/matrix/client {
         header Content-Type "application/json"
         header Access-Control-Allow-Origin "*"
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
     }
 
+    # Apple/Element Device Linking
     handle_path /.well-known/element/element.json {
         header Content-Type "application/json"
         header Access-Control-Allow-Origin "*"
         respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
     }
 
-    @root path /
-    redir @root /welcome.html 302
-
+    # 🚀 THE STABILITY FIX (Sync & Push)
+    # This keeps messages flowing at school.
     handle /_matrix/client/v3/sync* {
         reverse_proxy conduwuit-skyservers:8008 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
             flush_interval -1
             request_buffers 0
             response_buffers 0
             transport http {
-                dial_timeout 30s
                 response_header_timeout 300s
             }
         }
     }
 
-    @push path /_matrix/push* /_matrix/client/v3/push* /_matrix/client/v3/pushrules*
-    handle @push {
-        reverse_proxy conduwuit-skyservers:8008 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
-            transport http {
-                dial_timeout 30s
-                response_header_timeout 300s
-            }
-        }
-    }
-
+    # General Matrix API
     handle /_matrix/* {
-        reverse_proxy conduwuit-skyservers:8008 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
-            transport http {
-                dial_timeout 30s
-                response_header_timeout 300s
-            }
-        }
+        reverse_proxy conduwuit-skyservers:8008
     }
 
-    handle /_synapse/client/* {
-        reverse_proxy conduwuit-skyservers:8008 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
-            transport http {
-                dial_timeout 30s
-                response_header_timeout 300s
-            }
-        }
-    }
-
-    handle /sw.js {
-        header Service-Worker-Allowed "/"
-        header Cache-Control "no-cache, no-store, must-revalidate"
-        reverse_proxy element-skyservers:80
-    }
-
-    @welcome path /welcome.html /welcome.js /welcome-style.css /manifest.json /sw.js /logo.png /apple-touch-icon.png /background.jpg
-    handle @welcome {
-        reverse_proxy element-skyservers:80
-    }
-
+    # 🌍 ELEMENT WEB (Your Branding)
+    # We removed the 'redir @root /welcome.html' entirely.
+    # Element will now handle the landing page itself.
     handle {
-        reverse_proxy element-skyservers:80
+        reverse_proxy element-skyservers:80 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+        }
 
         header {
             Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
