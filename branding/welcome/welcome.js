@@ -1,354 +1,86 @@
-// welcome.js
 (() => {
   'use strict';
 
-  const CONFIG = {
-    matrixBase: 'https://sky0cloud.dpdns.org',
-    mintGuestEndpoint: '/mint-guest',
-    loginRouteBase: 'https://sky0cloud.dpdns.org/#/login',
-    timeoutMs: 15000,
-    autoLoginDelayMs: 350,
-    storageKey: 'sky0cloud.guest.session.v1'
+  const I18N = {
+    en: {
+      title: 'Sky0Cloud v4',
+      subtitle: 'Secure, fast Matrix messaging built for your network.',
+      create_account: 'Create an Account',
+      login: 'Already have an account? Login',
+      status: 'Registration requires invite token: only_us'
+    },
+    es: {
+      title: 'Sky0Cloud v4',
+      subtitle: 'Mensajería Matrix segura y rápida para tu red.',
+      create_account: 'Crear una cuenta',
+      login: '¿Ya tienes una cuenta? Iniciar sesión',
+      status: 'El registro requiere token de invitación: only_us'
+    },
+    fr: {
+      title: 'Sky0Cloud v4',
+      subtitle: 'Messagerie Matrix sécurisée et rapide pour votre réseau.',
+      create_account: 'Créer un compte',
+      login: 'Vous avez déjà un compte ? Connexion',
+      status: 'Inscription avec jeton requis : only_us'
+    }
   };
 
-  const qs = (sel) => document.querySelector(sel);
-  const byId = (id) => document.getElementById(id);
-
-  async function fetchWithTimeout(url, options = {}, timeout = CONFIG.timeoutMs) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+  function hasExistingSession() {
     try {
-      return await fetch(url, { ...options, signal: controller.signal, credentials: 'omit' });
-    } finally {
-      clearTimeout(timeoutId);
+      return Boolean(localStorage.getItem('mx_access_token'));
+    } catch (_) {
+      return false;
     }
   }
 
-  function setStatus(message) {
-    const status = byId('status');
-    if (status) status.textContent = message;
-    console.log('[welcome]', message);
+  function redirectLoggedInUser() {
+    if (!hasExistingSession()) return;
+    window.location.replace('/#/home');
   }
 
-  function showError(message) {
-    const errEl = byId('err');
-    if (errEl) {
-      errEl.textContent = message;
-      errEl.style.display = 'block';
-    }
-    setStatus('Guest auto-login unavailable. You can use Login or Sign up.');
-  }
-
-  function clearError() {
-    const errEl = byId('err');
-    if (errEl) {
-      errEl.textContent = '';
-      errEl.style.display = 'none';
-    }
-  }
-
-  function dockLanguagePicker() {
-    const slot = byId('languagePickerSlot');
-    if (!slot) return false;
-
-    const picker =
-      qs('.mx_LanguagePicker') ||
-      qs('.mx_LanguageDropdown') ||
-      qs('[data-testid="language-picker"]');
-
-    if (!picker) return false;
-    if (picker.parentElement === slot) return true;
-
-    slot.appendChild(picker);
-    console.log('[welcome] Language picker moved to dock.');
-    return true;
-  }
-
-  function enableLanguagePickerDocking() {
-    if (dockLanguagePicker()) return;
-
-    const observer = new MutationObserver(() => {
-      if (dockLanguagePicker()) observer.disconnect();
+  function applyLanguage(lang) {
+    const dict = I18N[lang] || I18N.en;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) el.textContent = dict[key];
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    setTimeout(() => observer.disconnect(), 10000);
-  }
-
-  function normalizeSession(input) {
-    if (!input || typeof input !== 'object') return null;
-    const accessToken = input.access_token || input.token || '';
-    const userId = input.user_id || '';
-    const deviceId = input.device_id || '';
-    if (!accessToken) return null;
-    return {
-      access_token: accessToken,
-      user_id: userId,
-      device_id: deviceId,
-      created_at: Date.now()
-    };
-  }
-
-  function persistSession(session) {
     try {
-      localStorage.setItem(CONFIG.storageKey, JSON.stringify(session));
-      console.log('[welcome] Guest session persisted in localStorage.');
-    } catch (err) {
-      console.warn('[welcome] Failed to persist guest session.', err);
+      localStorage.setItem('sky0cloud.lang', lang);
+    } catch (_) {
+      // ignore storage errors
     }
-
-    console.log('[welcome] Starting token-service fetch:', CONFIG.TOKEN_ENDPOINT);
-    const res = await fetchWithTimeout(CONFIG.TOKEN_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }, CONFIG.TIMEOUT_MS);
-
-    console.log('[welcome] Token-service response status:', res.status);
-    if (!res.ok) {
-      const text = await res.text().catch(() => '<no body>');
-      throw new Error('Token service failed: ' + res.status + ' ' + text);
-    }
-
-    const json = await res.json();
-    console.log('[welcome] Token-service payload received:', json);
-    return json;
   }
 
-  async function mintGuestTokenFromMatrix() {
-    const base = CONFIG.MATRIX_BASE.replace(/\/+$/, '');
-    const attempts = [
-      {
-        url: base + '/_matrix/client/v3/register',
-        payload: { kind: 'guest' },
-        label: 'v3 guest register'
-      },
-      {
-        url: base + '/_matrix/client/r0/register',
-        payload: { kind: 'guest' },
-        label: 'r0 guest register'
-      }
-    ];
+  function initLanguageSwitcher() {
+    const picker = document.getElementById('langPicker');
+    if (!picker) return;
 
-    if (CONFIG.GUEST_PASSWORD) {
-      attempts.push(
-        {
-          url: base + '/_matrix/client/v3/login',
-          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-          label: 'v3 password login (fallback)'
-        },
-        {
-          url: base + '/_matrix/client/r0/login',
-          payload: { type: 'm.login.password', user: CONFIG.GUEST_USER, password: CONFIG.GUEST_PASSWORD },
-          label: 'r0 password login (fallback)'
-        }
-      );
-    }
-
-    for (const attempt of attempts) {
+    const lang = (() => {
       try {
-        console.log('[welcome] Starting fetch:', attempt.label, attempt.url, attempt.payload);
-        const res = await fetchWithTimeout(attempt.url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(attempt.payload)
-        }, CONFIG.TIMEOUT_MS);
-
-        console.log('[welcome] Fetch completed:', attempt.label, 'status=', res.status);
-        if (!res.ok) {
-          const text = await res.text().catch(() => '<no body>');
-          console.log('[welcome] Fetch non-ok response:', attempt.label, text);
-          continue;
-        }
-
-        const json = await res.json().catch(() => null);
-        console.log('[welcome] Fetch successful payload:', attempt.label, json);
-        if (json && (json.access_token || json.login_token)) {
-          console.log('[welcome] Token received from', attempt.label);
-          return json;
-        }
-
-        console.log('[welcome] No usable token in response for', attempt.label);
-      } catch (err) {
-        console.log('[welcome] Fetch threw error for', attempt.label, err);
+        return localStorage.getItem('sky0cloud.lang') || 'en';
+      } catch (_) {
+        return 'en';
       }
-    }
+    })();
 
-    return null;
+    picker.value = lang;
+    applyLanguage(lang);
+    picker.addEventListener('change', () => applyLanguage(picker.value));
   }
 
-  function setBusy(guestBtn, guestLabel, guestSpinner, isBusy) {
-    guestBtn.disabled = isBusy;
-    guestLabel.textContent = isBusy ? 'Connecting...' : 'Enter Guest Mode';
-    guestSpinner.style.display = isBusy ? 'inline-block' : 'none';
-  }
+  function loadDynamicBackground() {
+    const bg = document.getElementById('bg');
+    if (!bg) return;
 
-  function showError(errEl, message) {
-    errEl.textContent = message;
-    errEl.style.display = 'block';
-  }
-
-  function clearError(errEl) {
-    errEl.textContent = '';
-    errEl.style.display = 'none';
-  }
-
-  function buildLoginUrl(session) {
-    const params = new URLSearchParams({
-      token: session.access_token,
-      guest: '1'
-    });
-    if (session.user_id) params.set('user_id', session.user_id);
-    if (session.device_id) params.set('device_id', session.device_id);
-    return `${CONFIG.loginRouteBase}?${params.toString()}`;
-  }
-
-  function hideWelcomeOverlay() {
-    const host = byId('welcome-host');
-    if (host) {
-      host.style.opacity = '0';
-      host.style.pointerEvents = 'none';
-      host.style.display = 'none';
-    }
-
-    const body = document.body;
-    if (body) {
-      body.classList.add('welcome-hidden');
-    }
-
-    console.log('[welcome] Welcome overlay hidden before redirect.');
-  }
-
-  function performNativeParentRedirect(url) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_parent';
-    link.rel = 'noopener';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => link.remove(), 0);
-  }
-
-  function redirectToElement(url) {
-    console.log('[welcome] Redirecting to:', url);
-    hideWelcomeOverlay();
-
-    const isFramed = window.self !== window.top;
-    if (isFramed) {
-      try {
-        window.parent.location.href = url;
-        return;
-      } catch (err) {
-        console.warn('[welcome] parent.location redirect blocked, trying native anchor.', err);
-      }
-      performNativeParentRedirect(url);
-      return;
-    }
-
-    window.location.href = url;
-  }
-
-  async function mintGuestViaMatrix() {
-    setStatus('Requesting Matrix guest registration...');
-    const payload = { kind: 'guest', inhibit_login: false };
-    const endpoints = [
-      `${CONFIG.matrixBase}/_matrix/client/v3/register?kind=guest`,
-      `${CONFIG.matrixBase}/_matrix/client/r0/register?kind=guest`
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        console.log('[welcome] Matrix guest attempt:', endpoint, payload);
-        const res = await fetchWithTimeout(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const text = await res.text();
-        if (!res.ok) {
-          console.warn('[welcome] Matrix guest registration failed:', res.status, text);
-          continue;
-        }
-
-        const data = JSON.parse(text);
-        const session = normalizeSession(data);
-        if (session) {
-          setStatus('Guest account created. Redirecting...');
-          return session;
-        }
-      } catch (err) {
-        console.warn('[welcome] Matrix guest registration exception:', err);
-      }
-    }
-
-    return null;
-  }
-
-  async function mintGuestViaService() {
-    setStatus('Requesting guest token from mint service...');
-    const res = await fetchWithTimeout(CONFIG.mintGuestEndpoint, {
-      method: 'GET',
-      headers: { Accept: 'application/json' }
-    });
-  }
-
-    const text = await res.text();
-    if (!res.ok) {
-      throw new Error(`Mint service failed (${res.status}): ${text}`);
-    }
-
-    const data = JSON.parse(text);
-    const session = normalizeSession(data);
-    if (!session) {
-      throw new Error('Mint service response is missing access_token/token.');
-    }
-
-    return session;
-  }
-
-  async function runGuestAutoLogin({ manual = false } = {}) {
-    const guestBtn = byId('guestBtn');
-    const guestLabel = byId('guestLabel');
-    const guestSpinner = byId('guestSpinner');
-
-    if (guestBtn && guestLabel && guestSpinner) {
-      guestBtn.disabled = true;
-      guestLabel.textContent = manual ? 'Connecting...' : 'Auto connecting...';
-      guestSpinner.style.display = 'inline-block';
-    }
-
-    clearError();
-
-    try {
-      const matrixSession = await mintGuestViaMatrix();
-      const session = matrixSession || await mintGuestViaService();
-      persistSession(session);
-      redirectToElement(buildLoginUrl(session));
-    } catch (err) {
-      console.error('[welcome] Auto guest login failed.', err);
-      showError('Unable to start guest session right now. Please use Login or Sign up.');
-    } finally {
-      if (guestBtn && guestLabel && guestSpinner) {
-        guestBtn.disabled = false;
-        guestLabel.textContent = 'Enter Guest Mode';
-        guestSpinner.style.display = 'none';
-      }
-    }
-  }
-
-  function attachHandlers() {
-    const guestBtn = byId('guestBtn');
-    if (guestBtn) {
-      guestBtn.addEventListener('click', () => runGuestAutoLogin({ manual: true }));
-    }
+    const seed = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+    const url = `https://picsum.photos/seed/${seed}/1920/1080`;
+    bg.style.backgroundImage = `url('${url}')`;
   }
 
   function init() {
-    attachHandlers();
-    enableLanguagePickerDocking();
-    setStatus('Starting guest auto-login...');
-    setTimeout(() => runGuestAutoLogin({ manual: false }), CONFIG.autoLoginDelayMs);
+    redirectLoggedInUser();
+    initLanguageSwitcher();
+    loadDynamicBackground();
   }
 
   if (document.readyState === 'loading') {
