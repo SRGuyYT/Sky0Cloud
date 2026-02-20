@@ -9,22 +9,28 @@ services:
     environment:
       CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
       CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
+      CONDUWUIT_PORT: 8008
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
+      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
       CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
+      CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
+      CONDUWUIT_FEDERATION_TIMEOUT: 120
+      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
+    ports:
+      - "6167:8008"
     networks:
       - sky0cloud-net
 
   element-web:
     image: vectorim/element-web:latest
     container_name: element-skyservers
-    restart: always
-    # No ports needed here; Caddy talks to it over the internal network
+    restart: unless-stopped
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
@@ -42,10 +48,13 @@ services:
     image: caddy:latest
     container_name: caddy-proxy
     restart: unless-stopped
+    depends_on:
+      - conduwuit
+      - element-web
     ports:
       - "8081:80" # CLOUDFLARE/COOLIFY points here
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - sky0cloud-net
 
