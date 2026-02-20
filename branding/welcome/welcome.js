@@ -4,24 +4,24 @@
   const I18N = {
     en: {
       title: 'Sky0Cloud v4',
-      subtitle: 'Secure, fast Matrix messaging built for your network.',
+      subtitle: 'Messaging built for your life.',
       create_account: 'Create an Account',
       login: 'Already have an account? Login',
-      status: 'Registration requires invite token: only_us'
+      status: 'Registration requires invite token: check your email'
     },
     es: {
       title: 'Sky0Cloud v4',
       subtitle: 'Mensajería Matrix segura y rápida para tu red.',
       create_account: 'Crear una cuenta',
       login: '¿Ya tienes una cuenta? Iniciar sesión',
-      status: 'El registro requiere token de invitación: only_us'
+      status: 'El registro requiere token de invitación: check your email'
     },
     fr: {
       title: 'Sky0Cloud v4',
       subtitle: 'Messagerie Matrix sécurisée et rapide pour votre réseau.',
       create_account: 'Créer un compte',
       login: 'Vous avez déjà un compte ? Connexion',
-      status: 'Inscription avec jeton requis : only_us'
+      status: 'Inscription avec jeton requis : check your email'
     }
   };
 
@@ -84,8 +84,16 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      redirectLoggedInUser();
+      initLanguage();
+      initRefreshPermissionButton();
+      void registerServiceWorker();
+    });
   } else {
-    init();
+    redirectLoggedInUser();
+    initLanguage();
+    initRefreshPermissionButton();
+    void registerServiceWorker();
   }
 })();
