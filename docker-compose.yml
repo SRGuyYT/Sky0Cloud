@@ -3,6 +3,8 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
+    ports:
+      - "6167:8008"
     environment:
       CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
       CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"

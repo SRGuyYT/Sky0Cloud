@@ -104,6 +104,9 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
-    init();
+    redirectLoggedInUser();
+    initLanguage();
+    initRefreshPermissionButton();
+    void registerServiceWorker();
   }
 })();
