@@ -84,8 +84,16 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      redirectLoggedInUser();
+      initLanguage();
+      initRefreshPermissionButton();
+      void registerServiceWorker();
+    });
   } else {
-    init();
+    redirectLoggedInUser();
+    initLanguage();
+    initRefreshPermissionButton();
+    void registerServiceWorker();
   }
 })();

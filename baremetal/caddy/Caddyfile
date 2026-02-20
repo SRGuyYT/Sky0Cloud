@@ -1,0 +1,64 @@
+{
+  email admin@sky0cloud.dpdns.org
+}
+
+sky0cloud.dpdns.org {
+  encode zstd gzip
+
+  # Cloudflare real client IP forwarding
+  @from_cf header CF-Connecting-IP *
+  request_header @from_cf X-Forwarded-For {http.request.header.CF-Connecting-IP}
+  request_header @from_cf X-Real-IP {http.request.header.CF-Connecting-IP}
+
+  # Matrix discovery
+  handle_path /.well-known/matrix/client {
+    header Content-Type application/json
+    header Access-Control-Allow-Origin "*"
+    respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}`
+  }
+
+  handle_path /.well-known/element/element.json {
+    header Content-Type application/json
+    header Access-Control-Allow-Origin "*"
+    respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
+  }
+
+  # Matrix API
+  handle /_matrix/* {
+    reverse_proxy 127.0.0.1:6167 {
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {host}
+      header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+      header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+    }
+  }
+
+  handle /_synapse/client/* {
+    reverse_proxy 127.0.0.1:6167 {
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {host}
+      header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+      header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+    }
+  }
+
+  # Element app under /app
+  handle /app* {
+    uri strip_prefix /app
+    reverse_proxy 127.0.0.1:8080
+  }
+
+  # Root portal assets
+  root * /opt/skyserver/portal
+  file_server
+
+  # Security headers (strict)
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
+    Content-Security-Policy "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org; manifest-src 'self'; worker-src 'self'; frame-ancestors 'self';"
+  }
+}

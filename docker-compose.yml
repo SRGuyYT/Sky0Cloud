@@ -3,6 +3,9 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
+    # We use 8008 internally; 6167 is just for your manual checks
+    ports:
+      - "6167:8008"
     environment:
       CONDUWUIT_SERVER_NAME: "sky0cloud.dpdns.org"
       CONDUWUIT_DATABASE_PATH: "/var/lib/conduwuit"
@@ -19,8 +22,6 @@ services:
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
-    ports:
-      - "6167:8008"
     networks:
       - sky0cloud-net
     healthcheck:
@@ -36,7 +37,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
-      - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
       - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
       - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
       - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
@@ -58,7 +58,7 @@ services:
       element-web:
         condition: service_started
     ports:
-      - "8081:80"
+      - "8081:80" # CLOUDFLARE/COOLIFY points here
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
