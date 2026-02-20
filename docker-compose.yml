@@ -3,7 +3,6 @@ services:
     image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: conduwuit-skyservers
     restart: unless-stopped
-    # We use 8008 internally; 6167 is just for your manual checks
     ports:
       - "6167:8008"
     environment:
@@ -13,23 +12,20 @@ services:
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
-      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
-      CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
       CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
-      CONDUWUIT_FEDERATION_TIMEOUT: 120
-      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
     networks:
       - sky0cloud-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -T 5 -O - http://127.0.0.1:8008/_matrix/client/versions >/dev/null || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 20
-      start_period: 20s
+      # Use a more universal check that doesn't rely on wget
+      test: ["CMD-SHELL", "echo > /dev/tcp/127.0.0.1/8008 || exit 1"]
+      interval: 30s # Give it more breathing room
+      timeout: 10s
+      retries: 5
+      start_period: 60s # Give the database 1 minute to wake up before checking
 
   element-web:
     image: vectorim/element-web:latest
@@ -54,11 +50,11 @@ services:
     restart: unless-stopped
     depends_on:
       conduwuit:
-        condition: service_healthy
+        condition: service_started
       element-web:
         condition: service_started
     ports:
-      - "8081:80" # CLOUDFLARE/COOLIFY points here
+      - "8081:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
