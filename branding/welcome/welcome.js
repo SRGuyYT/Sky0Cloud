@@ -1,30 +1,6 @@
 (() => {
   'use strict';
 
-  const I18N = {
-    en: {
-      title: 'Sky0Cloud v4',
-      subtitle: 'Secure, instant Matrix messaging that just works.',
-      signup: 'Create an Account',
-      login: 'Already have an account? Login',
-      note: 'Registration requires invite token: only_us',
-    },
-    es: {
-      title: 'Sky0Cloud v4',
-      subtitle: 'Mensajería Matrix segura e instantánea que funciona.',
-      signup: 'Crear una cuenta',
-      login: '¿Ya tienes una cuenta? Iniciar sesión',
-      note: 'El registro requiere token de invitación: only_us',
-    },
-    fr: {
-      title: 'Sky0Cloud v4',
-      subtitle: 'Messagerie Matrix sécurisée et instantanée.',
-      signup: 'Créer un compte',
-      login: 'Vous avez déjà un compte ? Connexion',
-      note: 'Inscription avec jeton requise : only_us',
-    },
-  };
-
   function hasSession() {
     try {
       return Boolean(localStorage.getItem('mx_access_token'));
@@ -37,35 +13,6 @@
     if (hasSession()) {
       window.location.replace('/#/home');
     }
-  }
-
-  function applyLanguage(lang) {
-    const dict = I18N[lang] || I18N.en;
-    document.querySelectorAll('[data-i18n]').forEach((el) => {
-      const key = el.getAttribute('data-i18n');
-      if (dict[key]) el.textContent = dict[key];
-    });
-    try {
-      localStorage.setItem('sky0cloud.lang', lang);
-    } catch (_) {
-      // no-op
-    }
-  }
-
-  function initLanguage() {
-    const picker = document.getElementById('langPicker');
-    if (!picker) return;
-
-    let lang = 'en';
-    try {
-      lang = localStorage.getItem('sky0cloud.lang') || 'en';
-    } catch (_) {
-      lang = 'en';
-    }
-
-    picker.value = lang;
-    applyLanguage(lang);
-    picker.addEventListener('change', () => applyLanguage(picker.value));
   }
 
   function setDailyBackground() {
@@ -86,7 +33,6 @@
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // Keep startup deterministic after SW updates.
         window.location.reload();
       }, { once: true });
     } catch (_) {
@@ -96,7 +42,6 @@
 
   function init() {
     redirectIfLoggedIn();
-    initLanguage();
     setDailyBackground();
     registerServiceWorker();
   }
