@@ -13,12 +13,10 @@
 :80 {
     encode zstd gzip
 
-    # Header Restoration
     @from_cf header CF-Connecting-IP *
     request_header @from_cf X-Forwarded-For {http.request.header.CF-Connecting-IP}
     request_header @from_cf X-Real-IP {http.request.header.CF-Connecting-IP}
 
-    # Matrix Well-Knowns
     handle_path /.well-known/matrix/client {
         header Content-Type "application/json"
         header Access-Control-Allow-Origin "*"
@@ -31,37 +29,56 @@
         respond `{"im.vector.app.devices":{"apple":{"app_id":"793422880"}}}`
     }
 
-    # High-Stability Sync for School
-    handle /_matrix/client/v3/sync* {
+    # Optimized Matrix API paths for restrictive networks.
+    handle /_matrix/* {
         reverse_proxy conduwuit-skyservers:8008 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
             flush_interval -1
             request_buffers 0
             response_buffers 0
             transport http {
+                dial_timeout 30s
                 response_header_timeout 300s
             }
         }
     }
 
-    handle /_matrix/* {
-        reverse_proxy conduwuit-skyservers:8008
+    handle /_synapse/client/* {
+        reverse_proxy conduwuit-skyservers:8008 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+            header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+            flush_interval -1
+            request_buffers 0
+            response_buffers 0
+            transport http {
+                dial_timeout 30s
+                response_header_timeout 300s
+            }
+        }
     }
 
-    # 🌍 ELEMENT WEB
+    # Service worker should always revalidate.
+    handle /sw.js {
+        header Service-Worker-Allowed "/"
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        reverse_proxy element-skyservers:80
+    }
+
+    # Pure reverse proxy for all app/UI paths, including /
     handle {
-        # INTERNAL REWRITE: Server shows welcome.html but URL stays /
-        rewrite / /welcome.html
-        
-        reverse_proxy element-skyservers:80 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-        }
+        reverse_proxy element-skyservers:80
 
         header {
             Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
             X-Content-Type-Options "nosniff"
             X-Frame-Options "SAMEORIGIN"
             Referrer-Policy "strict-origin-when-cross-origin"
+            Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
         }
     }
 }

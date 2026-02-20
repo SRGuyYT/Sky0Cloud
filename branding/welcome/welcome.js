@@ -4,28 +4,28 @@
   const I18N = {
     en: {
       title: 'Sky0Cloud v4',
-      subtitle: 'Secure, fast Matrix messaging built for your network.',
-      create_account: 'Create an Account',
+      subtitle: 'Secure, instant Matrix messaging that just works.',
+      signup: 'Create an Account',
       login: 'Already have an account? Login',
-      status: 'Registration requires invite token: only_us'
+      note: 'Registration requires invite token: only_us',
     },
     es: {
       title: 'Sky0Cloud v4',
-      subtitle: 'Mensajería Matrix segura y rápida para tu red.',
-      create_account: 'Crear una cuenta',
+      subtitle: 'Mensajería Matrix segura e instantánea que funciona.',
+      signup: 'Crear una cuenta',
       login: '¿Ya tienes una cuenta? Iniciar sesión',
-      status: 'El registro requiere token de invitación: only_us'
+      note: 'El registro requiere token de invitación: only_us',
     },
     fr: {
       title: 'Sky0Cloud v4',
-      subtitle: 'Messagerie Matrix sécurisée et rapide pour votre réseau.',
-      create_account: 'Créer un compte',
+      subtitle: 'Messagerie Matrix sécurisée et instantanée.',
+      signup: 'Créer un compte',
       login: 'Vous avez déjà un compte ? Connexion',
-      status: 'Inscription avec jeton requis : only_us'
-    }
+      note: 'Inscription avec jeton requise : only_us',
+    },
   };
 
-  function hasExistingSession() {
+  function hasSession() {
     try {
       return Boolean(localStorage.getItem('mx_access_token'));
     } catch (_) {
@@ -33,9 +33,10 @@
     }
   }
 
-  function redirectLoggedInUser() {
-    if (!hasExistingSession()) return;
-    window.location.replace('/#/home');
+  function redirectIfLoggedIn() {
+    if (hasSession()) {
+      window.location.replace('/#/home');
+    }
   }
 
   function applyLanguage(lang) {
@@ -47,49 +48,61 @@
     try {
       localStorage.setItem('sky0cloud.lang', lang);
     } catch (_) {
-      // ignore storage errors
+      // no-op
     }
   }
 
-  function initLanguageSwitcher() {
+  function initLanguage() {
     const picker = document.getElementById('langPicker');
     if (!picker) return;
 
-    const lang = (() => {
-      try {
-        return localStorage.getItem('sky0cloud.lang') || 'en';
-      } catch (_) {
-        return 'en';
-      }
-    })();
+    let lang = 'en';
+    try {
+      lang = localStorage.getItem('sky0cloud.lang') || 'en';
+    } catch (_) {
+      lang = 'en';
+    }
 
     picker.value = lang;
     applyLanguage(lang);
     picker.addEventListener('change', () => applyLanguage(picker.value));
   }
 
-  function loadDynamicBackground() {
+  function setDailyBackground() {
     const bg = document.getElementById('bg');
     if (!bg) return;
 
-    const seed = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-    const url = `https://picsum.photos/seed/${seed}/1920/1080`;
-    bg.style.backgroundImage = `url('${url}')`;
+    const now = new Date();
+    const seed = `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}-${now.getUTCDate()}`;
+    bg.style.backgroundImage = `url('https://picsum.photos/seed/sky0cloud-${seed}/1920/1080')`;
+  }
+
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        // Keep startup deterministic after SW updates.
+        window.location.reload();
+      }, { once: true });
+    } catch (_) {
+      // keep UI functional even if SW is unavailable.
+    }
   }
 
   function init() {
-    redirectLoggedInUser();
-    initLanguageSwitcher();
-    loadDynamicBackground();
+    redirectIfLoggedIn();
+    initLanguage();
+    setDailyBackground();
+    registerServiceWorker();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      redirectLoggedInUser();
-      initLanguage();
-      initRefreshPermissionButton();
-      void registerServiceWorker();
-    });
+    document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     redirectLoggedInUser();
     initLanguage();

@@ -12,20 +12,25 @@ services:
       CONDUWUIT_ADDRESS: "0.0.0.0"
       CONDUWUIT_ALLOW_REGISTRATION: "true"
       CONDUWUIT_REGISTRATION_TOKEN: "only_us"
+      CONDUWUIT_YES_I_REALLY_WANT_GUEST_REGISTRATION: "false"
+      CONDUWUIT_TRUSTED_PROXIES: "127.0.0.1,::1"
       CONDUWUIT_REQUEST_CONN_TIMEOUT: 30
       CONDUWUIT_REQUEST_TOTAL_TIMEOUT: 300
+      CONDUWUIT_FEDERATION_TIMEOUT: 120
+      CONDUWUIT_MAX_BODY_SIZE: "100MB"
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
+    ports:
+      - "6167:8008"
     networks:
       - sky0cloud-net
     healthcheck:
-      # Use a more universal check that doesn't rely on wget
-      test: ["CMD-SHELL", "echo > /dev/tcp/127.0.0.1/8008 || exit 1"]
-      interval: 30s # Give it more breathing room
-      timeout: 10s
-      retries: 5
-      start_period: 60s # Give the database 1 minute to wake up before checking
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8008/_matrix/client/versions || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
 
   element-web:
     image: vectorim/element-web:latest
@@ -33,9 +38,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./branding/config.json:/usr/share/nginx/html/config.json
-      - ./branding/welcome/index.html:/usr/share/nginx/html/welcome.html
-      - ./branding/welcome/welcome.js:/usr/share/nginx/html/welcome.js
-      - ./branding/welcome/style.css:/usr/share/nginx/html/welcome-style.css
+      - ./branding/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json
+      - ./branding/welcome/home.html:/usr/share/nginx/html/home.html
+      - ./branding/welcome/style.css:/usr/share/nginx/html/home-style.css
+      - ./branding/welcome/welcome.js:/usr/share/nginx/html/home.js
       - ./branding/logo.png:/usr/share/nginx/html/logo.png
       - ./branding/logo.png:/usr/share/nginx/html/apple-touch-icon.png
       - ./branding/background.jpg:/usr/share/nginx/html/background.jpg
@@ -50,7 +56,7 @@ services:
     restart: unless-stopped
     depends_on:
       conduwuit:
-        condition: service_started
+        condition: service_healthy
       element-web:
         condition: service_started
     ports:

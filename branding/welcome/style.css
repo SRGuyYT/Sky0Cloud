@@ -1,121 +1,101 @@
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
 body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   color: #eef2ff;
   background: #0b1220;
-  overflow-x: hidden;
 }
 
 .bg {
   position: fixed;
   inset: 0;
-  background: #0b1220 center/cover no-repeat;
-  transform: scale(1.03);
-  transition: background-image 600ms ease, filter 500ms ease;
-  filter: saturate(1.08) contrast(1.04);
+  background: #111827 center/cover no-repeat;
+  transition: opacity 450ms ease, filter 450ms ease;
+  filter: saturate(1.08) contrast(1.03);
 }
 
-.bg-overlay {
+.overlay {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(93,110,255,.30), transparent 45%),
-              radial-gradient(circle at 80% 80%, rgba(9,194,255,.18), transparent 45%),
-              rgba(4, 8, 20, 0.58);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(94, 112, 255, 0.28), transparent 42%),
+    radial-gradient(circle at 85% 78%, rgba(0, 201, 255, 0.18), transparent 40%),
+    rgba(3, 8, 24, 0.52);
 }
 
-.client-bar {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  max-width: min(1100px, calc(100vw - 24px));
-  padding: 10px;
-  border-radius: 14px;
-  background: rgba(20, 28, 48, 0.55);
-  border: 1px solid rgba(255,255,255,.18);
-  backdrop-filter: blur(14px);
-}
-
-.client-bar a {
-  color: #e8eeff;
-  text-decoration: none;
-  font-size: .82rem;
-  font-weight: 600;
-  border-radius: 9px;
-  padding: 7px 10px;
-  background: rgba(93, 110, 255, .2);
-}
-
-.shell {
+.host {
   position: relative;
-  z-index: 10;
-  min-height: 100%;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
-  padding: 110px 14px 24px;
+  padding: 18px;
 }
 
-.glass-card {
-  width: min(640px, 100%);
+.glass {
+  width: min(660px, 100%);
   border-radius: 22px;
-  padding: clamp(22px, 4vw, 34px);
-  background: rgba(20, 28, 48, 0.48);
-  border: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 24px 70px rgba(0,0,0,.45);
-  backdrop-filter: blur(18px);
-  animation: cardIn .55s ease;
+  padding: clamp(20px, 3.4vw, 34px);
+  background: rgba(15, 23, 42, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.45);
+  animation: riseIn .45s ease;
 }
 
-.top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.head { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
 h1 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.2rem); }
-.subtitle { margin: 12px 0 20px; color: #cfd8ee; line-height: 1.5; }
 
 .lang {
-  border: 1px solid rgba(255,255,255,.26);
+  border: 1px solid rgba(255,255,255,.25);
   border-radius: 10px;
-  padding: 8px 9px;
-  background: rgba(16, 22, 38, 0.7);
+  padding: 8px 10px;
+  background: rgba(15, 23, 42, 0.66);
   color: #f8fbff;
 }
 
-.btn {
+.subtitle {
+  margin: 12px 0 20px;
+  color: #ced7ee;
+  line-height: 1.5;
+  font-size: 1.02rem;
+}
+
+.cta {
   display: block;
   width: 100%;
   text-align: center;
   text-decoration: none;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #fff;
   border-radius: 12px;
   padding: 14px;
-  font-weight: 800;
+  background: linear-gradient(180deg, #5f73ff, #4455cd);
+  box-shadow: 0 10px 24px rgba(68, 85, 205, 0.45);
 }
 
-.btn-primary {
-  color: #fff;
-  background: linear-gradient(180deg, #5f74ff, #4354cc);
-  box-shadow: 0 10px 24px rgba(67, 84, 204, 0.45);
-}
-
-.login-link {
+.login {
   display: block;
   margin-top: 14px;
   text-align: center;
-  color: #cdd6f0;
   text-decoration: none;
+  color: #d4dcf5;
+  font-weight: 600;
 }
 
-.status { margin: 16px 0 0; font-size: .9rem; color: #a9b6d6; }
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+.note {
+  margin: 18px 0 0;
+  color: #aeb9da;
+  font-size: 0.92rem;
 }
 
-@media (max-width: 760px) {
-  .client-bar { top: 8px; }
-  .shell { padding-top: 112px; }
-  .top-row { flex-direction: column; align-items: flex-start; }
+@keyframes riseIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  .head { flex-direction: column; align-items: flex-start; }
 }
