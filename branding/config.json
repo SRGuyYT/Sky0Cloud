@@ -8,29 +8,39 @@
   },
   "brand": "Sky0Cloud",
   "disable_custom_urls": true,
-  "disable_guests": false,
+  "disable_guests": true,
   "default_theme": "dark",
+  "show_labs_settings": true,
   "room_directory": {
     "servers": [
       "sky0cloud.dpdns.org"
     ]
   },
   "embedded_pages": {
-    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
-    "home_url": "https://sky0cloud.dpdns.org/welcome.html"
+    "home_url": "home.html",
+    "welcome_url": "home.html"
   },
   "branding": {
-    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png",
-    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg"
+    "auth_header_logo_url": "https://sky0cloud.dpdns.org/logo.png?v=2",
+    "welcome_background_url": "https://sky0cloud.dpdns.org/background.jpg?v=2"
   },
   "setting_defaults": {
     "theme": "dark",
     "breadcrumbs": true,
-    "always_show_emoji_picker": false
+    "always_show_emoji_picker": false,
+    "message_bubbles": true,
+    "feature_thread": true,
+    "feature_video_rooms": true,
+    "SecureSecretStorage": true
   },
   "bug_report_endpoint_url": "",
   "integrations_ui_url": "",
   "integrations_rest_url": "",
-  "show_labs_settings": false,
-  "mobile_builds_url": "https://element.io/download"
+  "mobile_builds_url": "https://element.io/download",
+  "features": {
+    "feature_thread": true,
+    "feature_video_rooms": true,
+    "feature_custom_status": true,
+    "feature_pinning": true
+  }
 }
