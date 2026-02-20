@@ -22,8 +22,6 @@ services:
     volumes:
       - ./db:/var/lib/conduwuit
       - ./conduwuit/config.toml:/etc/conduwuit/conduwuit.toml:ro
-    ports:
-      - "6167:8008"
     networks:
       - sky0cloud-net
 
