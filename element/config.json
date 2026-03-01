@@ -2,14 +2,17 @@
   "brand": "Sky0Cloud",
   "default_theme": "dark",
   "default_server_name": "sky0cloud.dpdns.org",
-  "disable_custom_urls": true,
+  "disable_custom_urls": false,
   "disable_guests": true,
   "disable_3pid_login": true,
-  "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
-  "default_favicon_url": "https://sky0cloud.dpdns.org/favicon.ico",
+  "embedded_pages": {
+    "home_url": "welcome.html"
+  },
+  "default_favicon_url": "favicon.ico",
   "room_directory": {
     "servers": [
-      "sky0cloud.dpdns.org"
+      "sky0cloud.dpdns.org",
+      "matrix.org"
     ]
   },
   "setting_defaults": {
@@ -24,6 +27,9 @@
     "m.homeserver": {
       "base_url": "https://sky0cloud.dpdns.org",
       "server_name": "sky0cloud.dpdns.org"
+    },
+    "m.identity_server": {
+      "base_url": "https://matrix.org"
     }
   }
 }
