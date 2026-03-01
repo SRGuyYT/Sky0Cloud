@@ -17,8 +17,7 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - ./element/config.json:/app/config.json:ro
-      - ./element/welcome.html:/app/welcome.html:ro   # <-- add this
+      - ./element:/app:ro   # 👈 THIS is the correct fix
     environment:
       - TZ=UTC
     restart: unless-stopped
