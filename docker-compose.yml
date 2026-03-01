@@ -6,15 +6,16 @@ services:
     container_name: sky0cloud-conduwuit
     volumes:
       - sky0cloud_data:/data
+      - ./conduwuit/config:/opt/sky0cloud/config:ro
     environment:
       - TZ=UTC
+      - CONDUIT_CONFIG=/opt/sky0cloud/config/default.config.json
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pgrep conduwuit || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-    # Prevent compose from trying to pull remote image
     pull_policy: never
 
   element-web:
