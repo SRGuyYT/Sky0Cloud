@@ -1,0 +1,36 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		protocol {
+			experimental_http3
+		}
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+	}
+
+	@wellKnown path /.well-known/matrix/*
+	handle @wellKnown {
+		root * /srv/well-known
+		file_server
+		header Content-Type application/json
+	}
+
+	@matrix path /_matrix/* /_synapse/admin/*
+	handle @matrix {
+		reverse_proxy conduwuit:6167
+	}
+
+	handle {
+		reverse_proxy element-web:80
+	}
+}
