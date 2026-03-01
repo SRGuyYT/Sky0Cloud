@@ -13,11 +13,8 @@
   "disable_3pid_login": true,
   "brand": "Sky0Cloud",
   "default_theme": "dark",
-<<<<<<< ours
-=======
-  "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
-  "welcome_page_url": "https://sky0cloud.dpdns.org/welcome.html",
->>>>>>> theirs
+  "welcome_url": "welcome.html",
+  "welcome_page_url": "welcome.html",
   "show_labs_settings": true,
   "integrations_ui_url": "",
   "integrations_rest_url": "",
