@@ -38,6 +38,9 @@ services:
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
+    environment:
+      - DOMAIN=sky0cloud.dpdns.org
+      - ACME_EMAIL=official@no-reply.skyservers.qzz.io
     volumes:
       - caddy_data:/data
       - caddy_config:/config
