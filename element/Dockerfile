@@ -1,6 +1,4 @@
-# element/Dockerfile
 FROM vectorim/element-web:latest
-
 WORKDIR /opt/sky0cloud
 
 COPY --chown=1000:1000 entrypoint.sh /opt/sky0cloud/entrypoint.sh
