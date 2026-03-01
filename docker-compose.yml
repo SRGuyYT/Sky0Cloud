@@ -37,6 +37,7 @@ services:
     volumes:
       - ./element/config.json:/app/config.json:ro
       - ./element/sky0cloud-theme.css:/app/sky0cloud-theme.css:ro
+      - ./element/config.json:/app/config.sky0cloud.dpdns.org.json:ro
       - ./element/welcome.html:/app/welcome.html:ro
       - ./element/icon.png:/app/icon.png:ro
     expose:
