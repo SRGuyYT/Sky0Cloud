@@ -1,0 +1,29 @@
+{
+  "brand": "Sky0Cloud",
+  "default_theme": "dark",
+  "default_server_name": "sky0cloud.dpdns.org",
+  "disable_custom_urls": true,
+  "disable_guests": true,
+  "disable_3pid_login": true,
+  "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
+  "default_favicon_url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Cpath d='M18 42L32 16l14 26h-7l-7-13-7 13h-7z' fill='%2317d6ff'/%3E%3C/svg%3E",
+  "room_directory": {
+    "servers": [
+      "sky0cloud.dpdns.org"
+    ]
+  },
+  "setting_defaults": {
+    "breadcrumbs": true,
+    "alwaysShowTimestamps": true,
+    "showReadReceipts": true
+  },
+  "features": {
+    "feature_new_room_list": true
+  },
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
+    }
+  }
+}
