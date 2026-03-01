@@ -3,28 +3,11 @@
     "m.homeserver": {
       "base_url": "https://sky0cloud.dpdns.org",
       "server_name": "sky0cloud.dpdns.org"
-    },
-    "m.identity_server": {
-      "base_url": "https://vector.im"
     }
   },
-  "disable_custom_urls": true,
-  "disable_guests": true,
-  "disable_3pid_login": true,
   "brand": "Sky0Cloud",
-  "default_theme": "dark",
   "welcome_url": "welcome.html",
-  "welcome_page_url": "welcome.html",
-  "show_labs_settings": true,
-  "integrations_ui_url": "",
-  "integrations_rest_url": "",
-  "integrations_widgets_urls": [],
-  "bug_report_endpoint_url": "",
-  "setting_defaults": {
-    "breadcrumbs": true
-  },
-  "map_style_url": "",
-  "features": {
-    "feature_new_room_list": true
-  }
+  "default_theme": "dark",
+  "disable_custom_urls": true,
+  "disable_guests": true
 }
