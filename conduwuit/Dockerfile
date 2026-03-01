@@ -1,14 +1,16 @@
+# conduwuit/Dockerfile
 FROM matrixconduit/matrix-conduit:latest
 
 WORKDIR /opt/sky0cloud
 
-# Copy only files that exist inside the conduwuit build context
-COPY entrypoint.sh /opt/sky0cloud/entrypoint.sh
-COPY scripts/ensure-config.sh /opt/sky0cloud/scripts/ensure-config.sh
-COPY config/default.config.json /opt/sky0cloud/config/default.config.json
+# Ensure files are copied with a non-root owner (1000 is common for app users)
+COPY --chown=1000:1000 entrypoint.sh /opt/sky0cloud/entrypoint.sh
+COPY --chown=1000:1000 scripts/ensure-config.sh /opt/sky0cloud/scripts/ensure-config.sh
+COPY --chown=1000:1000 config/default.config.json /opt/sky0cloud/config/default.config.json
 
-RUN dos2unix /opt/sky0cloud/entrypoint.sh /opt/sky0cloud/scripts/ensure-config.sh || true
-RUN chmod 750 /opt/sky0cloud/entrypoint.sh /opt/sky0cloud/scripts/ensure-config.sh || true
+# Do not run package manager commands that the base image doesn't support.
+# Ensure entrypoint is executable at runtime by setting ownership and mode on the host,
+# or rely on the runtime user to execute it.
 
 ENTRYPOINT ["/opt/sky0cloud/entrypoint.sh"]
 CMD ["/usr/local/bin/matrix-conduit", "/etc/conduwuit/conduwuit.toml"]
