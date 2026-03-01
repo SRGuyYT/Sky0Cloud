@@ -1,0 +1,39 @@
+:root {
+  --cpd-color-bg-canvas-default: #070b14;
+  --cpd-color-bg-subtle-primary: rgba(9, 20, 35, 0.76);
+  --cpd-color-bg-action-primary-rest: #17d6ff;
+  --cpd-color-text-primary: #e7f6ff;
+  --cpd-color-text-secondary: #a9bfd0;
+  --cpd-border-radius-pill: 9999px;
+}
+
+.mx_MatrixChat,
+.mx_AuthPage {
+  background:
+    radial-gradient(circle at 15% 8%, rgba(23, 214, 255, 0.18), transparent 36%),
+    radial-gradient(circle at 85% 86%, rgba(112, 151, 255, 0.2), transparent 44%),
+    #070b14;
+}
+
+.mx_LeftPanel,
+.mx_RightPanel,
+.mx_RoomView_messageListWrapper,
+.mx_AuthBody,
+.mx_Dialog,
+.mx_Field input,
+.mx_Field select {
+  border-radius: 16px;
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.mx_AccessibleButton_kind_primary,
+.mx_Dialog_primary {
+  background: linear-gradient(135deg, #1de5ff, #6ca1ff);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.mx_AccessibleButton_kind_primary:hover,
+.mx_Dialog_primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}

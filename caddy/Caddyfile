@@ -1,0 +1,58 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		protocol {
+			experimental_http3
+		}
+	}
+}
+
+# Production endpoint using public ACME TLS.
+http://{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} 308
+}
+
+https://{$DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size 25MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
+		Cross-Origin-Opener-Policy "same-origin"
+	}
+
+	@wellKnown path /.well-known/matrix/*
+	handle @wellKnown {
+		root * /srv/well-known
+		header Content-Type application/json
+		file_server
+	}
+
+	@runtimeConfig path /config.sky0cloud.dpdns.org.json
+	handle @runtimeConfig {
+		root * /srv/runtime
+		file_server
+	}
+
+	@matrixApi path /_matrix/* /_synapse/admin/*
+	handle @matrixApi {
+		reverse_proxy conduwuit:6167
+	}
+
+	handle {
+		reverse_proxy element-web:80
+	}
+}
+
+# Offline/local fallback for smoke tests where ACME cannot be reached.
+https://localhost {
+	tls internal
+	respond "Sky0Cloud Caddy local TLS endpoint" 200
+}

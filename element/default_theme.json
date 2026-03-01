@@ -1,0 +1,9 @@
+{
+  "name": "Sky0Cloud",
+  "is_dark": true,
+  "colors": {
+    "accent-color": "#17d6ff",
+    "primary-color": "#0b1220",
+    "warning-color": "#ffbf47"
+  }
+}
