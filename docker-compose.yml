@@ -16,8 +16,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    pull_policy: never
-
+      
   element-web:
     build:
       context: ./element
