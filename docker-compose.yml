@@ -12,7 +12,7 @@ services:
       - CONDUIT_CONFIG=/etc/conduwuit/conduwuit.toml
       - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
     restart: unless-stopped
-    # Ensure Conduwuit is available before other services that depend on it
+
   element-web:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
@@ -22,14 +22,6 @@ services:
     environment:
       - TZ=UTC
     restart: unless-stopped
-    depends_on:
-      - conduwuit
-    healthcheck:
-      test: ["CMD-SHELL", "grep -q 'Element' /app/index.html || exit 0"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    pull_policy: never
 
   caddy:
     image: caddy:2
@@ -47,11 +39,6 @@ services:
       - "80:80"
       - "443:443"
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "caddy", "list-modules"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
   conduwuit_data:
