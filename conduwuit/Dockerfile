@@ -1,13 +1,9 @@
 FROM matrixconduit/matrix-conduit:latest
 
-WORKDIR /opt/sky0cloud
+# The base Conduwuit image is built on a minimal container image
+# without a shell, so we MUST NOT use RUN instructions or shell-based
+# entrypoints here. We rely entirely on the base image plus the
+# CONDUIT_CONFIG environment variable set by docker-compose.
 
-COPY --chown=1000:1000 entrypoint.sh /opt/sky0cloud/entrypoint.sh
-COPY --chown=1000:1000 scripts/ensure-config.sh /opt/sky0cloud/scripts/ensure-config.sh
-
-RUN chmod +x /opt/sky0cloud/entrypoint.sh \
-    && chmod +x /opt/sky0cloud/scripts/ensure-config.sh
-
-ENTRYPOINT ["/opt/sky0cloud/entrypoint.sh"]
-
+# Start Conduwuit directly
 CMD ["/usr/local/bin/matrix-conduit"]

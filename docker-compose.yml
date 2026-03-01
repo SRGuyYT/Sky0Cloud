@@ -5,23 +5,28 @@ services:
     image: sky0cloud/conduwuit:local
     container_name: sky0cloud-conduwuit
     volumes:
-      - sky0cloud_data:/data
-      - ./conduwuit/config:/opt/sky0cloud/config:ro
+      - conduwuit_data:/data
+      # Mount the static TOML configuration into the container
+      - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
     environment:
       - TZ=UTC
-      - CONDUIT_CONFIG=/opt/sky0cloud/config/conduit.toml
+      # Tell Conduwuit where to find its TOML configuration
+      - CONDUIT_CONFIG=/etc/conduwuit/conduwuit.toml
+      - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
     restart: unless-stopped
-      
+    # Ensure Conduwuit is available before other services that depend on it
   element-web:
     build:
       context: ./element
     image: sky0cloud/element-web:local
     container_name: sky0cloud-element
     volumes:
-      - sky0cloud_data:/data:rw
+      - element_data:/data:rw
     environment:
       - TZ=UTC
     restart: unless-stopped
+    depends_on:
+      - conduwuit
     healthcheck:
       test: ["CMD-SHELL", "grep -q 'Element' /opt/sky0cloud/README.md || exit 0"]
       interval: 15s
@@ -39,6 +44,10 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Share Element runtime data with Caddy so it can serve it directly.
+      - element_data:/srv:ro
+      # Serve Matrix discovery files from the host well-known directory
+      - ./well-known:/srv/well-known:ro
     ports:
       - "80:80"
       - "443:443"
@@ -50,7 +59,9 @@ services:
       retries: 3
 
 volumes:
-  sky0cloud_data:
+  conduwuit_data:
+    driver: local
+  element_data:
     driver: local
   caddy_data:
     driver: local

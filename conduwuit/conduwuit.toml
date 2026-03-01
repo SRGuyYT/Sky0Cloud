@@ -2,14 +2,14 @@
 server_name = "sky0cloud.dpdns.org"
 trusted_servers = ["matrix.org"]
 allow_registration = true
-registration_token = "__REGISTRATION_TOKEN__"
+registration_token = "changeme_registration_token"
 allow_federation = true
 max_request_size = 20000000
 allow_check_for_updates = false
+address = "0.0.0.0"
+port = 6167
 
-[server]
-bind = "0.0.0.0:6167"
+# Conduwuit/Continuwuity (>= 0.5.0) uses RocksDB exclusively; SQLite is no longer supported.
+# This path is where ALL server data is stored (including media).
+database_path = "/data/conduwuit"
 
-[database]
-backend = "sqlite"
-path = "/var/lib/matrix-conduit"

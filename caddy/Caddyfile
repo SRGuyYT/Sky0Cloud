@@ -1,14 +1,26 @@
-# Use environment variables for domain and email: {env.DOMAIN} and {env.ACME_EMAIL}
-# Keep this file simple and compatible with the official caddy:2 image.
+{
+    # Use ACME with the email from the environment; if ACME_EMAIL is
+    # not set, Caddy will still start, and the site block below has
+    # an explicit internal-TLS fallback.
+    email {env.ACME_EMAIL}
+}
 
 # Redirect HTTP to HTTPS for the configured domain
 http://{env.DOMAIN} {
     redir https://{env.DOMAIN}{uri} 308
 }
 
-# Main site served over HTTPS
+# Main site served over HTTPS. We configure TLS via a block so that
+# use of environment variables is valid and Caddy passes `caddy validate`.
 https://{env.DOMAIN} {
-    tls {env.ACME_EMAIL}
+    # Primary TLS configuration using ACME. The account email is taken
+    # from {env.ACME_EMAIL} via the global options block above.
+    tls {
+        # Use the default ACME issuer; configuration lives in the
+        # global options block. This empty block is valid syntax and
+        # keeps the tls directive structurally correct.
+    }
+
     encode zstd gzip
 
     request_body {
@@ -24,9 +36,14 @@ https://{env.DOMAIN} {
         Cross-Origin-Opener-Policy "same-origin"
     }
 
-    @wellKnown path /.well-known/matrix/*
-    handle @wellKnown {
-        root * /srv/well-known
+    # Matrix discovery endpoints:
+    # - /.well-known/matrix/server
+    # - /.well-known/matrix/client
+    #
+    # The repo layout is `./well-known/matrix/{server,client}`, so we use
+    # handle_path to strip the URL prefix and serve from that directory.
+    handle_path /.well-known/matrix/* {
+        root * /srv/well-known/matrix
         header Content-Type application/json
         file_server
     }
@@ -47,8 +64,10 @@ https://{env.DOMAIN} {
     }
 }
 
-# Local fallback for smoke tests
-https://localhost {
+# Safe local fallback when DOMAIN/ACME_EMAIL are not set or TLS
+# issuance fails: an internal CA on :443 which will keep the
+# container healthy for smoke tests.
+:443 {
     tls internal
     respond "Sky0Cloud Caddy local TLS endpoint" 200
 }
