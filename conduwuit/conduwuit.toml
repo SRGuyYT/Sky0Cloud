@@ -1,3 +1,4 @@
+<<<<<<< ours
 [global]
 server_name = "sky0cloud.dpdns.org"
 database_backend = "rocksdb"
@@ -20,3 +21,16 @@ smtp_port = 587
 smtp_username = "official@no-reply.skyservers.qzz.io"
 smtp_password = "TheBoss123?com"
 from_address = "official@no-reply.skyservers.qzz.io"
+=======
+server_name = "sky0cloud.dpdns.org"
+database_backend = "rocksdb"
+database_path = "/var/lib/conduwuit"
+address = "0.0.0.0"
+port = 6167
+allow_federation = true
+allow_registration = true
+registration_token = "newpass123"
+allow_check_for_updates = false
+trusted_servers = ["matrix.org"]
+max_request_size = 20_000_000
+>>>>>>> theirs

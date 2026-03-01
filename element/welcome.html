@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sky0Cloud Welcome</title>
+  <meta name="theme-color" content="#05070f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/png" href="/icon.png" />
+  <link rel="apple-touch-icon" href="/icon.png" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+      --cyan: #00c2ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: #eefaff;
+      background: #05070f center/cover no-repeat fixed;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 0%, rgba(0, 194, 255, 0.24), transparent 42%),
+                  radial-gradient(circle at 80% 100%, rgba(118, 66, 255, 0.2), transparent 45%);
+      pointer-events: none;
+    }
+
+    .card {
+      width: min(560px, 100%);
+      border-radius: 24px;
+      border: var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      padding: 32px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.18);
+      display: block;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 28px rgba(0, 194, 255, 0.35);
+      background: rgba(0,0,0,.2);
+      object-fit: cover;
+    }
+
+    h1 { margin: 0 0 8px; text-align: center; }
+    p { margin: 0 0 24px; text-align: center; color: #b8d7e4; }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    a.button {
+      text-decoration: none;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 194, 255, 0.45);
+      color: #e8faff;
+      background: linear-gradient(180deg, rgba(0, 194, 255, 0.18), rgba(0, 194, 255, 0.08));
+      text-align: center;
+      padding: 12px 16px;
+      font-weight: 600;
+      transition: transform .15s ease, box-shadow .15s ease;
+      box-shadow: 0 0 22px rgba(0, 194, 255, 0.2);
+    }
+
+    a.button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(0, 194, 255, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="logo" src="/icon.png" alt="Sky0Cloud logo" />
+    <h1>Welcome to Sky0Cloud</h1>
+    <p>Encrypted communications powered by Matrix.</p>
+    <div class="actions">
+      <a class="button" href="/">Open Client</a>
+      <a class="button" href="/#/register">Register</a>
+    </div>
+  </main>
+
+  <script>
+    const backgrounds = [
+      "1498050108023-c5249f4df085",
+      "1518770660439-4636190af475",
+      "1523961131990-5ea7c61b2107",
+      "1472214103451-9374bd1c798e",
+      "1500530855697-b586d89ba3ee",
+      "1469474968028-56623f02e42e"
+    ];
+
+    const selected = backgrounds[new Date().getHours() % backgrounds.length];
+    document.body.style.backgroundImage = `url('https://images.unsplash.com/photo-${selected}?auto=format&fit=crop&w=2400&q=80')`;
+  </script>
+</body>
+</html>

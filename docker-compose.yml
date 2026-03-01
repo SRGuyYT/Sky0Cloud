@@ -7,8 +7,13 @@ services:
       - "80:80"
       - "443:443"
     environment:
+<<<<<<< ours
       - DOMAIN=sky0cloud.dpdns.org
       - ACME_EMAIL=admin@sky0cloud.dpdns.org
+=======
+      - DOMAIN=${DOMAIN:-sky0cloud.dpdns.org}
+      - ACME_EMAIL=${ACME_EMAIL:-admin@sky0cloud.dpdns.org}
+>>>>>>> theirs
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -19,6 +24,7 @@ services:
       - element-web
 
   tuwunel:
+<<<<<<< ours
     # Using the official GHCR image as per documentation
     image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: sky0cloud-tuwunel
@@ -29,6 +35,16 @@ services:
     volumes:
       - ./conduwuit/conduwuit.toml:/etc/tuwunel.toml:ro
       - conduwuit_data:/var/lib/tuwunel
+=======
+    image: ${TUWUNEL_IMAGE:-ghcr.io/tuwunel/tuwunel:latest}
+    container_name: sky0cloud-tuwunel
+    restart: unless-stopped
+    environment:
+      TUWUNEL_CONFIG: /etc/tuwunel/conduwuit.toml
+    volumes:
+      - ./conduwuit/conduwuit.toml:/etc/tuwunel/conduwuit.toml:ro
+      - conduwuit_data:/var/lib/conduwuit
+>>>>>>> theirs
     expose:
       - "6167"
 
@@ -39,6 +55,11 @@ services:
     volumes:
       - ./element/config.json:/app/config.json:ro
       - ./element/sky0cloud-theme.css:/app/sky0cloud-theme.css:ro
+<<<<<<< ours
+=======
+      - ./element/welcome.html:/app/welcome.html:ro
+      - ./element/icon.png:/app/icon.png:ro
+>>>>>>> theirs
     expose:
       - "80"
 

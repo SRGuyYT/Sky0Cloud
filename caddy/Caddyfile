@@ -1,4 +1,5 @@
 {
+<<<<<<< ours
     email {$ACME_EMAIL}
 }
 
@@ -29,4 +30,50 @@ http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     handle {
         reverse_proxy sky0cloud-element:80
     }
+=======
+	email {$ACME_EMAIL}
+	servers {
+		protocol {
+			experimental_http3
+		}
+	}
+}
+
+http://{$DOMAIN}:80 {
+	header {
+		X-Forwarded-Proto https
+	}
+	redir https://{$DOMAIN}{uri} 308
+}
+
+https://{$DOMAIN}:443 {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+	}
+
+	@wellKnown path /.well-known/matrix/*
+	handle @wellKnown {
+		root * /srv/well-known
+		file_server
+		header Content-Type application/json
+	}
+
+	@matrix path /_matrix/* /_synapse/admin/*
+	handle @matrix {
+		reverse_proxy tuwunel:6167 {
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	handle {
+		reverse_proxy element-web:80
+	}
+>>>>>>> theirs
 }
