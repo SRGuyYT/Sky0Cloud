@@ -19,7 +19,7 @@ services:
       - element-web
 
   tuwunel:
-    image: ghcr.io/the-ashen-one/tuwunel:latest
+    image: ghcr.io/tuwunel/tuwunel:latest
     container_name: sky0cloud-tuwunel
     restart: unless-stopped
     environment:
