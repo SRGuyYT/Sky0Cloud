@@ -15,15 +15,14 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      # Keep Element config in both supported paths to prevent startup script overwrites
-      # and guarantee nginx serves the expected files from /usr/share/nginx/html.
+      # Mount both config names into /app and nginx root to avoid domain-config 404s
+      # and prevent startup generation scripts from changing deployed config.
       - ./element/config.json:/app/config.json:ro
       - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
       - ./element/config.json:/usr/share/nginx/html/config.json:ro
       - ./element/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json:ro
       - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
       - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
-      - ./element/favicon.ico:/usr/share/nginx/html/favicon.ico:ro
     environment:
       - TZ=UTC
     restart: unless-stopped

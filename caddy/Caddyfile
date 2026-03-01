@@ -27,6 +27,16 @@ sky0cloud.dpdns.org {
         }
     }
 
+    @config path /config.json /config.sky0cloud.dpdns.org.json
+    handle @config {
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
     @sw path /sw.js
     handle @sw {
         header Cache-Control "no-cache, no-store, must-revalidate"
