@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env
+        run: cp .env.example .env
+
+      - name: Lint YAML
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .
+
+      - name: Shell syntax check
+        run: bash -n scripts/*.sh
+
+      - name: Generate secrets for compose validation
+        run: bash scripts/generate-secrets.sh
+
+      - name: Compose config validate
+        run: docker compose config >/dev/null
+
+      - name: Smoke ensure-config mechanism
+        run: |
+          docker volume create sky0cloud_config_data
+          docker run --rm -v "$PWD:/repo" -v sky0cloud_config_data:/data --entrypoint sh alpine:3.20 /repo/scripts/ensure-config.sh
