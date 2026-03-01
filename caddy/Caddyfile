@@ -1,13 +1,21 @@
 {
-    email official@no-reply.skyservers.qzz.io
+    email {env.ACME_EMAIL}
 }
 
-http://sky0cloud.dpdns.org {
-    redir https://sky0cloud.dpdns.org{uri}
-}
+{env.DOMAIN} {
 
-https://sky0cloud.dpdns.org {
-    encode gzip zstd
+    encode zstd gzip
+
+    request_body {
+        max_size 25MB
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
 
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
@@ -15,8 +23,8 @@ https://sky0cloud.dpdns.org {
         file_server
     }
 
-    @matrixApi path /_matrix/* /_synapse/admin/*
-    handle @matrixApi {
+    @matrix path /_matrix/* /_synapse/*
+    handle @matrix {
         reverse_proxy conduwuit:6167
     }
 
