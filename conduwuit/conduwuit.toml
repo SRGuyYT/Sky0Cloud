@@ -1,11 +1,15 @@
+[global]
 server_name = "sky0cloud.dpdns.org"
-address = "0.0.0.0"
-port = 6167
-database_backend = "rocksdb"
-database_path = "/var/lib/matrix-conduit"
-allow_federation = true
+trusted_servers = ["matrix.org"]
 allow_registration = true
 registration_token = "__REGISTRATION_TOKEN__"
-trusted_servers = ["matrix.org"]
+allow_federation = true
 max_request_size = 20000000
 allow_check_for_updates = false
+
+[server]
+bind = "0.0.0.0:6167"
+
+[database]
+backend = "rocksdb"
+path = "/var/lib/matrix-conduit"
