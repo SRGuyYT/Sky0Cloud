@@ -1,0 +1,46 @@
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: sky0cloud-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-sky0cloud.dpdns.org}
+      - ACME_EMAIL=${ACME_EMAIL:-admin@sky0cloud.dpdns.org}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./well-known:/srv/well-known:ro
+    depends_on:
+      - conduwuit
+      - element-web
+
+  conduwuit:
+    image: ${CONDUWUIT_IMAGE:-matrixconduit/matrix-conduit:latest}
+    container_name: sky0cloud-conduwuit
+    restart: unless-stopped
+    environment:
+      CONDUWUIT_CONFIG: /etc/conduwuit/conduwuit.toml
+    volumes:
+      - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
+      - conduwuit_data:/var/lib/conduwuit
+    expose:
+      - "6167"
+
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: sky0cloud-element
+    restart: unless-stopped
+    volumes:
+      - ./element/config.json:/app/config.json:ro
+      - ./element/sky0cloud-theme.css:/app/sky0cloud-theme.css:ro
+    expose:
+      - "80"
+
+volumes:
+  caddy_data:
+  caddy_config:
+  conduwuit_data:
