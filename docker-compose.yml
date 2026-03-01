@@ -4,11 +4,9 @@ services:
     container_name: sky0cloud-conduwuit
     volumes:
       - conduwuit_data:/data
-      # Mount the static TOML configuration into the container
       - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
     environment:
       - TZ=UTC
-      # Tell Conduwuit where to find its TOML configuration
       - CONDUIT_CONFIG=/etc/conduwuit/conduwuit.toml
       - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
     restart: unless-stopped
@@ -17,25 +15,28 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
+      # Keep Element config in both supported paths to prevent startup script overwrites
+      # and guarantee nginx serves the expected files from /usr/share/nginx/html.
       - ./element/config.json:/app/config.json:ro
+      - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
+      - ./element/config.json:/usr/share/nginx/html/config.json:ro
+      - ./element/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json:ro
       - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
       - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
       - ./element/favicon.ico:/usr/share/nginx/html/favicon.ico:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
-  
+
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
     environment:
-      - DOMAIN=sky0cloud.dpdns.org
       - ACME_EMAIL=official@no-reply.skyservers.qzz.io
     volumes:
       - caddy_data:/data
       - caddy_config:/config
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      # Serve Matrix discovery files from the host well-known directory
       - ./well-known:/srv/well-known:ro
     ports:
       - "80:80"

@@ -2,1144 +2,194 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sky0Cloud – Welcome</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Cpath d='M18 42L32 16l14 26h-7l-7-13-7 13h-7z' fill='%2317d6ff'/%3E%3C/svg%3E">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Cpath d='M18 42L32 16l14 26h-7l-7-13-7 13h-7z' fill='%2317d6ff'/%3E%3C/svg%3E">
-  <meta name="theme-color" content="#070b14" />
-
+  <title>Sky0Cloud | Welcome</title>
   <style>
     :root {
-      --bg: #02030a;
-      --bg-alt: #050818;
-      --accent: #17d6ff;
-      --accent-soft: rgba(23, 214, 255, 0.2);
-      --accent-strong: rgba(23, 214, 255, 0.9);
-      --text: #f5f7ff;
-      --muted: #9aa0c2;
-      --danger: #ff4b81;
-      --warning: #ffb347;
-      --glass: rgba(7, 11, 20, 0.7);
-      --glass-strong: rgba(7, 11, 20, 0.9);
-      --border-glass: rgba(255, 255, 255, 0.08);
-      --radius-lg: 24px;
-      --radius-md: 18px;
-      --radius-pill: 999px;
-      --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.7);
-      --blur-strong: 26px;
-      --transition-fast: 0.18s ease-out;
-      --transition-med: 0.28s ease-out;
+      --bg: #070b14;
+      --panel: rgba(15, 22, 38, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.14);
+      --text: #f5f8ff;
+      --muted: #b9c2dd;
+      --primary: #22d3ee;
+      --primary-hover: #3ee5ff;
+      --radius: 18px;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      height: 100%;
-      width: 100%;
-      background: radial-gradient(circle at top, #0b1024 0, #02030a 55%, #000000 100%);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Animated space background */
-    .space-bg {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      z-index: -2;
-      background: radial-gradient(circle at 10% 0%, #1a2b5f 0, transparent 55%),
-                  radial-gradient(circle at 90% 10%, #1b3b5f 0, transparent 55%),
-                  radial-gradient(circle at 50% 100%, #1b1f3f 0, transparent 60%),
-                  #02030a;
-    }
-
-    .stars-layer {
-      position: absolute;
-      inset: -50%;
-      background-image:
-        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9) 0, transparent 50%),
-        radial-gradient(1.5px 1.5px at 80% 10%, rgba(255,255,255,0.7) 0, transparent 50%),
-        radial-gradient(1.5px 1.5px at 30% 70%, rgba(255,255,255,0.6) 0, transparent 50%),
-        radial-gradient(2px 2px at 60% 40%, rgba(255,255,255,0.8) 0, transparent 50%),
-        radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5) 0, transparent 50%);
-      opacity: 0.7;
-      animation: drift 80s linear infinite;
-    }
-
-    .stars-layer:nth-child(2) {
-      opacity: 0.4;
-      transform: scale(1.3);
-      animation-duration: 120s;
-    }
-
-    .nebula {
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 20% 30%, rgba(23, 214, 255, 0.18) 0, transparent 55%),
-        radial-gradient(circle at 80% 60%, rgba(255, 75, 129, 0.16) 0, transparent 55%),
-        radial-gradient(circle at 40% 80%, rgba(120, 90, 255, 0.18) 0, transparent 55%);
-      mix-blend-mode: screen;
-      filter: blur(10px);
-      opacity: 0.7;
-      animation: nebulaPulse 18s ease-in-out infinite alternate;
-    }
-
-    @keyframes drift {
-      from { transform: translate3d(0, 0, 0); }
-      to   { transform: translate3d(-10%, -20%, 0); }
-    }
-
-    @keyframes nebulaPulse {
-      0%   { opacity: 0.4; transform: scale(1); }
-      50%  { opacity: 0.8; transform: scale(1.05); }
-      100% { opacity: 0.6; transform: scale(1.02); }
-    }
-
-    /* Layout */
-    .shell {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 1200px;
-      padding: 20px 16px 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    @media (min-width: 768px) {
-      .shell {
-        padding: 32px 32px 40px;
-        gap: 24px;
-      }
-    }
-
-    /* Top bar */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 10px 14px;
-      border-radius: var(--radius-pill);
-      background: linear-gradient(135deg, rgba(7, 11, 20, 0.9), rgba(7, 11, 20, 0.6));
-      border: 1px solid var(--border-glass);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(18px) saturate(150%);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 12px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Cpath d='M18 42L32 16l14 26h-7l-7-13-7 13h-7z' fill='%2317d6ff'/%3E%3C/svg%3E");
-      background-size: cover;
-      box-shadow: 0 0 0 1px rgba(23, 214, 255, 0.4), 0 0 18px rgba(23, 214, 255, 0.7);
-    }
-
-    .brand-text-main {
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-size: 0.82rem;
-      color: var(--accent);
-    }
-
-    .brand-text-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .chip {
-      padding: 6px 12px;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: radial-gradient(circle at 0 0, rgba(23, 214, 255, 0.25), rgba(7, 11, 20, 0.9));
-      font-size: 0.75rem;
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .chip-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #3cff9b;
-      box-shadow: 0 0 8px rgba(60, 255, 155, 0.9);
-    }
-
-    .chip-pill {
-      border-radius: var(--radius-pill);
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    /* Main content layout */
-    .main-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr);
-      gap: 18px;
-    }
-
-    @media (min-width: 900px) {
-      .main-grid {
-        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-        align-items: stretch;
-      }
-    }
-
-    /* Glass panels */
-    .panel {
-      position: relative;
-      border-radius: var(--radius-lg);
-      background: radial-gradient(circle at top left, rgba(23, 214, 255, 0.18), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(255, 75, 129, 0.12), transparent 55%),
-                  var(--glass);
-      border: 1px solid var(--border-glass);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(var(--blur-strong)) saturate(160%);
-      padding: 18px 16px 18px;
-      overflow: hidden;
-    }
-
-    @media (min-width: 768px) {
-      .panel {
-        padding: 22px 20px 22px;
-      }
-    }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.08), transparent 55%);
-      opacity: 0.4;
-      mix-blend-mode: soft-light;
-      pointer-events: none;
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .panel-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+      margin: 0;
+      min-height: 100vh;
       color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(160deg, #04070f, #0b1330 55%, #08101f);
+      display: grid;
+      place-items: center;
+      padding: 24px;
     }
 
-    .panel-subtitle {
-      font-size: 0.85rem;
+    .app {
+      width: min(1080px, 100%);
+      display: grid;
+      gap: 24px;
+    }
+
+    .hero,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 40px 28px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 20%, #3ee5ff, #0b4e62);
+    }
+
+    .logo svg { width: 34px; height: 34px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3.7vw, 2.8rem);
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      max-width: 680px;
+      margin: 12px auto 0;
       color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .badge {
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: linear-gradient(135deg, rgba(23, 214, 255, 0.2), rgba(7, 11, 20, 0.9));
-      color: var(--accent);
-      white-space: nowrap;
-    }
-
-    /* Hero content */
-    .hero-main {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .hero-heading {
-      font-size: clamp(1.9rem, 3vw, 2.4rem);
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      line-height: 1.15;
-    }
-
-    .hero-heading span {
-      background: linear-gradient(120deg, #ffffff, #b5f3ff, #17d6ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero-body {
-      font-size: 0.95rem;
-      color: var(--muted);
-      max-width: 34rem;
       line-height: 1.6;
+      font-size: 1.02rem;
     }
 
-    .hero-body strong {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .hero-actions {
+    .actions {
+      margin-top: 24px;
       display: flex;
+      gap: 12px;
+      justify-content: center;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
     }
 
     .btn {
-      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: var(--radius-pill);
+      min-width: 170px;
+      padding: 12px 18px;
+      border-radius: 999px;
       border: 1px solid transparent;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
       text-decoration: none;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-      outline: none;
-      white-space: nowrap;
+      font-weight: 600;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
     }
 
     .btn-primary {
-      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.18), transparent 55%),
-                  linear-gradient(135deg, #17d6ff, #4ef0ff);
-      color: #02030a;
-      box-shadow: 0 14px 40px rgba(23, 214, 255, 0.55);
+      background: linear-gradient(135deg, var(--primary), #1aa5e0);
+      color: #001018;
+      box-shadow: 0 10px 24px rgba(34, 211, 238, 0.35);
     }
 
-    .btn-primary:hover {
-      transform: translateY(-1px) scale(1.01);
-      box-shadow: 0 18px 50px rgba(23, 214, 255, 0.7);
-    }
-
-    .btn-outline {
-      background: rgba(7, 11, 20, 0.8);
-      border-color: rgba(255, 255, 255, 0.16);
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.22);
       color: var(--text);
     }
 
-    .btn-outline:hover {
-      background: rgba(23, 214, 255, 0.08);
-      border-color: rgba(23, 214, 255, 0.6);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
-    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary:hover { background: linear-gradient(135deg, var(--primary-hover), #28bcff); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.12); }
 
-    .btn-pill-soft {
-      padding: 7px 14px;
-      font-size: 0.78rem;
-      border-radius: var(--radius-pill);
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--muted);
-    }
-
-    .btn-pill-soft span {
-      color: var(--accent);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: none;
-    }
-
-    /* Cards grid */
-    .cards-grid {
+    .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
 
     .card {
-      position: relative;
-      border-radius: var(--radius-md);
-      background: linear-gradient(145deg, rgba(7, 11, 20, 0.95), rgba(7, 11, 20, 0.7));
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px 12px 12px;
-      overflow: hidden;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 0 0, rgba(23, 214, 255, 0.18), transparent 55%);
-      opacity: 0.4;
-      mix-blend-mode: soft-light;
-      pointer-events: none;
-    }
-
-    .card-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .card-value {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    .card-meta {
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    .pill-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 9px;
-      border-radius: var(--radius-pill);
-      font-size: 0.72rem;
-      background: rgba(23, 214, 255, 0.08);
-      color: var(--accent);
-      margin-top: 4px;
-    }
-
-    .pill-status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #3cff9b;
-      box-shadow: 0 0 8px rgba(60, 255, 155, 0.9);
-    }
-
-    .pill-status-warn {
-      background: rgba(255, 179, 71, 0.12);
-      color: var(--warning);
-    }
-
-    .pill-status-warn-dot {
-      background: var(--warning);
-      box-shadow: 0 0 8px rgba(255, 179, 71, 0.9);
-    }
-
-    .pill-status-danger {
-      background: rgba(255, 75, 129, 0.12);
-      color: var(--danger);
-    }
-
-    .pill-status-danger-dot {
-      background: var(--danger);
-      box-shadow: 0 0 8px rgba(255, 75, 129, 0.9);
-    }
-
-    /* Notice / warning */
-    .notice {
-      margin-top: 14px;
-      padding: 10px 12px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(255, 179, 71, 0.16), rgba(7, 11, 20, 0.9));
-      border: 1px solid rgba(255, 179, 71, 0.4);
-      color: #ffe7c2;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .notice::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.12), transparent 55%);
-      opacity: 0.4;
-      mix-blend-mode: soft-light;
-      pointer-events: none;
-    }
-
-    .notice-title {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      font-size: 0.75rem;
-      margin-bottom: 4px;
-      color: #ffe7c2;
-    }
-
-    .notice-body {
-      font-size: 0.8rem;
-    }
-
-    /* Right column: server info & quick actions */
-    .server-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .server-grid {
+      padding: 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 10px;
+      align-content: start;
+      transition: border-color .2s ease, transform .2s ease;
     }
 
-    .server-meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 4px;
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 211, 238, 0.55);
     }
 
-    .progress-bar {
-      position: relative;
-      width: 100%;
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      overflow: hidden;
-      margin-top: 6px;
+    .card h2 {
+      margin: 0;
+      font-size: 1.1rem;
     }
 
-    .progress-fill {
-      position: absolute;
-      inset: 0;
-      width: 0;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #17d6ff, #4ef0ff);
-      box-shadow: 0 0 12px rgba(23, 214, 255, 0.8);
-      animation: progressPulse 2.4s ease-in-out infinite alternate;
-    }
-
-    .progress-fill.warn {
-      background: linear-gradient(90deg, #ffb347, #ffd27a);
-      box-shadow: 0 0 12px rgba(255, 179, 71, 0.8);
-    }
-
-    .progress-fill.danger {
-      background: linear-gradient(90deg, #ff4b81, #ff8fb0);
-      box-shadow: 0 0 12px rgba(255, 75, 129, 0.8);
-    }
-
-    @keyframes progressPulse {
-      0% { width: 40%; opacity: 0.7; }
-      50% { width: 70%; opacity: 1; }
-      100% { width: 55%; opacity: 0.85; }
-    }
-
-    /* iOS gate overlay */
-    .ios-gate-backdrop {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.98));
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-    }
-
-    .ios-gate {
-      max-width: 480px;
-      width: 100%;
-      border-radius: 26px;
-      background: linear-gradient(145deg, rgba(7, 11, 20, 0.98), rgba(7, 11, 20, 0.9));
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.9);
-      padding: 20px 18px 18px;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(26px) saturate(180%);
-    }
-
-    .ios-gate::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at 0 0, rgba(23, 214, 255, 0.22), transparent 55%);
-      opacity: 0.5;
-      mix-blend-mode: soft-light;
-      pointer-events: none;
-    }
-
-    .ios-gate-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .ios-gate-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b14'/%3E%3Cpath d='M18 42L32 16l14 26h-7l-7-13-7 13h-7z' fill='%2317d6ff'/%3E%3C/svg%3E");
-      background-size: cover;
-      box-shadow: 0 0 0 1px rgba(23, 214, 255, 0.5), 0 0 18px rgba(23, 214, 255, 0.9);
-    }
-
-    .ios-gate-title {
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .ios-gate-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .ios-gate-body {
-      position: relative;
-      z-index: 1;
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .ios-gate-body strong {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .ios-steps {
-      margin-top: 10px;
-      padding: 10px 10px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.8rem;
+    .card p {
+      margin: 0;
       line-height: 1.5;
-    }
-
-    .ios-steps ol {
-      padding-left: 18px;
-      margin-top: 4px;
-    }
-
-    .ios-steps li {
-      margin-bottom: 4px;
-    }
-
-    .ios-gate-actions {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .ios-code-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .ios-code-input {
-      flex: 1;
-      min-width: 120px;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(7, 11, 20, 0.9);
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    .ios-code-input::placeholder {
-      color: rgba(154, 160, 194, 0.7);
-    }
-
-    .ios-note {
-      font-size: 0.75rem;
       color: var(--muted);
-      margin-top: 4px;
+      min-height: 70px;
     }
 
-    .ios-notification {
-      margin-top: 8px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      background: rgba(23, 214, 255, 0.08);
-      border: 1px dashed rgba(23, 214, 255, 0.5);
-      font-size: 0.78rem;
-      color: var(--accent);
-      display: none;
-      word-break: break-all;
+    .meta {
+      font-size: 0.9rem;
+      color: #cfe8ff;
+      word-break: break-word;
     }
 
-    .ios-error {
-      margin-top: 6px;
-      font-size: 0.78rem;
-      color: var(--danger);
-      display: none;
-    }
-
-    .ios-success {
-      margin-top: 6px;
-      font-size: 0.78rem;
-      color: #3cff9b;
-      display: none;
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 6px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .footer span {
-      color: var(--accent);
-    }
-
-    @media (max-width: 480px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .top-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn, .btn-outline {
-        width: 100%;
-        justify-content: center;
-      }
-      .ios-gate {
-        padding: 18px 14px 16px;
-      }
+    @media (max-width: 640px) {
+      .hero { padding: 30px 20px; }
+      .card p { min-height: 0; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="space-bg">
-    <div class="stars-layer"></div>
-    <div class="stars-layer"></div>
-    <div class="nebula"></div>
-  </div>
-
-  <div class="ios-gate-backdrop" id="iosGateBackdrop" aria-hidden="true">
-    <div class="ios-gate" role="dialog" aria-modal="true" aria-labelledby="iosGateTitle">
-      <div class="ios-gate-header">
-        <div class="ios-gate-logo"></div>
-        <div>
-          <div class="ios-gate-title" id="iosGateTitle">Sky0Cloud Web App</div>
-          <div class="ios-gate-sub">Optimized for iPhone &amp; iPad – add to Home Screen to continue</div>
-        </div>
+  <main class="app">
+    <section class="hero">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 46L32 16L46 46H38L32 34L26 46H18Z" fill="#07131f" />
+        </svg>
       </div>
-      <div class="ios-gate-body">
-        <p>
-          To get the best experience on <strong>Apple devices</strong>, Sky0Cloud runs as a
-          <strong>Home Screen web app</strong> with notifications enabled.
-        </p>
-        <div class="ios-steps">
-          <strong>Steps:</strong>
-          <ol>
-            <li>Tap the <strong>Share</strong> icon in Safari.</li>
-            <li>Choose <strong>Add to Home Screen</strong> and confirm.</li>
-            <li>Open Sky0Cloud from your Home Screen icon.</li>
-          </ol>
-        </div>
-        <div class="ios-gate-actions">
-          <div class="ios-note">
-            Once added, tap <strong>Send Code</strong>. We’ll show a one-time code as a “notification” here.
-            Enter it to unlock this device for future access.
-          </div>
-          <div class="ios-code-row">
-            <button class="btn btn-primary" type="button" id="iosSendCodeBtn">Send Code</button>
-            <input class="ios-code-input" id="iosCodeInput" placeholder="Enter code here" inputmode="numeric" />
-            <button class="btn btn-outline" type="button" id="iosVerifyBtn">Verify</button>
-          </div>
-          <div class="ios-notification" id="iosNotificationBox"></div>
-          <div class="ios-error" id="iosErrorBox"></div>
-          <div class="ios-success" id="iosSuccessBox"></div>
-        </div>
+      <h1>Welcome to Sky0Cloud</h1>
+      <p class="lead">Your Matrix home powered by Element Web, Conduwuit, and Caddy. Fast, private, and ready for secure communication.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/">Open Element</a>
+        <a class="btn btn-secondary" href="https://matrix.to/#/#general:sky0cloud.dpdns.org">Join #general</a>
       </div>
-    </div>
-  </div>
-
-  <main class="shell">
-    <header class="top-bar">
-      <div class="brand">
-        <div class="brand-logo"></div>
-        <div>
-          <div class="brand-text-main">Sky0Cloud</div>
-          <div class="brand-text-sub">Self-hosted Matrix &amp; Element stack</div>
-        </div>
-      </div>
-      <div class="top-actions">
-        <div class="chip">
-          <span class="chip-dot"></span>
-          Live cluster · <span id="clusterStatusText">Healthy</span>
-        </div>
-        <div class="chip-pill">
-          Region: <strong> HomeLab / Columbus, OH </strong>
-        </div>
-      </div>
-    </header>
-
-    <section class="main-grid">
-      <section class="panel">
-        <div class="hero-main">
-          <div>
-            <div class="panel-header">
-              <div>
-                <div class="panel-title">Welcome to Sky0Cloud</div>
-                <p class="panel-subtitle">A liquid-glass portal into your personal Matrix homeserver.</p>
-              </div>
-              <span class="badge">v1 · Preview</span>
-            </div>
-            <h1 class="hero-heading">
-              Secure, <span>space‑grade messaging</span> for your world.
-            </h1>
-            <p class="hero-body">
-              Sky0Cloud is your <strong>self-hosted Matrix homeserver</strong> with a beautifully themed
-              Element client, TLS termination via Caddy, and a focus on privacy, control, and performance.
-            </p>
-          </div>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="https://sky0cloud.dpdns.org/#/login">
-              Launch Element · Login
-            </a>
-            <a class="btn btn-outline" href="https://sky0cloud.dpdns.org/#/register">
-              Create Account
-            </a>
-            <button class="btn-pill-soft" type="button" id="scrollToServerInfo">
-              View <span>server status</span>
-            </button>
-          </div>
-
-          <div class="cards-grid">
-            <article class="card">
-              <div class="card-label">Homeserver</div>
-              <div class="card-value">conduwuit</div>
-              <div class="card-meta">Matrix homeserver implementation powering Sky0Cloud.</div>
-              <div class="pill-status">
-                <span class="pill-status-dot"></span>
-                Online · Port 6167
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Client</div>
-              <div class="card-value">Element Web</div>
-              <div class="card-meta">Custom themed Element instance at sky0cloud.dpdns.org.</div>
-              <div class="pill-status">
-                <span class="pill-status-dot"></span>
-                Healthy · Port 80 (proxied)
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Gateway</div>
-              <div class="card-value">Caddy</div>
-              <div class="card-meta">TLS, HTTP/2, and reverse proxy for Matrix &amp; Element.</div>
-              <div class="pill-status pill-status-warn">
-                <span class="pill-status-warn-dot"></span>
-                ACME / Caddyfile changes pending
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Data volume</div>
-              <div class="card-value">sky0cloud_data</div>
-              <div class="card-meta">Persistent storage for config, media, and runtime data.</div>
-              <div class="pill-status pill-status-danger">
-                <span class="pill-status-danger-dot"></span>
-                Backups strongly recommended
-              </div>
-            </article>
-          </div>
-
-          <aside class="notice">
-            <div class="notice-title">Notice · Upcoming changes</div>
-            <div class="notice-body">
-              Sky0Cloud’s Docker stack and Caddy configuration are actively evolving. Expect
-              <strong>breaking changes</strong> to container images, Caddyfile syntax, and runtime
-              configuration paths. Before updating, always:
-              <br />
-              • Snapshot your volumes and configuration files.<br />
-              • Review the latest release notes and migration steps.<br />
-              • Validate Caddyfile and conduwuit configuration in a test environment when possible.
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <aside class="panel" id="serverInfoPanel">
-        <div class="panel-header">
-          <div>
-            <div class="panel-title">Server overview</div>
-            <p class="panel-subtitle">Live snapshot of your Sky0Cloud stack.</p>
-          </div>
-          <span class="badge">Status · Live</span>
-        </div>
-
-        <div class="server-panel">
-          <div class="server-grid">
-            <article class="card">
-              <div class="card-label">Host node</div>
-              <div class="card-value">ssbedwars</div>
-              <div class="server-meta-row">
-                <span>Ubuntu 24.04.4 LTS</span>
-                <span>Kernel 6.8.0</span>
-              </div>
-              <div class="server-meta-row">
-                <span>CPU load</span>
-                <span id="cpuLoadText">~0.6</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 55%;"></div>
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Memory</div>
-              <div class="card-value" id="memoryUsageText">44% used</div>
-              <div class="server-meta-row">
-                <span>Swap</span>
-                <span>0%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill warn" style="width: 44%;"></div>
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Storage</div>
-              <div class="card-value">/ · 1.1% used</div>
-              <div class="server-meta-row">
-                <span>Capacity</span>
-                <span>~915 GB</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 12%;"></div>
-              </div>
-            </article>
-
-            <article class="card">
-              <div class="card-label">Network</div>
-              <div class="card-value">192.168.1.133</div>
-              <div class="server-meta-row">
-                <span>IPv6</span>
-                <span>enabled</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 60%;"></div>
-              </div>
-            </article>
-          </div>
-
-          <div class="cards-grid" style="margin-top: 10px;">
-            <article class="card">
-              <div class="card-label">Matrix endpoint</div>
-              <div class="card-value">/_matrix</div>
-              <div class="card-meta">Proxied via Caddy to conduwuit:6167.</div>
-            </article>
-            <article class="card">
-              <div class="card-label">Runtime config</div>
-              <div class="card-value">config.sky0cloud.dpdns.org.json</div>
-              <div class="card-meta">Served from /data and exposed via Caddy.</div>
-            </article>
-          </div>
-
-          <div class="hero-actions" style="margin-top: 10px;">
-            <a class="btn btn-outline" href="https://sky0cloud.dpdns.org/#/login">
-              Open Element (web)
-            </a>
-            <button class="btn btn-outline" type="button" id="reloadPageBtn">
-              Refresh welcome page
-            </button>
-          </div>
-        </div>
-      </aside>
     </section>
 
-    <footer class="footer">
-      Sky0Cloud · <span>liquid glass</span> interface for your Matrix homeserver.
-    </footer>
+    <section class="cards" aria-label="Sky0Cloud features">
+      <article class="card">
+        <h2>Secure Matrix Access</h2>
+        <p>Connect to your homeserver through HTTPS with strict headers and reverse-proxy routing designed for production deployments.</p>
+        <div class="meta">Homeserver: <strong>sky0cloud.dpdns.org</strong></div>
+      </article>
+      <article class="card">
+        <h2>Reliable Config Delivery</h2>
+        <p>Element receives both the default and domain-specific configuration files, preventing startup errors and blank page issues.</p>
+        <div class="meta">Config: <strong>/config.json</strong> + <strong>/config.sky0cloud.dpdns.org.json</strong></div>
+      </article>
+      <article class="card">
+        <h2>Static Files Ready</h2>
+        <p>Essential assets like welcome page, service worker, and favicon are mounted directly and served from nginx with cache-safe headers.</p>
+        <div class="meta">Assets: <strong>/welcome.html</strong>, <strong>/sw.js</strong>, <strong>/favicon.ico</strong></div>
+      </article>
+    </section>
   </main>
-
-  <script>
-    (function () {
-      const IOS_KEY = "sky0cloud_ios_verified";
-
-      function isIOSDevice() {
-        const ua = navigator.userAgent || navigator.vendor || window.opera || "";
-        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-        const isMacTouch = /Macintosh/.test(ua) && "ontouchend" in document;
-        return isIOS || isMacTouch;
-      }
-
-      function showIOSGate() {
-        const backdrop = document.getElementById("iosGateBackdrop");
-        if (!backdrop) return;
-        backdrop.style.display = "flex";
-        backdrop.setAttribute("aria-hidden", "false");
-      }
-
-      function hideIOSGate() {
-        const backdrop = document.getElementById("iosGateBackdrop");
-        if (!backdrop) return;
-        backdrop.style.display = "none";
-        backdrop.setAttribute("aria-hidden", "true");
-      }
-
-      function initIOSGate() {
-        const verified = localStorage.getItem(IOS_KEY);
-        if (!isIOSDevice()) {
-          hideIOSGate();
-          return;
-        }
-        if (verified === "true") {
-          hideIOSGate();
-          return;
-        }
-        showIOSGate();
-
-        const sendBtn = document.getElementById("iosSendCodeBtn");
-        const verifyBtn = document.getElementById("iosVerifyBtn");
-        const input = document.getElementById("iosCodeInput");
-        const notifBox = document.getElementById("iosNotificationBox");
-        const errorBox = document.getElementById("iosErrorBox");
-        const successBox = document.getElementById("iosSuccessBox");
-
-        let currentCode = null;
-
-        function generateCode() {
-          return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        function showNotification(message) {
-          if (!notifBox) return;
-          notifBox.style.display = "block";
-          notifBox.textContent = "Sky0Cloud notification code: " + message;
-        }
-
-        function showError(message) {
-          if (!errorBox) return;
-          errorBox.style.display = "block";
-          errorBox.textContent = message;
-          if (successBox) successBox.style.display = "none";
-        }
-
-        function showSuccess(message) {
-          if (!successBox) return;
-          successBox.style.display = "block";
-          successBox.textContent = message;
-          if (errorBox) errorBox.style.display = "none";
-        }
-
-        if (sendBtn) {
-          sendBtn.addEventListener("click", function () {
-            currentCode = generateCode();
-            showNotification(currentCode);
-            showSuccess("Code sent. Check the notification box above and enter it to unlock.");
-            if (errorBox) errorBox.style.display = "none";
-          });
-        }
-
-        if (verifyBtn) {
-          verifyBtn.addEventListener("click", function () {
-            const value = (input && input.value || "").trim();
-            if (!currentCode) {
-              showError("Please tap 'Send Code' first.");
-              return;
-            }
-            if (!value) {
-              showError("Enter the code shown in the notification box.");
-              return;
-            }
-            if (value !== currentCode) {
-              showError("Code does not match. Please try again.");
-              return;
-            }
-            localStorage.setItem(IOS_KEY, "true");
-            showSuccess("Device verified. Welcome to Sky0Cloud.");
-            setTimeout(hideIOSGate, 700);
-          });
-        }
-      }
-
-      function initButtons() {
-        const scrollBtn = document.getElementById("scrollToServerInfo");
-        const serverPanel = document.getElementById("serverInfoPanel");
-        const reloadBtn = document.getElementById("reloadPageBtn");
-
-        if (scrollBtn && serverPanel) {
-          scrollBtn.addEventListener("click", function () {
-            serverPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-        }
-
-        if (reloadBtn) {
-          reloadBtn.addEventListener("click", function () {
-            window.location.reload();
-          });
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        initIOSGate();
-        initButtons();
-      });
-    })();
-  </script>
 </body>
 </html>
