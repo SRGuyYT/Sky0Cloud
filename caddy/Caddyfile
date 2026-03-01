@@ -1,18 +1,13 @@
-https://{env.DOMAIN} {
-    encode zstd gzip
+{
+    email official@no-reply.skyservers.qzz.io
+}
 
-    request_body {
-        max_size 25MB
-    }
+http://sky0cloud.dpdns.org {
+    redir https://sky0cloud.dpdns.org{uri}
+}
 
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
-        Cross-Origin-Opener-Policy "same-origin"
-    }
+https://sky0cloud.dpdns.org {
+    encode gzip zstd
 
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
