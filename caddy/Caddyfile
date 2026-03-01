@@ -48,12 +48,6 @@ https://{env.DOMAIN} {
         file_server
     }
 
-    @runtimeConfig path /config.sky0cloud.dpdns.org.json
-    handle @runtimeConfig {
-        root * /srv/runtime
-        file_server
-    }
-
     @matrixApi path /_matrix/* /_synapse/admin/*
     handle @matrixApi {
         reverse_proxy conduwuit:6167
