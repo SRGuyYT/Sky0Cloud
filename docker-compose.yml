@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   caddy:
     image: caddy:2.8-alpine
@@ -21,7 +19,7 @@ services:
       - element-web
 
   conduwuit:
-    image: ghcr.io/girlbossceo/conduwuit:latest
+    image: ${CONDUWUIT_IMAGE:-matrixconduit/matrix-conduit:latest}
     container_name: sky0cloud-conduwuit
     restart: unless-stopped
     environment:
