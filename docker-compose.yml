@@ -9,13 +9,8 @@ services:
       - ./conduwuit/config:/opt/sky0cloud/config:ro
     environment:
       - TZ=UTC
-      - CONDUIT_CONFIG=/opt/sky0cloud/config/default.config.json
+      - CONDUIT_CONFIG=/opt/sky0cloud/config/conduit.toml
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pgrep conduwuit || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
       
   element-web:
     build:
