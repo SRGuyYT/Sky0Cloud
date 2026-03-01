@@ -11,5 +11,5 @@ allow_check_for_updates = false
 bind = "0.0.0.0:6167"
 
 [database]
-backend = "rocksdb"
+backend = "sqlite"
 path = "/var/lib/matrix-conduit"
