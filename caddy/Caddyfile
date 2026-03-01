@@ -1,21 +1,14 @@
-{
-    # Use environment variables for domain and email
-    # Caddy reads them as {env.DOMAIN} and {env.ACME_EMAIL}
-    # Enable HTTP/3 experimental support
-    servers {
-        protocol {
-            experimental_http3
-        }
-    }
-}
+# Use environment variables for domain and email: {env.DOMAIN} and {env.ACME_EMAIL}
+# Keep this file simple and compatible with the official caddy:2 image.
 
-# Redirect plain HTTP to HTTPS for the configured domain
+# Redirect HTTP to HTTPS for the configured domain
 http://{env.DOMAIN} {
     redir https://{env.DOMAIN}{uri} 308
 }
 
 # Main site served over HTTPS
 https://{env.DOMAIN} {
+    tls {env.ACME_EMAIL}
     encode zstd gzip
 
     request_body {
@@ -54,7 +47,7 @@ https://{env.DOMAIN} {
     }
 }
 
-# Offline/local fallback for smoke tests where ACME cannot be reached.
+# Local fallback for smoke tests
 https://localhost {
     tls internal
     respond "Sky0Cloud Caddy local TLS endpoint" 200
