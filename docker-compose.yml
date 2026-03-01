@@ -1,8 +1,6 @@
 services:
   conduwuit:
-    build:
-      context: ./conduwuit
-    image: sky0cloud/conduwuit:local
+    image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: sky0cloud-conduwuit
     volumes:
       - conduwuit_data:/data
@@ -16,19 +14,18 @@ services:
     restart: unless-stopped
     # Ensure Conduwuit is available before other services that depend on it
   element-web:
-    build:
-      context: ./element
-    image: sky0cloud/element-web:local
+    image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - element_data:/data:rw
+      # Provide the Element configuration to the official image
+      - ./element/config.json:/app/config.json:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
     depends_on:
       - conduwuit
     healthcheck:
-      test: ["CMD-SHELL", "grep -q 'Element' /opt/sky0cloud/README.md || exit 0"]
+      test: ["CMD-SHELL", "grep -q 'Element' /app/index.html || exit 0"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -44,8 +41,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      # Share Element runtime data with Caddy so it can serve it directly.
-      - element_data:/srv:ro
       # Serve Matrix discovery files from the host well-known directory
       - ./well-known:/srv/well-known:ro
     ports:
@@ -60,8 +55,6 @@ services:
 
 volumes:
   conduwuit_data:
-    driver: local
-  element_data:
     driver: local
   caddy_data:
     driver: local
