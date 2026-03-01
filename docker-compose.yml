@@ -51,7 +51,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    # Caddy must be able to write certs; do not set read_only: true
 
 volumes:
   sky0cloud_data:
