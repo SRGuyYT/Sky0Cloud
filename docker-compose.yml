@@ -17,8 +17,8 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      # Provide the Element configuration to the official image
       - ./element/config.json:/app/config.json:ro
+      - ./element/welcome.html:/app/welcome.html:ro   # <-- add this
     environment:
       - TZ=UTC
     restart: unless-stopped
