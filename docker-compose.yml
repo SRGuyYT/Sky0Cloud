@@ -13,17 +13,18 @@ services:
       - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
     restart: unless-stopped
 
-element-web:
-  image: vectorim/element-web:latest
-  container_name: sky0cloud-element
-  volumes:
-    - ./element/config.json:/app/config.json:ro
-    - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
-    - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
-    - ./element/favicon.ico:/usr/share/nginx/html/favicon.ico:ro
-  environment:
-    - TZ=UTC
-  restart: unless-stopped
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: sky0cloud-element
+    volumes:
+      - ./element/config.json:/app/config.json:ro
+      - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
+      - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
+      - ./element/favicon.ico:/usr/share/nginx/html/favicon.ico:ro
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+  
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
