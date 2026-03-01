@@ -1,5 +1,4 @@
 http://sky0cloud.dpdns.org {
-
     encode zstd gzip
 
     request_body {
@@ -20,10 +19,38 @@ http://sky0cloud.dpdns.org {
 
     @matrix path /_matrix/* /_synapse/*
     handle @matrix {
-        reverse_proxy conduwuit:6167
+        reverse_proxy conduwuit:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    @config path /config.json /config.sky0cloud.dpdns.org.json
+    handle @config {
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    @sw path /sw.js
+    handle @sw {
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 }
