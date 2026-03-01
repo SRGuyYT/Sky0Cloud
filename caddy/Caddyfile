@@ -1,36 +1,32 @@
 {
-	email {$ACME_EMAIL}
-	servers {
-		protocol {
-			experimental_http3
-		}
-	}
+    email {$ACME_EMAIL}
 }
 
-{$DOMAIN} {
-	encode zstd gzip
+# Explicitly listen on port 80 and 443 to stop the loop
+http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
+    
+    # Cloudflare optimization
+    encode zstd gzip
 
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
-		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "camera=(), microphone=(), geolocation=()"
-	}
+    # Matrix Well-Known
+    handle /.well-known/matrix/* {
+        root * /srv/well-known
+        file_server
+        header Access-Control-Allow-Origin "*"
+        header Content-Type application/json
+    }
 
-	@wellKnown path /.well-known/matrix/*
-	handle @wellKnown {
-		root * /srv/well-known
-		file_server
-		header Content-Type application/json
-	}
+    # API Traffic to Tuwunel
+    @matrix {
+        path /_matrix/*
+        path /_synapse/admin/*
+    }
+    handle @matrix {
+        reverse_proxy sky0cloud-tuwunel:6167
+    }
 
-	@matrix path /_matrix/* /_synapse/admin/*
-	handle @matrix {
-		reverse_proxy conduwuit:6167
-	}
-
-	handle {
-		reverse_proxy element-web:80
-	}
+    # Everything else to Element
+    handle {
+        reverse_proxy sky0cloud-element:80
+    }
 }

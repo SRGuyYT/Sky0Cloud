@@ -7,26 +7,28 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - DOMAIN=${DOMAIN:-sky0cloud.dpdns.org}
-      - ACME_EMAIL=${ACME_EMAIL:-admin@sky0cloud.dpdns.org}
+      - DOMAIN=sky0cloud.dpdns.org
+      - ACME_EMAIL=admin@sky0cloud.dpdns.org
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
       - ./well-known:/srv/well-known:ro
     depends_on:
-      - conduwuit
+      - tuwunel
       - element-web
 
-  conduwuit:
-    image: ${CONDUWUIT_IMAGE:-matrixconduit/matrix-conduit:latest}
-    container_name: sky0cloud-conduwuit
+  tuwunel:
+    # Using the official GHCR image as per documentation
+    image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: sky0cloud-tuwunel
     restart: unless-stopped
     environment:
-      CONDUWUIT_CONFIG: /etc/conduwuit/conduwuit.toml
+      # Backward compatibility allows us to keep your current config name
+      TUWUNEL_CONFIG: /etc/tuwunel.toml
     volumes:
-      - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
-      - conduwuit_data:/var/lib/conduwuit
+      - ./conduwuit/conduwuit.toml:/etc/tuwunel.toml:ro
+      - conduwuit_data:/var/lib/tuwunel
     expose:
       - "6167"
 
