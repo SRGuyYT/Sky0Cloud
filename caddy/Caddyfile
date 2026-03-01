@@ -1,8 +1,8 @@
 {
-    email {env.ACME_EMAIL}
+    email official@no-reply.skyservers.qzz.io
 }
 
-{env.DOMAIN} {
+sky0cloud.dpdns.org {
 
     encode zstd gzip
 
