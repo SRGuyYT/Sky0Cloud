@@ -5,16 +5,50 @@ Sky0Cloud is a production-focused, self-hosted Matrix stack using Conduwuit-comp
 ## Architecture (ASCII)
 
 ```text
-Internet -> Cloudflare (Full Strict) -> Caddy
-                                      |-- /.well-known/matrix/* (static)
-                                      |-- /config.sky0cloud.dpdns.org.json (runtime config volume)
-                                      |-- /_matrix/* -> Conduwuit
-                                      `-- / -> Element Web
+.
+├── caddy
+│   └── Caddyfile
+├── conduwuit
+│   ├── conduwuit.toml
+│   ├── Dockerfile
+│   └── entrypoint.sh
+├── config
+│   └── default.config.json
+├── docker-compose.yml
+├── docs
+│   └── architecture.md
+├── element
+│   ├── config.json
+│   ├── default_theme.json
+│   ├── Dockerfile
+│   ├── entrypoint.sh
+│   ├── manifest.json
+│   ├── sky0cloud-theme.css
+│   └── welcome.html
+├── Makefile
+├── README.md
+├── scripts
+│   ├── backup.sh
+│   ├── ensure-config.sh
+│   ├── generate-secrets.sh
+│   ├── healthcheck.sh
+│   ├── install.sh
+│   ├── lib.sh
+│   ├── logs.sh
+│   ├── reinstall.sh
+│   ├── repair.sh
+│   ├── restore.sh
+│   ├── update.sh
+│   ├── wipe-database.sh
+│   └── wipe-media.sh
+├── secrets
+├── VALIDATION.md
+└── well-known
+    └── matrix
+        ├── client
+        └── server
 
-Persistent volumes:
-- conduwuit_data: database
-- media_data: media files
-- config_data: runtime config alias
+10 directories, 32 files
 ```
 
 ## Quick start
