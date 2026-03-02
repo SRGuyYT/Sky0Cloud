@@ -1,4 +1,4 @@
-http://sky0cloud.dpdns.org {
+sky0cloud.dpdns.org {
     encode zstd gzip
 
     header {
@@ -6,33 +6,49 @@ http://sky0cloud.dpdns.org {
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
-        
-        # --- CORS: Only add if missing ---
-        ?Access-Control-Allow-Origin *
-        ?Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-        ?Access-Control-Expose-Headers "Content-Length, Content-Type, Date, Server"
-        
-        # Keep this for local Web UI media display
         Cross-Origin-Resource-Policy "cross-origin"
+
+        # Basic CORS for web client/media access
+        ?Access-Control-Allow-Origin *
+        ?Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     }
 
-    # Federation and Client Discovery
+    # Matrix delegation endpoints (for clients + federation)
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
         file_server
     }
 
-    # Route all Matrix API and Media traffic to Tuwunel
-    @matrix path /_matrix/* /_synapse/*
-    handle @matrix {
+    # Matrix API + media + sync traffic to Tuwunel
+    @matrix_api path /_matrix/* /_synapse/client/*
+    handle @matrix_api {
         reverse_proxy tuwunel:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+        }
+    }
+
+    # Root domain should externally redirect to login path (once, avoids hash-route loops)
+    @root_login_redirect {
+        path /
+        not header Cookie *sky0cloud_login_redirected=1*
+    }
+    handle @root_login_redirect {
+        header Set-Cookie "sky0cloud_login_redirected=1; Path=/; Max-Age=300; SameSite=Lax"
+        redir https://sky0cloud.dpdns.org/#/login 302
+    }
+
+    # Keep /element/ explicitly routable for static web client access
+    handle_path /element/* {
+        reverse_proxy element-web:80 {
             header_up X-Forwarded-Proto https
         }
     }
 
-    # Route everything else (The Web UI) to the Element container
+    # Serve Element for all other web UI paths
     handle {
         reverse_proxy element-web:80 {
             header_up X-Forwarded-Proto https
