@@ -5,11 +5,11 @@
     "auth_footer_links": [
       {
         "text": "Privacy",
-        "url": "https://sky0cloud.dpdns.org/privacy"
+        "url": "https://sky0cloud.dpdns.org/#/404"
       },
       {
-        "text": "Help",
-        "url": "https://sky0cloud.dpdns.org/help"
+        "text": "Access Code?",
+        "url": "https://github.com/SRGuyYT/Sky0Cloud/blob/main/README.md"
       }
     ]
   },
