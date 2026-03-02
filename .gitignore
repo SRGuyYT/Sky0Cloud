@@ -2,4 +2,4 @@
 secrets/*.txt
 !secrets/.gitkeep
 backups/
-tuwunel/database
+tuwunel/database/*
