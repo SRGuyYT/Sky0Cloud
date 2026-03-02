@@ -17,17 +17,16 @@ allow_guest_registration = true
 log_guest_registrations = true
 
 # --- AUTO JOIN ---
-auto_join_rooms = [
-    "!APPFlzZKQgCXLWGrVR:sky0cloud.dpdns.org",
-    "!YcY7uSqMSVDR1EBUaI:sky0cloud.dpdns.org"
-]
+#auto_join_rooms = [
+#    "!APPFlzZKQgCXLWGrVR:sky0cloud.dpdns.org",
+#    "!YcY7uSqMSVDR1EBUaI:sky0cloud.dpdns.org"
+#]
 
 # --- PERFORMANCE (OPTIMIZED FOR 8GB RAM) ---
 cache_capacity_modifier = 2.0
 client_sync_timeout_min = 300
 client_sync_timeout_default = 600
 client_sync_timeout_max = 900
-
 max_request_size = 52428800
 
 # --- DATABASE THREADING (Ryzen 3 SAFE LIMITS) ---
@@ -39,22 +38,14 @@ db_pool_max_workers = 128
 rocksdb_optimize_for_spinning_disks = true
 rocksdb_direct_io = false
 rocksdb_parallelism_threads = 4
-
-# Lower CPU usage vs zstd
 rocksdb_compression_algo = "lz4"
-
-# Prevent excessive logging buildup
 rocksdb_max_log_files = 3
 rocksdb_log_time_to_roll = 86400
 
 # --- FEDERATION ---
 allow_federation = true
 trusted_servers = ["sky0cloud.dpdns.org", "matrix.org"]
-
-# Prevent spam accounts from hammering joins
 max_join_attempts_per_join_request = 5
-
-# Reduce federation abuse surface slightly
 query_trusted_key_servers_first = true
 
 # --- PRESENCE ---
@@ -72,7 +63,6 @@ allow_outgoing_read_receipts = true
 
 # --- MEDIA / STORAGE SAFETY ---
 media_startup_check = true
-max_request_size = 52428800
 
 # --- LOGGING ---
 log = "info"
