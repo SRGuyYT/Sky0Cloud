@@ -5,11 +5,15 @@
     "auth_footer_links": [
       {
         "text": "Privacy",
-        "url": "https://sky0cloud.dpdns.org/privacy"
+        "url": "https://sky0cloud.dpdns.org/#/404"
       },
       {
         "text": "Help",
-        "url": "https://sky0cloud.dpdns.org/help"
+        "url": "https://sky0cloud.dpdns.org/#/404"
+      },
+      {
+        "text": "Access Code?",
+        "url": "https://github.com/SRGuyYT/Sky0Cloud/blob/main/README.md"
       }
     ]
   },
@@ -35,14 +39,15 @@
   "show_cookie_banners": false,
   "room_directory": {
     "servers": [
-      "sky0cloud.dpdns.org"
+      "sky0cloud.dpdns.org",
+      "matrix.org"
     ]
   },
   "enable_presence_by_hs_url": {
     "https://sky0cloud.dpdns.org": true
   },
   "embedded_pages": {
-    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html"
+    "welcome_url": "welcome.html"
   },
   "desktop_builds": {
     "available": true,

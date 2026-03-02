@@ -2,3 +2,4 @@
 secrets/*.txt
 !secrets/.gitkeep
 backups/
+element/favicon.ico
