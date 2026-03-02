@@ -16,15 +16,16 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - ./element/tmp-element-web-config:/tmp/element-web-config:rw
+      - ./element/tmp-element-web-config/config.json:/tmp/element-web-config/config.json:rw
+      - ./element/tmp-element-web-config/config.sky0cloud.dpdns.org.json:/tmp/element-web-config/config.sky0cloud.dpdns.org.json:rw
       - ./element/background.jpg:/app/background.jpg:ro
       - ./element/icon.png:/app/icon.png:ro
     environment:
-    - TZ=UTC
+      - TZ=UTC
     restart: unless-stopped
     networks:
       - internal
-
+    
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
