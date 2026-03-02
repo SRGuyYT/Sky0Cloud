@@ -2,7 +2,7 @@
 server_name = "sky0cloud.dpdns.org"
 trusted_servers = ["matrix.org"]
 allow_registration = true
-registration_token = "changeme_registration_token"
+registration_token = "itoldyou"
 allow_federation = true
 max_request_size = 20000000
 allow_check_for_updates = false
