@@ -4,7 +4,7 @@ services:
     container_name: sky0cloud-tuwunel
     volumes:
       - tuwunel_data:/data
-      - ./tuwunel/config.toml:/etc/tuwunel/config.toml:ro
+      - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
       - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
@@ -17,8 +17,6 @@ services:
     container_name: sky0cloud-element
     volumes:
       - ./element/config.json:/app/config.json:ro
-      - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
-      - ./element/welcome.html:/app/welcome.html:ro
       - ./element/background.jpg:/app/background.jpg:ro
       - ./element/icon.png:/app/icon.png:ro
     environment:
@@ -45,8 +43,12 @@ services:
 
 volumes:
   tuwunel_data:
+    driver: local
   caddy_data:
+    driver: local
   caddy_config:
+    driver: local
 
 networks:
   internal:
+    driver: bridge
