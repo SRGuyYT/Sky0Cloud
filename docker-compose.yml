@@ -3,7 +3,7 @@ services:
     image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: sky0cloud-tuwunel
     volumes:
-      - ./tuwunel/database:/data/database  # database stored here
+      - ./tuwunel/database:/data           # <- mount database folder
       - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
