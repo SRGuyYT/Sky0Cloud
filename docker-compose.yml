@@ -17,7 +17,6 @@ services:
     container_name: sky0cloud-element
     volumes:
       - ./element/config.sky0cloud.dpdns.org.json:/tmp/element-web-config/config.sky0cloud.dpdns.org.json:ro
-      - ./element/tmp-element-web-config:/tmp/element-web-config:rw
       - ./element/background.jpg:/app/background.jpg:ro
       - ./element/icon.png:/app/icon.png:ro
     environment:
