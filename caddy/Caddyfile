@@ -1,9 +1,9 @@
+{
+    auto_https disable_redirects
+}
+
 http://sky0cloud.dpdns.org {
     encode zstd gzip
-
-    request_body {
-        max_size 25MB
-    }
 
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -15,32 +15,34 @@ http://sky0cloud.dpdns.org {
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
+        header Cache-Control "no-cache, no-store, must-revalidate"
         file_server
     }
 
-    @matrix path /_matrix/* /_synapse/*
-    handle @matrix {
-        reverse_proxy conduwuit:6167 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
-        }
-    }
-
-    @config path /config.json /config.sky0cloud.dpdns.org.json
-    handle @config {
+    @welcome path /welcome.html
+    handle @welcome {
+        root * /srv/element
         header Cache-Control "no-cache, no-store, must-revalidate"
-        reverse_proxy element-web:80 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
-        }
+        file_server
     }
 
     @sw path /sw.js
     handle @sw {
+        root * /srv/element
         header Cache-Control "no-cache, no-store, must-revalidate"
-        reverse_proxy element-web:80 {
+        file_server
+    }
+
+    @config path /config.json /config.sky0cloud.dpdns.org.json
+    handle @config {
+        root * /srv/element
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        file_server
+    }
+
+    @matrix path /_matrix/* /synapse/*
+    handle @matrix {
+        reverse_proxy conduwuit:6167 {
             header_up X-Forwarded-Proto https
             header_up X-Forwarded-For {remote_host}
             header_up X-Real-IP {remote_host}

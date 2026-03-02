@@ -5,10 +5,7 @@
   "disable_custom_urls": false,
   "disable_guests": true,
   "disable_3pid_login": true,
-  "embedded_pages": {
-    "home_url": "welcome.html"
-  },
-  "default_favicon_url": "favicon.ico",
+  "welcome_url": "https://sky0cloud.dpdns.org/welcome.html",
   "room_directory": {
     "servers": [
       "sky0cloud.dpdns.org",
