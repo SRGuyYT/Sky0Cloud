@@ -120,6 +120,7 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 * `.well-known/matrix/client` points to your homeserver and identity server URLs.
 * `.well-known/matrix/server` defines the federation server for other homeservers.
 * Trusted servers include `matrix.org` and your own domain (`sky0cloud.dpdns.org`).
+* `itoldyou` Sky0Cloud Access Code
 
 ---
 
