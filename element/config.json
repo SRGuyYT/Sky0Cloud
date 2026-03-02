@@ -30,7 +30,7 @@
     }
   },
   "disable_custom_urls": false,
-  "disable_guests": true,
+  "disable_guests": false,
   "disable_3pid_login": true,
   "setting_defaults": {
     "breadcrumbs": true,
