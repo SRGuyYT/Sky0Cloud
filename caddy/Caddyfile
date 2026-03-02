@@ -1,10 +1,9 @@
+{
+    auto_https disable_redirects
+}
+
 http://sky0cloud.dpdns.org {
-
     encode zstd gzip
-
-    request_body {
-        max_size 25MB
-    }
 
     header {
         X-Content-Type-Options "nosniff"
@@ -15,15 +14,45 @@ http://sky0cloud.dpdns.org {
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
+        header Cache-Control "no-cache, no-store, must-revalidate"
         file_server
     }
 
-    @matrix path /_matrix/* /_synapse/*
+    @welcome path /welcome.html
+    handle @welcome {
+        root * /srv/element
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        file_server
+    }
+
+    @sw path /sw.js
+    handle @sw {
+        root * /srv/element
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        file_server
+    }
+
+    @config path /config.json /config.sky0cloud.dpdns.org.json
+    handle @config {
+        root * /srv/element
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        file_server
+    }
+
+    @matrix path /_matrix/* /synapse/*
     handle @matrix {
-        reverse_proxy conduwuit:6167
+        reverse_proxy conduwuit:6167 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy element-web:80 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 }
