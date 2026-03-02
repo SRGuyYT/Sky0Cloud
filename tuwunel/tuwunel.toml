@@ -18,7 +18,7 @@ log_guest_registrations = true
 
 # --- AUTO JOIN ---
   auto_join_rooms = [
-   "!APPFlzZKQgCXLWGrVR:sky0cloud.dpdns.org",
+   "!dqi0C6Y7g6jR2szrx4:sky0cloud.dpdns.org",
    "!pTBO5J0iGIEySYJZTm:sky0cloud.dpdns.org"
 ]
 
