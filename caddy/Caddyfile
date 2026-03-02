@@ -7,13 +7,13 @@ http://sky0cloud.dpdns.org {
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
         
-        # --- THE FIX: ONLY ADD IF MISSING ---
+        # --- CORS: Only add if missing ---
         ?Access-Control-Allow-Origin *
         ?Access-Control-Allow-Methods "GET, POST, OPTIONS"
         ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
         ?Access-Control-Expose-Headers "Content-Length, Content-Type, Date, Server"
         
-        # Keep this for the local Web UI media display
+        # Keep this for local Web UI media display
         Cross-Origin-Resource-Policy "cross-origin"
     }
 
@@ -24,10 +24,10 @@ http://sky0cloud.dpdns.org {
         file_server
     }
 
-    # Route all Matrix API and Media traffic to Conduwuit
+    # Route all Matrix API and Media traffic to Tuwunel
     @matrix path /_matrix/* /_synapse/*
     handle @matrix {
-        reverse_proxy conduwuit:6167 {
+        reverse_proxy tuwunel:6167 {
             header_up X-Forwarded-Proto https
         }
     }
