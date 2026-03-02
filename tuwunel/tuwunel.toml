@@ -2,7 +2,7 @@
 
 # --- CORE ---
 server_name = "sky0cloud.dpdns.org"
-database_path = "/data/database"  # Updated to use mounted folder in repo
+database_path = "/database"   # Updated to use mounted folder in repo
 new_user_displayname_suffix = ""
 
 # --- NETWORK ---
