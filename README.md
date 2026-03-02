@@ -95,7 +95,7 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 ## 🔹 Branding / Web UI
 
-* Welcome background: `background.jpg`
+* Login background: `background.jpg`
 
 * Auth header logo: `icon.png`
 
@@ -109,7 +109,7 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 * Guests and 3rd-party ID login disabled
 
-* Embedded login on welcome page enabled
+* Base URL redirects to `https://sky0cloud.dpdns.org/#/login`
 
 * Breadcrumbs, timestamps, and read receipts enabled
 
