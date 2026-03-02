@@ -35,7 +35,8 @@
   "show_cookie_banners": false,
   "room_directory": {
     "servers": [
-      "sky0cloud.dpdns.org"
+      "sky0cloud.dpdns.org",
+      "matrix.org"
     ]
   },
   "enable_presence_by_hs_url": {
