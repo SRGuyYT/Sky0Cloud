@@ -29,9 +29,10 @@
       "base_url": "https://vector.im"
     }
   },
-  "disable_custom_urls": false,
+  "disable_custom_urls": true,
   "disable_guests": false,
   "disable_3pid_login": true,
+  "welcomePageSuppress": true,
   "setting_defaults": {
     "breadcrumbs": true,
     "always_show_timestamps": true,
