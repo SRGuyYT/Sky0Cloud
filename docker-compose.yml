@@ -21,6 +21,7 @@ services:
       - ./element/icon.png:/app/icon.png:ro
     environment:
       - TZ=UTC
+      - ELEMENT_CONFIG_FILE=/app/config.json
     restart: unless-stopped
     networks:
       - internal
