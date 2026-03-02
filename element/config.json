@@ -43,7 +43,7 @@
     "https://sky0cloud.dpdns.org": true
   },
   "embedded_pages": {
-    "welcome_url": "https://sky0cloud.dpdns.org/welcome.html"
+    "welcome_url": "welcome.html"
   },
   "desktop_builds": {
     "available": true,
