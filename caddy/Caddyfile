@@ -32,6 +32,10 @@ http://sky0cloud.dpdns.org {
         }
     }
 
+    # Redirect base domain to Element login
+    @root path /
+    redir @root https://sky0cloud.dpdns.org/#/login 302
+
     # Route everything else (The Web UI) to the Element container
     handle {
         reverse_proxy element-web:80 {
