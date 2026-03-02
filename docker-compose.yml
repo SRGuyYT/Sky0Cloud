@@ -3,7 +3,7 @@ services:
     image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: sky0cloud-tuwunel
     volumes:
-      - tuwunel_data:/data
+      - ./tuwunel/database:/data/database  # database stored here
       - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
@@ -42,8 +42,6 @@ services:
       - internal
 
 volumes:
-  tuwunel_data:
-    driver: local
   caddy_data:
     driver: local
   caddy_config:
