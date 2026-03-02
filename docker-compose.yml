@@ -16,10 +16,10 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - ./element/tmp-element-web-config/config.json:/tmp/element-web-config/config.json:ro
-      - ./element/tmp-element-web-config/config.sky0cloud.dpdns.org.json:/tmp/element-web-config/config.sky0cloud.dpdns.org.json:ro
-      - ./element/background.jpg:/app/background.jpg:ro
-      - ./element/icon.png:/app/icon.png:ro
+      - ./element/config.json:/app/config.json:ro
+      - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
+      - ./element/welcome.html:/app/welcome.html:ro
+      - ./element/sw.js:/app/sw.js:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
