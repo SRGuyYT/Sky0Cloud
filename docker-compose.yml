@@ -4,43 +4,47 @@ services:
     container_name: sky0cloud-conduwuit
     volumes:
       - conduwuit_data:/data
-      # Mount the static TOML configuration into the container
       - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
     environment:
       - TZ=UTC
-      # Tell Conduwuit where to find its TOML configuration
       - CONDUIT_CONFIG=/etc/conduwuit/conduwuit.toml
       - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
     restart: unless-stopped
+    networks:
+      - internal
 
   element-web:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - ./element/config.json:/app/config.json:ro
+      - ./element/tmp-element-web-config:/tmp/element-web-config:rw
+      - ./element/background.jpg:/app/background.jpg:ro
+      - ./element/icon.png:/app/icon.png:ro
       - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
       - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
-      - ./element/favicon.ico:/usr/share/nginx/html/favicon.ico:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
-  
+    networks:
+      internal:
+        aliases:
+          - element-web
+
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
-    environment:
-      - DOMAIN=sky0cloud.dpdns.org
-      - ACME_EMAIL=official@no-reply.skyservers.qzz.io
     volumes:
       - caddy_data:/data
       - caddy_config:/config
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      # Serve Matrix discovery files from the host well-known directory
       - ./well-known:/srv/well-known:ro
+      - ./element:/srv/element:ro
     ports:
       - "80:80"
       - "443:443"
     restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   conduwuit_data:
@@ -49,3 +53,7 @@ volumes:
     driver: local
   caddy_config:
     driver: local
+
+networks:
+  internal:
+    driver: bridge

@@ -1,15 +1,11 @@
-http://sky0cloud.dpdns.org {
-
+sky0cloud.dpdns.org {
     encode zstd gzip
 
-    request_body {
-        max_size 25MB
+    @root {
+        path /
     }
-
-    header {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
+    handle @root {
+        redir https://{host}/#/login 302
     }
 
     handle_path /.well-known/matrix/* {
@@ -18,12 +14,8 @@ http://sky0cloud.dpdns.org {
         file_server
     }
 
-    @matrix path /_matrix/* /_synapse/*
-    handle @matrix {
-        reverse_proxy conduwuit:6167
-    }
+    @matrix path /_matrix/* /synapse/*
+    reverse_proxy @matrix conduwuit:6167
 
-    handle {
-        reverse_proxy element-web:80
-    }
+    reverse_proxy /* element-web:80
 }
