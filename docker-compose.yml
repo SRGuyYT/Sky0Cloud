@@ -20,7 +20,7 @@ services:
       - ./element/background.jpg:/app/background.jpg:ro
       - ./element/icon.png:/app/icon.png:ro
     environment:
-      - TZ=UTC
+    - TZ=UTC
     restart: unless-stopped
     networks:
       - internal
