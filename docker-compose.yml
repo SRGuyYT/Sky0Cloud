@@ -1,15 +1,16 @@
 services:
-  conduwuit:
+  tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
-    container_name: sky0cloud-conduwuit
+    container_name: sky0cloud-tuwunel
     volumes:
-      - conduwuit_data:/data
-      - ./conduwuit/conduwuit.toml:/etc/conduwuit/conduwuit.toml:ro
+      - tuwunel_data:/data
+      - ./tuwunel/config.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
-      - CONDUIT_CONFIG=/etc/conduwuit/conduwuit.toml
-      - CONDUWUIT_CONFIG=/etc/conduwuit/conduwuit.toml
+      - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
     restart: unless-stopped
+    networks:
+      - internal
 
   element-web:
     image: vectorim/element-web:latest
@@ -23,6 +24,8 @@ services:
     environment:
       - TZ=UTC
     restart: unless-stopped
+    networks:
+      - internal
 
   caddy:
     image: caddy:2
@@ -37,11 +40,13 @@ services:
       - "80:80"
       - "443:443"
     restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
-  conduwuit_data:
-    driver: local
+  tuwunel_data:
   caddy_data:
-    driver: local
   caddy_config:
-    driver: local
+
+networks:
+  internal:
