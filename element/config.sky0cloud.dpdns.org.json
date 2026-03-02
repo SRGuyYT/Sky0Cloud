@@ -31,8 +31,8 @@
   "integrations_ui_url": null,
   "integrations_rest_url": null,
   "integrations_widgets_urls": [],
-  "show_labs_settings": false,
-  "show_cookie_banners": false,
+  "show_labs_settings": true,
+  "show_cookie_banners": true,
   "room_directory": {
     "servers": [
       "sky0cloud.dpdns.org"
@@ -40,7 +40,7 @@
   },
   "setting_defaults": {
     "breadcrumbs": true,
-    "alwaysShowTimestamps": true,
+    "alwaysShowTimestamps": false,
     "showReadReceipts": true
   },
   "features": {
