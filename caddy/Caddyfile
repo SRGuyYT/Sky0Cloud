@@ -1,7 +1,3 @@
-{
-    auto_https disable_redirects
-}
-
 http://sky0cloud.dpdns.org {
     encode zstd gzip
 
@@ -9,51 +5,35 @@ http://sky0cloud.dpdns.org {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
+        Referrer-Policy "no-referrer-when-downgrade"
+        
+        # --- THE FIX FOR MEDIA ---
+        # Allows the browser to load images from the API onto the Web UI
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        Cross-Origin-Resource-Policy "cross-origin"
     }
 
+    # Federation and Client Discovery
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
-        header Cache-Control "no-cache, no-store, must-revalidate"
         file_server
     }
 
-    @welcome path /welcome.html
-    handle @welcome {
-        root * /srv/element
-        header Cache-Control "no-cache, no-store, must-revalidate"
-        file_server
-    }
-
-    @sw path /sw.js
-    handle @sw {
-        root * /srv/element
-        header Cache-Control "no-cache, no-store, must-revalidate"
-        file_server
-    }
-
-    @config path /config.json /config.sky0cloud.dpdns.org.json
-    handle @config {
-        root * /srv/element
-        header Cache-Control "no-cache, no-store, must-revalidate"
-        file_server
-    }
-
-    @matrix path /_matrix/* /synapse/*
+    # Route all Matrix API and Media traffic to Conduwuit
+    @matrix path /_matrix/* /_synapse/*
     handle @matrix {
         reverse_proxy conduwuit:6167 {
             header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
         }
     }
 
+    # Route everything else (The Web UI) to the Element container
     handle {
         reverse_proxy element-web:80 {
             header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
         }
     }
 }
