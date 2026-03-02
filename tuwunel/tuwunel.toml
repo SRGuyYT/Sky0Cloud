@@ -2,7 +2,7 @@
 
 # --- CORE ---
 server_name = "sky0cloud.dpdns.org"
-database_path = "/var/lib/tuwunel"
+database_path = "/data/database"  # Updated to use mounted folder in repo
 new_user_displayname_suffix = ""
 
 # --- NETWORK ---
@@ -17,7 +17,7 @@ allow_guest_registration = true
 log_guest_registrations = true
 
 # --- AUTO JOIN ---
-  auto_join_rooms = [
+auto_join_rooms = [
    "!dqi0C6Y7g6jR2szrx4:sky0cloud.dpdns.org",
    "!pTBO5J0iGIEySYJZTm:sky0cloud.dpdns.org"
 ]
