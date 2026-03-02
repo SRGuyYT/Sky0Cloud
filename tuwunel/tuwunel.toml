@@ -17,10 +17,10 @@ allow_guest_registration = true
 log_guest_registrations = true
 
 # --- AUTO JOIN ---
-#auto_join_rooms = [
-#    "!APPFlzZKQgCXLWGrVR:sky0cloud.dpdns.org",
-#    "!YcY7uSqMSVDR1EBUaI:sky0cloud.dpdns.org"
-#]
+  auto_join_rooms = [
+   "!APPFlzZKQgCXLWGrVR:sky0cloud.dpdns.org",
+   "!pTBO5J0iGIEySYJZTm:sky0cloud.dpdns.org"
+]
 
 # --- PERFORMANCE (OPTIMIZED FOR 8GB RAM) ---
 cache_capacity_modifier = 2.0
