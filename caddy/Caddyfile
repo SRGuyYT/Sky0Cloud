@@ -5,13 +5,15 @@ http://sky0cloud.dpdns.org {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "no-referrer-when-downgrade"
+        Referrer-Policy "strict-origin-when-cross-origin"
         
-        # --- THE FIX FOR MEDIA ---
-        # Allows the browser to load images from the API onto the Web UI
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        # --- THE FIX: ONLY ADD IF MISSING ---
+        ?Access-Control-Allow-Origin *
+        ?Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        ?Access-Control-Expose-Headers "Content-Length, Content-Type, Date, Server"
+        
+        # Keep this for the local Web UI media display
         Cross-Origin-Resource-Policy "cross-origin"
     }
 
