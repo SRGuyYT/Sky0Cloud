@@ -1,1 +1,40 @@
-
+{
+  "brand": "Sky0Cloud",
+  "branding": {
+    "welcome_background_url": "background.jpg",
+    "auth_header_logo_url": "icon.png",
+    "auth_footer_links": [
+      {
+        "text": "Privacy",
+        "url": "https://sky0cloud.dpdns.org/#/404"
+      },
+      {
+        "text": "Help",
+        "url": "https://sky0cloud.dpdns.org/#/404"
+      },
+      {
+        "text": "Access Code?",
+        "url": "https://github.com/SRGuyYT/Sky0Cloud/blob/main/README.md"
+      }
+    ]
+  },
+  "default_theme": "dark",
+  "default_server_name": "sky0cloud.dpdns.org",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
+    },
+    "m.identity_server": {
+      "base_url": "https://vector.im"
+    }
+  },
+  "disable_custom_urls": false,
+  "disable_guests": false,
+  "disable_3pid_login": true,
+  "setting_defaults": {
+    "breadcrumbs": true,
+    "always_show_timestamps": true,
+    "show_read_receipts": true
+  }
+}
