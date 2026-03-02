@@ -38,18 +38,47 @@
       "sky0cloud.dpdns.org"
     ]
   },
-  "setting_defaults": {
-    "breadcrumbs": true,
-    "alwaysShowTimestamps": false,
-    "showReadReceipts": true
+  "enable_presence_by_hs_url": {
+    "https://sky0cloud.dpdns.org": true
+  },
+  "embedded_pages": {
+    "welcome_url": "welcome.html"
+  },
+  "desktop_builds": {
+    "available": true,
+    "logo": "",
+    "url": "https://element.io/download"
+  },
+  "mobile_builds": {
+    "ios": {
+      "available": true,
+      "logo": "",
+      "url": "https://apps.apple.com/app/element-messenger/id1083446067"
+    },
+    "android": {
+      "available": true,
+      "logo": "",
+      "url": "https://play.google.com/store/apps/details?id=im.vector.app"
+    },
+    "fdroid": {
+      "available": true,
+      "logo": "",
+      "url": "https://f-droid.org/packages/im.vector.app/"
+    }
   },
   "features": {
-    "feature_new_room_list": true
+    "feature_new_room_list": true,
+    "feature_group_calls": true
   },
-  "default_server_config": {
-    "m.homeserver": {
-      "base_url": "https://sky0cloud.dpdns.org",
-      "server_name": "sky0cloud.dpdns.org"
-    }
-  }
+  "setting_defaults": {
+    "breadcrumbs": true,
+    "always_show_timestamps": true,
+    "show_read_receipts": true
+  },
+  "map_style_url": "",
+  "map_style_url_dark": "",
+  "jitsi": {
+    "preferred_domain": "meet.element.io"
+  },
+  "bug_report_endpoint_url": ""
 }
