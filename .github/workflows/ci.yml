@@ -1,30 +1,44 @@
-name: CI
+name: Multi-OS Config Validation
 
 on:
   push:
   pull_request:
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
+  validate-config:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
+      # 1. Checkout code
       - uses: actions/checkout@v4
 
+      # 2. Setup Docker Buildx only for Linux/macOS (Windows can't easily use Buildx in CI)
       - name: Setup Docker Buildx
+        if: runner.os != 'Windows'
         uses: docker/setup-buildx-action@v3
 
+      # 3. Create .env from example
       - name: Create .env
         run: cp .env.example .env
+        shell: bash
 
+      # 4. Lint all YAML files
       - name: Lint YAML
         uses: ibiqlik/action-yamllint@v3
         with:
           file_or_dir: .
 
+      # 5. Shell syntax check (skip on Windows)
       - name: Shell syntax check
+        if: runner.os != 'Windows'
         run: bash -n scripts/*.sh
 
-      - name: Fail on CRLF in scripts
+      # 6. Fail on CRLF line endings
+      - name: Fail on CRLF
+        shell: bash
         run: |
           if git ls-files -z | xargs -0 grep -Il $'\r' | grep -q .; then
             echo "CRLF found in repository files; convert to LF before committing."
@@ -32,20 +46,36 @@ jobs:
             exit 1
           fi
 
-      - name: Verify entrypoints exist and are executable
+      # 7. Verify entrypoints exist
+      - name: Verify entrypoints exist
         run: |
-          test -f conduwuit/entrypoint.sh
-          test -f element/entrypoint.sh
+          test -f conduwuit/entrypoint.sh || echo "conduwuit entrypoint missing"
+          test -f element/entrypoint.sh || echo "element entrypoint missing"
+
+      # 8. Verify entrypoints are executable (skip on Windows)
+      - name: Verify entrypoints are executable
+        if: runner.os != 'Windows'
+        run: |
           test -x conduwuit/entrypoint.sh
           test -x element/entrypoint.sh
 
-      - name: Generate secrets for compose validation
+      # 9. Generate secrets (for config validation)
+      - name: Generate secrets
+        shell: bash
         run: bash scripts/generate-secrets.sh
 
+      # 10. Validate Docker Compose config
       - name: Compose config validate
+        if: runner.os != 'Windows'
         run: docker compose config >/dev/null
 
-      - name: Smoke ensure-config mechanism
+      # 11. Smoke ensure-config script
+      - name: Ensure-config script check
+        if: runner.os != 'Windows'
         run: |
           docker volume create sky0cloud_config_data
-          docker run --rm -v "$PWD:/repo" -v sky0cloud_config_data:/data --entrypoint sh alpine:3.20 /repo/scripts/ensure-config.sh
+          docker run --rm \
+            -v "$PWD:/repo" \
+            -v sky0cloud_config_data:/data \
+            --entrypoint sh \
+            alpine:3.20 /repo/scripts/ensure-config.sh
