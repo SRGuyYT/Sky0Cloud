@@ -1,4 +1,4 @@
-name: Multi-OS Config Validation
+name: Config Validation
 
 on:
   push:
