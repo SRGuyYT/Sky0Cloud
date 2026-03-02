@@ -15,10 +15,10 @@ services:
     image: vectorim/element-web:latest
     container_name: sky0cloud-element
     volumes:
-      - ./element/config.json:/usr/share/nginx/html/config.json:ro
-      - ./element/config.sky0cloud.dpdns.org.json:/usr/share/nginx/html/config.sky0cloud.dpdns.org.json:ro
-      - ./element/welcome.html:/usr/share/nginx/html/welcome.html:ro
-      - ./element/sw.js:/usr/share/nginx/html/sw.js:ro
+      - ./element/config.json:/app/config.json:ro
+      - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
+      - ./element/welcome.html:/app/welcome.html:ro
+      - ./element/sw.js:/app/sw.js:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
