@@ -3,7 +3,7 @@ services:
     image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: sky0cloud-tuwunel
     volumes:
-      - ./tuwunel/database:/data           # <- mount database folder
+      - ./tuwunel/database:/data
       - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
@@ -12,20 +12,6 @@ services:
     networks:
       - internal
 
-  element-web:
-    image: vectorim/element-web:latest
-    container_name: sky0cloud-element
-    volumes:
-      - ./element/config.json:/app/config.json:ro
-      - ./element/config.sky0cloud.dpdns.org.json:/app/config.sky0cloud.dpdns.org.json:ro
-      - ./element/welcome.html:/app/welcome.html:ro
-      - ./element/sw.js:/app/sw.js:ro
-    environment:
-      - TZ=UTC
-    restart: unless-stopped
-    networks:
-      - internal
-    
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy

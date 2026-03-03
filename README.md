@@ -43,8 +43,8 @@ Element-Web <--> Caddy <--> Tuwunel
 ## 🔹 Docker Compose Overview
 
 * **Tuwunel**: Matrix server backend
-* **Element-Web**: Web frontend
-* **Caddy**: HTTPS, reverse proxy, and `.well-known` handling
+* **Element static files (`./element`)**: Web frontend assets
+* **Caddy**: HTTPS, static file serving, reverse proxy, and `.well-known` handling
 * Internal Docker network for secure container communication
 
 ---
@@ -79,8 +79,8 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 ## 🔹 Configuration Details
 
 * **Tuwunel Config (`tuwunel.toml`)**: Handles server identity, networking, registration, federation, database, RocksDB, presence, typing/read receipts, and logging.
-* **Element-Web Config (`config.json` / `config.sky0cloud.dpdns.org.json`)**: Custom branding, theme, server defaults, guest restrictions.
-* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API routing, Web UI hosting, `.well-known` discovery, and security headers.
+* **Element-Web Config (`config.json`, `manifest.json`)**: Custom branding, theme, server defaults, and PWA install identity (name/icon).
+* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API/media routing (`/_matrix`, `/_synapse/client`), static Element serving at `/`, `.well-known` discovery, and security/cache headers.
 
 ---
 
@@ -95,9 +95,10 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 ## 🔹 Branding / Web UI
 
-* Welcome background: `background.jpg`
+* Login background: `background.jpg`
 
 * Auth header logo: `icon.png`
+* Branding deep-dive: `docs/BRANDING.md`
 
 * Footer links:
 
@@ -109,7 +110,7 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 * Guests and 3rd-party ID login disabled
 
-* Embedded login on welcome page enabled
+* `welcomeAppUrl` points to `https://sky0cloud.dpdns.org/#/login` (no server-side redirect loop)
 
 * Breadcrumbs, timestamps, and read receipts enabled
 
