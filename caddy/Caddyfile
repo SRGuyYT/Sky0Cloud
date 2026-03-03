@@ -21,22 +21,22 @@
 http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     encode gzip
 
-    # Matrix API
-    handle_path /_matrix/* {
-        reverse_proxy tuwunel:6167 { # Changed from 8008 to 6167
+    # USE 'handle' instead of 'handle_path' for Matrix
+    handle /_matrix/* {
+        reverse_proxy tuwunel:6167 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
         }
     }
 
-    handle_path /_synapse/* {
-        reverse_proxy tuwunel:6167 { # Changed from 8008 to 6167
+    handle /_synapse/* {
+        reverse_proxy tuwunel:6167 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
         }
     }
 
-    # .well-known
+    # Keep handle_path for .well-known as it maps to a specific directory
     handle_path /.well-known/* {
         root * /srv/well-known
         file_server
