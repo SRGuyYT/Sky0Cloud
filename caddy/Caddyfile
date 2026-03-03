@@ -1,3 +1,13 @@
+{
+    # Global options to bypass Let's Encrypt rate limits
+    email chapmlinks@gmail.com
+    acme_ca https://acme.zerossl.com/v2/DV90
+    acme_eab {
+        key_id uWbcH3X52RrjW42TJECv9A
+        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
+    }
+}
+
 sky0cloud.dpdns.org {
     encode zstd gzip
 
@@ -7,41 +17,28 @@ sky0cloud.dpdns.org {
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
         Cross-Origin-Resource-Policy "cross-origin"
-
-        ?Access-Control-Allow-Origin *
-        ?Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     }
 
-    # Matrix client and federation discovery files
+    # Matrix Federation & Client discovery
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
-        header Cache-Control "public, max-age=300"
         file_server
     }
 
-    # Matrix API/media/client routing to Tuwunel
+    # Proxy to Tuwunel (Matrix Core)
     @matrix_api path /_matrix/* /_synapse/client/*
     handle @matrix_api {
-        reverse_proxy http://tuwunel:6167 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-        }
+        reverse_proxy http://tuwunel:6167
     }
 
-    # Static Element app served directly from repository folder mount
+    # Static Element App
     root * /srv/element
-
-    # HDD-friendly cache policy
-    @static_assets path *.js *.css *.png *.jpg *.jpeg *.gif *.svg *.webp *.ico *.woff *.woff2 *.ttf *.map
-    header @static_assets Cache-Control "public, max-age=604800, immutable"
-
-    @app_shell path / /index.html /config.json /manifest.json /sw.js
-    header @app_shell Cache-Control "public, max-age=300"
-
-    # SPA fallback for hash router/login page
+    
+    # SPA routing to prevent the "Too many redirects" loop
     try_files {path} /index.html
     file_server
 }
