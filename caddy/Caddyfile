@@ -6,6 +6,10 @@
         key_id uWbcH3X52RrjW42TJECv9A
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
+
+    servers {
+        trusted_proxies cloudflare
+    }
 }
 
 sky0cloud.dpdns.org {
