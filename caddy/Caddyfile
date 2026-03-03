@@ -8,27 +8,10 @@
 }
 
 sky0cloud.dpdns.org {
+    # Force compression
     encode zstd gzip
 
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Cross-Origin-Resource-Policy "cross-origin"
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    }
-
-    # 1. Handle Well-Known first
-    handle_path /.well-known/matrix/* {
-        root * /srv/well-known/matrix
-        header Content-Type application/json
-        file_server
-    }
-
-    # 2. Proxy Matrix API - Use 'handle' to isolate these requests
+    # Matrix API Proxy - Priority #1
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167
     }
@@ -36,11 +19,22 @@ sky0cloud.dpdns.org {
         reverse_proxy http://tuwunel:6167
     }
 
-    # 3. Handle Static Element App
+    # Discovery Files
+    handle_path /.well-known/matrix/* {
+        root * /srv/well-known/matrix
+        file_server
+    }
+
+    # Element Static Site - Priority #2
     handle {
         root * /srv/element
-        # try_files without a redirect: if file not found, serve index.html
-        try_files {path} {path}/ /index.html
-        file_server
+        
+        # This version of try_files is safer against 308 loops
+        try_files {path} /index.html
+        
+        # Disable automatic trailing slash redirects to stop the 308 loop
+        file_server {
+            hide .git
+        }
     }
 }
