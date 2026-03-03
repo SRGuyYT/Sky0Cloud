@@ -1,0 +1,36 @@
+{
+  "brand": "Sky0Cloud",
+  "default_theme": "dark",
+  "default_server_name": "sky0cloud.dpdns.org",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
+    }
+  },
+  "disable_custom_urls": false,
+  "disable_guests": false,
+  "disable_3pid_login": false,
+  "permalink_prefix": "https://sky0cloud.dpdns.org",
+  "room_directory": {
+    "servers": [
+      "sky0cloud.dpdns.org"
+    ]
+  },
+  "branding": {
+    "welcome_background_url": "/background.jpg",
+    "auth_header_logo_url": "/icon.png"
+  },
+  "integrations_ui_url": "https://scalar.vector.im/",
+  "integrations_rest_url": "https://scalar.vector.im/api",
+  "integrations_widgets_urls": [
+    "https://scalar.vector.im/_matrix/integrations/v1",
+    "https://scalar.vector.im/api",
+    "https://scalar-staging.vector.im/_matrix/integrations/v1",
+    "https://scalar-staging.vector.im/api",
+    "https://scalar-staging.riot.im/scalar/api"
+  ],
+  "show_labs_settings": false,
+  "features": {},
+  "map_style_url": "https://api.maptiler.com/maps/streets/style.json?key=__MAPTILER_API_KEY_PLACEHOLDER__"
+}

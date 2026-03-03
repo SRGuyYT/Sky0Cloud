@@ -1,51 +1,72 @@
+version: "3.8"
+
 services:
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
-    container_name: sky0cloud-tuwunel
+    restart: unless-stopped
+    expose:
+      - "6167"
     volumes:
-      - ./tuwunel/database:/data
+      - tuwunel_data:/data
       - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
-      - TZ=UTC
-      - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
-    restart: unless-stopped
+      TZ: UTC
+      TUWUNEL_CONFIG: /etc/tuwunel/config.toml
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - internal
-      
+      - sky0cloud_net
+
   element-web:
     image: vectorim/element-web:latest
-    container_name: sky0cloud-element
-    volumes:
-      - ./element/config.json:/usr/share/nginx/html/config.json
-      - ./element/manifest.json:/usr/share/nginx/html/manifest.json
-      - ./element/service-worker.js:/usr/share/nginx/html/service-worker.js
-      - ./element/icon.png:/usr/share/nginx/html/icon.png
-      - ./element/background.jpg:/usr/share/nginx/html/background.jpg
     restart: unless-stopped
+    depends_on:
+      - tuwunel
+    volumes:
+      - element_site:/app
+      - ./config.json:/app/config.json:ro
+      - ./config.json:/app/config.sky0cloud.dpdns.org.json:ro
+      - ./element/icon.png:/app/icon.png:ro
+      - ./element/background.jpg:/app/background.jpg:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - internal
-      
+      - sky0cloud_net
+
   caddy:
     image: caddy:2
-    container_name: sky0cloud-caddy
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./well-known:/srv/well-known:ro
-    ports:
-      - "80:80"
-      - "443:443"
     restart: unless-stopped
+    depends_on:
+      - tuwunel
+      - element-web
+    expose:
+      - "8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - element_site:/srv/element:ro
+      - ./config.json:/srv/element/config.json:ro
+      - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
+      - ./.well-known:/srv/element/.well-known:ro
+      - ./element/icon.png:/srv/element/icon.png:ro
+      - ./element/background.jpg:/srv/element/background.jpg:ro
+      - caddy_data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - internal
+      - sky0cloud_net
 
 volumes:
+  tuwunel_data:
+  element_site:
   caddy_data:
-    driver: local
-  caddy_config:
-    driver: local
 
 networks:
-  internal:
+  sky0cloud_net:
+    name: sky0cloud_net
     driver: bridge

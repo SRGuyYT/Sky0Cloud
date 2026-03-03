@@ -1,0 +1,43 @@
+:8080 {
+    encode zstd gzip
+
+    @matrix path /_matrix/* /_synapse/*
+    handle @matrix {
+        @preflight method OPTIONS
+        handle @preflight {
+            header {
+                -Access-Control-Allow-Origin
+                -Access-Control-Allow-Methods
+                -Access-Control-Allow-Headers
+                -Access-Control-Expose-Headers
+                Access-Control-Allow-Origin "*"
+                Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+                Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With, Range"
+                Access-Control-Expose-Headers "Location, Content-Range, Accept-Ranges"
+            }
+            respond "" 204
+        }
+
+        header {
+            -Access-Control-Allow-Origin
+            -Access-Control-Allow-Methods
+            -Access-Control-Allow-Headers
+            -Access-Control-Expose-Headers
+            Access-Control-Allow-Origin "*"
+            Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With, Range"
+            Access-Control-Expose-Headers "Location, Content-Range, Accept-Ranges"
+        }
+
+        reverse_proxy http://tuwunel:6167 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Host {host}
+        }
+    }
+
+    root * /srv/element
+    try_files {path} /index.html
+    file_server
+}
