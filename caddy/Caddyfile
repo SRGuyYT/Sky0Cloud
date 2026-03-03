@@ -8,46 +8,18 @@
 }
 
 sky0cloud.dpdns.org {
-    encode zstd gzip
 
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Cross-Origin-Resource-Policy "cross-origin"
-        ?Access-Control-Allow-Origin *
-        ?Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    encode gzip
+
+    handle /.well-known/matrix/server {
+        respond `{"m.server": "sky0cloud.dpdns.org:443"}` 200
     }
 
-    # Matrix discovery files
-    handle_path /.well-known/matrix/* {
-        root * /srv/well-known/matrix
-        file_server
+    handle /.well-known/matrix/client {
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Matrix API and client/media traffic
-    @matrix_api path /_matrix/* /_synapse/client/*
-    handle @matrix_api {
-        reverse_proxy http://tuwunel:6167 {
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Host {host}
-        }
-    }
-
-    # Static Element site (safe mode: no redir directives)
     handle {
-        root * /srv/element
-
-        @static_assets path *.js *.css *.png *.jpg *.jpeg *.gif *.svg *.webp *.ico *.woff *.woff2 *.ttf *.map
-        header @static_assets Cache-Control "public, max-age=604800, immutable"
-
-        @app_shell path / /index.html /config.json /manifest.json /sw.js
-        header @app_shell Cache-Control "public, max-age=300"
-
-        try_files {path} /index.html
-        file_server
+        reverse_proxy element-web:80
     }
 }
