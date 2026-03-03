@@ -12,23 +12,34 @@ sky0cloud.dpdns.org {
 
     encode gzip
 
-    # Serve real .well-known files
-    handle /.well-known/* {
+    # .well-known (no redirects here!)
+    handle_path /.well-known/* {
         root * /srv/well-known
         file_server
     }
 
-    # Matrix API (THIS FIXES MEDIA + FEDERATION)
-    handle /_matrix/* {
-        reverse_proxy tuwunel:6167
+    # Matrix API
+    handle_path /_matrix/* {
+        reverse_proxy tuwunel:6167 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
-    handle /_synapse/* {
-        reverse_proxy tuwunel:6167
+    handle_path /_synapse/* {
+        reverse_proxy tuwunel:6167 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+        }
     }
 
-    # Everything else → Element UI
+    # Element UI
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy element-web:80 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto https
+        }
     }
 }
