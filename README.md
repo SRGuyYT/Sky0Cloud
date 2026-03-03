@@ -23,7 +23,7 @@ Sky0Cloud is a self-hosted, privacy-focused Matrix server using **Tuwunel** (Con
 ## 🔹 Architecture
 
 ```
-Element-Web <--> Caddy <--> Tuwunel
+Element Static Files <--> Caddy <--> Tuwunel
        ^                     ^
        |                     |
    Web Browser          Matrix Federation
@@ -43,7 +43,7 @@ Element-Web <--> Caddy <--> Tuwunel
 ## 🔹 Docker Compose Overview
 
 * **Tuwunel**: Matrix server backend
-* **Element-Web**: Web frontend
+* **Element static files**: Served directly by Caddy from `./element`
 * **Caddy**: HTTPS, reverse proxy, and `.well-known` handling
 * Internal Docker network for secure container communication
 
@@ -79,8 +79,8 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 ## 🔹 Configuration Details
 
 * **Tuwunel Config (`tuwunel.toml`)**: Handles server identity, networking, registration, federation, database, RocksDB, presence, typing/read receipts, and logging.
-* **Element-Web Config (`config.json` / `config.sky0cloud.dpdns.org.json`)**: Custom branding, theme, server defaults, guest restrictions.
-* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API routing, Web UI hosting, `.well-known` discovery, and security headers.
+* **Element Config (`element/config.json`, `element/manifest.json`)**: Runtime branding, server defaults, and PWA install identity (name/icon).
+* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API/media routing (`/_matrix`, `/_synapse/client`), web UI routing from `./element` at `/`, `.well-known` discovery, and security headers.
 
 ---
 
@@ -95,9 +95,10 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 ## 🔹 Branding / Web UI
 
-* Welcome background: `background.jpg`
+* Login background: `background.jpg`
 
 * Auth header logo: `icon.png`
+* Branding deep-dive: `docs/BRANDING.md`
 
 * Footer links:
 
@@ -109,7 +110,7 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 
 * Guests and 3rd-party ID login disabled
 
-* Embedded login on welcome page enabled
+* Base URL redirects to `https://sky0cloud.dpdns.org/#/login`
 
 * Breadcrumbs, timestamps, and read receipts enabled
 

@@ -1,4 +1,4 @@
-http://sky0cloud.dpdns.org {
+sky0cloud.dpdns.org {
     encode zstd gzip
 
     header {
@@ -6,36 +6,50 @@ http://sky0cloud.dpdns.org {
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
-        
-        # --- CORS: Only add if missing ---
-        ?Access-Control-Allow-Origin *
-        ?Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        ?Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-        ?Access-Control-Expose-Headers "Content-Length, Content-Type, Date, Server"
-        
-        # Keep this for local Web UI media display
         Cross-Origin-Resource-Policy "cross-origin"
     }
 
-    # Federation and Client Discovery
+    # Matrix client/federation discovery
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
+        header Cache-Control "public, max-age=300"
         file_server
     }
 
-    # Route all Matrix API and Media traffic to Tuwunel
-    @matrix path /_matrix/* /_synapse/*
-    handle @matrix {
-        reverse_proxy tuwunel:6167 {
+    # Matrix APIs + media to Tuwunel
+    @matrix_api path /_matrix/* /_synapse/client/*
+    handle @matrix_api {
+        reverse_proxy http://tuwunel:6167 {
             header_up X-Forwarded-Proto https
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-For {remote_host}
         }
     }
 
-    # Route everything else (The Web UI) to the Element container
+    # Send base domain to login without creating infinite hash redirects
+    @root_login_redirect {
+        path /
+        not header Cookie *sky0cloud_login_redirected=1*
+    }
+    handle @root_login_redirect {
+        header Set-Cookie "sky0cloud_login_redirected=1; Path=/; Max-Age=300; SameSite=Lax"
+        redir https://sky0cloud.dpdns.org/#/login 302
+    }
+
+    # HDD-friendly static cache headers for Element assets
+    @static_assets {
+        path *.js *.mjs *.css *.map *.png *.jpg *.jpeg *.gif *.svg *.webp *.ico *.woff *.woff2 *.ttf
+    }
+    header @static_assets Cache-Control "public, max-age=604800, immutable"
+
+    @html_assets path *.html
+    header @html_assets Cache-Control "public, max-age=300"
+
+    # Serve Element static web app from local tree
     handle {
-        reverse_proxy element-web:80 {
-            header_up X-Forwarded-Proto https
-        }
+        root * /srv/element
+        try_files {path} /index.html
+        file_server
     }
 }
