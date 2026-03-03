@@ -7,7 +7,7 @@
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
 
-    # FIX: Stop Caddy from fighting the Tunnel's HTTP traffic
+    # Stop Caddy from fighting the Tunnel's HTTP traffic
     auto_https disable_redirects
 
     servers {
@@ -21,8 +21,17 @@
 http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     encode gzip
 
-    # USE 'handle' instead of 'handle_path' for Matrix
+    # 1. Allow large media uploads (Important for "Full Media")
+    request_body {
+        max_size 100MB
+    }
+
+    # 2. Universal Matrix CORS & Forwarding
+    # This block allows FluffyChat, Cinny, and Element Mobile to connect
     handle /_matrix/* {
+        header Access-Control-Allow-Origin *
+        header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        header Access-Control-Allow-Headers *
         reverse_proxy tuwunel:6167 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
@@ -30,19 +39,24 @@ http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     }
 
     handle /_synapse/* {
+        header Access-Control-Allow-Origin *
         reverse_proxy tuwunel:6167 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
         }
     }
 
-    # Keep handle_path for .well-known as it maps to a specific directory
-    handle_path /.well-known/* {
+    # 3. Discovery (The "Clinting" Fix)
+    # Using 'handle' instead of 'handle_path' to ensure external apps 
+    # find the JSON files correctly
+    handle /.well-known/matrix/* {
+        header Access-Control-Allow-Origin *
+        header Content-Type application/json
         root * /srv/well-known
         file_server
     }
 
-    # Element UI
+    # 4. Sky0Cloud Element UI
     handle {
         reverse_proxy element-web:80 {
             header_up Host {host}
