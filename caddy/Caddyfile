@@ -7,7 +7,9 @@
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
 
-    # Trust Cloudflare proxy IP ranges so Caddy treats forwarded headers as coming from a trusted proxy.
+    # FIX: Stop Caddy from fighting the Tunnel's HTTP traffic
+    auto_https disable_redirects
+
     servers {
         trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 \
         141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 \
@@ -17,16 +19,9 @@
 }
 
 sky0cloud.dpdns.org {
-
     encode gzip
 
-    # Serve .well-known directly (no redirects)
-    handle_path /.well-known/* {
-        root * /srv/well-known
-        file_server
-    }
-
-    # Matrix API - proxy to tuwunel (container listens on 8008)
+    # Proxy Matrix API
     handle_path /_matrix/* {
         reverse_proxy tuwunel:8008 {
             header_up Host {host}
@@ -43,7 +38,13 @@ sky0cloud.dpdns.org {
         }
     }
 
-    # Element UI - proxy to element-web (container listens on 8080)
+    # .well-known
+    handle_path /.well-known/* {
+        root * /srv/well-known
+        file_server
+    }
+
+    # Element UI
     handle {
         reverse_proxy element-web:8080 {
             header_up Host {host}
