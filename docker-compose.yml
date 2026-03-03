@@ -20,7 +20,6 @@ services:
       - caddy_config:/config
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./well-known:/srv/well-known:ro
-      - ./element:/srv/element:ro
     ports:
       - "80:80"
       - "443:443"
