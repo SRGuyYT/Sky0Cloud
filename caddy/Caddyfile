@@ -1,6 +1,7 @@
 {
     email chapmlinks@gmail.com
     acme_ca https://acme.zerossl.com/v2/DV90
+
     acme_eab {
         key_id uWbcH3X52RrjW42TJECv9A
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
@@ -11,20 +12,23 @@ sky0cloud.dpdns.org {
 
     encode gzip
 
-    handle /.well-known/matrix/server {
-        respond `{"m.server": "sky0cloud.dpdns.org:443"}` 200
+    # Serve real .well-known files
+    handle /.well-known/* {
+        root * /srv/well-known
+        file_server
     }
 
-    handle /.well-known/matrix/client {
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+    # Matrix API (THIS FIXES MEDIA + FEDERATION)
+    handle /_matrix/* {
+        reverse_proxy tuwunel:6167
     }
 
+    handle /_synapse/* {
+        reverse_proxy tuwunel:6167
+    }
+
+    # Everything else → Element UI
     handle {
         reverse_proxy element-web:80
     }
-}
-
-:80, :443 {
-    encode gzip
-    reverse_proxy element-web:80
 }
