@@ -2,6 +2,8 @@
 
 # --- CORE ---
 public_baseurl = "https://sky0cloud.dpdns.org"
+allow_public_rooms_over_federation = true
+cleanup_second_interval = 60
 server_name = "sky0cloud.dpdns.org"
 database_path = "/data"   # Updated to use mounted folder in repo
 new_user_displayname_suffix = ""
