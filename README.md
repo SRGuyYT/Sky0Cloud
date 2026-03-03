@@ -23,7 +23,7 @@ Sky0Cloud is a self-hosted, privacy-focused Matrix server using **Tuwunel** (Con
 ## 🔹 Architecture
 
 ```
-Element-Web <--> Caddy <--> Tuwunel
+Element Static Files <--> Caddy <--> Tuwunel
        ^                     ^
        |                     |
    Web Browser          Matrix Federation
@@ -43,7 +43,7 @@ Element-Web <--> Caddy <--> Tuwunel
 ## 🔹 Docker Compose Overview
 
 * **Tuwunel**: Matrix server backend
-* **Element-Web**: Web frontend
+* **Element static files**: Served directly by Caddy from `./element`
 * **Caddy**: HTTPS, reverse proxy, and `.well-known` handling
 * Internal Docker network for secure container communication
 
@@ -79,8 +79,8 @@ https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your
 ## 🔹 Configuration Details
 
 * **Tuwunel Config (`tuwunel.toml`)**: Handles server identity, networking, registration, federation, database, RocksDB, presence, typing/read receipts, and logging.
-* **Element-Web Config (`config.json`, `manifest.json`)**: Custom branding, theme, server defaults, and PWA install identity (name/icon).
-* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API/media routing (`/_matrix`, `/_synapse/client`), web UI routing (`/` and `/element/`), `.well-known` discovery, and security headers.
+* **Element Config (`element/config.json`, `element/manifest.json`)**: Runtime branding, server defaults, and PWA install identity (name/icon).
+* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API/media routing (`/_matrix`, `/_synapse/client`), web UI routing from `./element` at `/`, `.well-known` discovery, and security headers.
 
 ---
 

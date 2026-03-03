@@ -12,21 +12,6 @@ services:
     networks:
       - internal
 
-  element-web:
-    image: vectorim/element-web:latest
-    container_name: sky0cloud-element
-    volumes:
-      - ./element/config.json:/app/config.json:ro
-      - ./element/icon.png:/app/icon.png:ro
-      - ./element/background.jpg:/app/background.jpg:ro
-      - ./element/manifest.json:/app/manifest.json:ro
-      - ./element/sw.js:/app/sw.js:ro
-    environment:
-      - TZ=UTC
-    restart: unless-stopped
-    networks:
-      - internal
-    
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy

@@ -1,6 +1,6 @@
 # Sky0Cloud Element Branding Guide
 
-This project uses Element Web's runtime config and static assets mounted via Docker.
+This project serves Element static assets directly from `./element` through Caddy.
 
 ## 1) `config.json` branding
 
@@ -45,12 +45,12 @@ If you manage your own custom `index.html`, ensure it contains:
 <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
 ```
 
-> Note: the stock `vectorim/element-web` image already includes an `index.html`. In this repo we override branding via `config.json` + `manifest.json` mounts, which is enough for most deployments.
+> Note: when serving Element directly from `./element`, ensure that directory contains the full Element build (including `index.html`, JS bundles, and assets).
 
 ## Apply changes
 
 ```bash
-docker compose up -d --force-recreate element-web caddy
+docker compose up -d --force-recreate caddy
 ```
 
 Then hard refresh browser and clear old site data/service worker if the old PWA name/icon still appears.
