@@ -11,7 +11,20 @@ services:
     restart: unless-stopped
     networks:
       - internal
-
+      
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: sky0cloud-element
+    volumes:
+      - ./element/config.json:/usr/share/nginx/html/config.json
+      - ./element/manifest.json:/usr/share/nginx/html/manifest.json
+      - ./element/service-worker.js:/usr/share/nginx/html/service-worker.js
+      - ./element/icon.png:/usr/share/nginx/html/icon.png
+      - ./element/background.jpg:/usr/share/nginx/html/background.jpg
+    restart: unless-stopped
+    networks:
+      - internal
+      
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
