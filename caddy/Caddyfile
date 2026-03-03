@@ -46,7 +46,7 @@ sky0cloud.dpdns.org {
 
     # Element UI
     handle {
-        reverse_proxy element-web:8080 {
+        reverse_proxy element-web:80 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
             header_up X-Forwarded-For {remote_host}
