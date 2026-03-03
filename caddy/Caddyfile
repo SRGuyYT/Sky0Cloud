@@ -1,5 +1,4 @@
 {
-    # Global options to bypass Let's Encrypt rate limits
     email chapmlinks@gmail.com
     acme_ca https://acme.zerossl.com/v2/DV90
     acme_eab {
@@ -22,23 +21,26 @@ sky0cloud.dpdns.org {
         Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
     }
 
-    # Matrix Federation & Client discovery
+    # 1. Handle Well-Known first
     handle_path /.well-known/matrix/* {
         root * /srv/well-known/matrix
         header Content-Type application/json
         file_server
     }
 
-    # Proxy to Tuwunel (Matrix Core)
-    @matrix_api path /_matrix/* /_synapse/client/*
-    handle @matrix_api {
+    # 2. Proxy Matrix API - Use 'handle' to isolate these requests
+    handle /_matrix/* {
+        reverse_proxy http://tuwunel:6167
+    }
+    handle /_synapse/client/* {
         reverse_proxy http://tuwunel:6167
     }
 
-    # Static Element App
-    root * /srv/element
-    
-    # SPA routing to prevent the "Too many redirects" loop
-    try_files {path} /index.html
-    file_server
+    # 3. Handle Static Element App
+    handle {
+        root * /srv/element
+        # try_files without a redirect: if file not found, serve index.html
+        try_files {path} {path}/ /index.html
+        file_server
+    }
 }
