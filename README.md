@@ -23,7 +23,7 @@ Sky0Cloud is a self-hosted, privacy-focused Matrix server using **Tuwunel** (Con
 ## 🔹 Architecture
 
 ```
-Element-Web <--> Caddy <--> Tuwunel
+Element Static Files <--> Caddy <--> Tuwunel
        ^                     ^
        |                     |
    Web Browser          Matrix Federation

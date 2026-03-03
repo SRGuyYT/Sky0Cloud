@@ -34,5 +34,6 @@
     "breadcrumbs": true,
     "always_show_timestamps": true,
     "show_read_receipts": true
-  }
+  },
+  "welcomeAppUrl": "https://sky0cloud.dpdns.org/#/login"
 }
