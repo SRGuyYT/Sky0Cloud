@@ -1,8 +1,8 @@
 {
   "brand": "Sky0Cloud",
   "branding": {
-    "welcome_background_url": "background.jpg",
-    "auth_header_logo_url": "icon.png",
+    "welcome_background_url": "/background.jpg",
+    "auth_header_logo_url": "/icon.png",
     "auth_footer_links": [
       {
         "text": "Privacy",
@@ -22,7 +22,8 @@
   "default_server_name": "sky0cloud.dpdns.org",
   "default_server_config": {
     "m.homeserver": {
-      "base_url": "https://sky0cloud.dpdns.org"
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
     }
   },
   "welcome_user_id": null,
@@ -34,6 +35,5 @@
     "breadcrumbs": true,
     "always_show_timestamps": true,
     "show_read_receipts": true
-  },
-  "welcomeAppUrl": "https://sky0cloud.dpdns.org/#/login"
+  }
 }
