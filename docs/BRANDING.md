@@ -1,6 +1,6 @@
 # Sky0Cloud Element Branding Guide
 
-This project serves Element static assets directly from `./element` through Caddy.
+This project uses Element Web's runtime config and static assets mounted via Docker.
 
 ## 1) `config.json` branding
 
@@ -9,6 +9,7 @@ Edit `element/config.json`:
 ```json
 {
   "brand": "Sky0Cloud",
+  "welcomeAppUrl": "https://sky0cloud.dpdns.org/#/login",
   "branding": {
     "welcome_background_url": "background.jpg",
     "auth_header_logo_url": "icon.png"
@@ -45,7 +46,7 @@ If you manage your own custom `index.html`, ensure it contains:
 <meta name="apple-mobile-web-app-title" content="Sky0Cloud" />
 ```
 
-> Note: when serving Element directly from `./element`, ensure that directory contains the full Element build (including `index.html`, JS bundles, and assets).
+> Note: this repo serves static Element files from `./element` through Caddy (`/srv/element`). If you add a custom `index.html`, keep the branding tags above so tab title and install metadata stay branded.
 
 ## Apply changes
 
