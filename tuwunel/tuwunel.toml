@@ -32,15 +32,14 @@ trusted_servers = ["matrix.org", "sky0cloud.dpdns.org"]
 query_trusted_key_servers_first = true
 
 log = "info"
-log_colors = false
+log_colors = true
 log_compact = true
 
 [email]
-# Keep SMTP keys under [email] to avoid unknown-parameter warnings.
 smtp_host = "smtp.mailgun.org"
 smtp_port = 587
-smtp_username = "postmaster@YOUR_MAILGUN_DOMAIN"
-smtp_password = "replace_with_mailgun_smtp_password"
-smtp_from = "Sky0Cloud <noreply@YOUR_MAILGUN_DOMAIN>"
+smtp_user = "official@no-reply.skyservers.qzz.io"
+smtp_pass = "be0576***************************"
+smtp_from = "Sky0Cloud <official@no-reply.skyservers.qzz.io>"
 require_transport_security = true
 require_verification = true
