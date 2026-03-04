@@ -1,43 +1,43 @@
 {
     email chapmlinks@gmail.com
     acme_ca https://acme.zerossl.com/v2/DV90
-
     acme_eab {
         key_id uWbcH3X52RrjW42TJECv9A
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
-
-    auto_https disable_redirects
-
-    servers {
-        trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 \
-        141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 \
-        197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 \
-        104.24.0.0/14 172.64.0.0/13 131.0.72.0/22
-    }
+    # REMOVED: auto_https disable_redirects (let Caddy handle the redirect)
 }
 
-http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
+https://sky0cloud.dpdns.org {
     encode gzip
-    root * /srv/element
 
-    @wellKnown path /.well-known/matrix/*
-    handle @wellKnown {
+    # 1. Server Discovery
+    handle_path /.well-known/matrix/* {
+        root * /branding/.well-known/matrix
         header Access-Control-Allow-Origin *
-        header Content-Type application/json
         file_server
     }
 
+    # 2. Branding Overrides (Branding folder)
+    # This serves config.json and welcome.html from the /branding mount
+    handle /config.json {
+        root * /branding
+        file_server
+    }
+    handle /welcome.html {
+        root * /branding
+        file_server
+    }
+
+    # 3. Matrix API Proxy
     handle /_matrix/* {
-        header Access-Control-Allow-Origin *
-        reverse_proxy tuwunel:6167 {
-            header_up Host {host}
-            header_up X-Forwarded-Proto https
-        }
+        reverse_proxy tuwunel:6167
     }
 
+    # 4. Main Element App
     handle {
-        try_files {path} {path}/ /index.html
+        root * /srv/element
         file_server
+        try_files {path} {path}/ /index.html
     }
 }
