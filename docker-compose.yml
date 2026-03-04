@@ -16,47 +16,31 @@ services:
   element-web:
     image: vectorim/element-web:latest
     restart: unless-stopped
-    depends_on:
-      - tuwunel
-    volumes:
-      # Change /app to /srv/element
-      - element_site:/srv/element 
-      - ./config.json:/srv/element/config.json:ro
-      - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
-      - ./element/icon.png:/srv/element/icon.png:ro
-      - ./element/background.jpg:/srv/element/background.jpg:ro
-      - ./welcome.html:/srv/element/welcome.html:ro
     networks:
       - sky0cloud_net
 
   caddy:
     image: caddy:2
     restart: unless-stopped
-    depends_on:
-      - tuwunel
-      - element-web
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - element_site:/srv/element:ro
-      # FIX: Mount the whole folder instead of individual files
-      - ./.well-known:/srv/element/.well-known:ro
+      - caddy_data:/data
+      # BIND MOUNTS: This avoids the "Read Only" folder creation error
       - ./config.json:/srv/element/config.json:ro
+      - ./.well-known:/srv/element/.well-known:ro
       - ./welcome.html:/srv/element/welcome.html:ro
       - ./element/icon.png:/srv/element/icon.png:ro
       - ./element/background.jpg:/srv/element/background.jpg:ro
-      - caddy_data:/data
     networks:
       - sky0cloud_net
 
 volumes:
   tuwunel_data:
-  element_site:
   caddy_data:
 
 networks:
   sky0cloud_net:
     name: sky0cloud_net
-    driver: bridge
