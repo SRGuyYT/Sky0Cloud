@@ -1,0 +1,70 @@
+services:
+  tuwunel:
+    image: ghcr.io/matrix-construct/tuwunel:latest
+    restart: unless-stopped
+    expose:
+      - "6167"
+    volumes:
+      - tuwunel_data:/data
+      - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
+    environment:
+      TZ: UTC
+      TUWUNEL_CONFIG: /etc/tuwunel/config.toml
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - sky0cloud_net
+
+  element-web:
+    image: vectorim/element-web:latest
+    restart: unless-stopped
+    depends_on:
+      - tuwunel
+    volumes:
+      - element_site:/app
+      - ./config.json:/app/config.json:ro
+      - ./config.json:/app/config.sky0cloud.dpdns.org.json:ro
+      - ./element/icon.png:/app/icon.png:ro
+      - ./element/background.jpg:/app/background.jpg:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - sky0cloud_net
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - tuwunel
+      - element-web
+    expose:
+      - "80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - element_site:/srv/element:ro
+      - ./config.json:/srv/element/config.json:ro
+      - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
+      - ./.well-known:/srv/element/.well-known:ro
+      - ./element/icon.png:/srv/element/icon.png:ro
+      - ./element/background.jpg:/srv/element/background.jpg:ro
+      - caddy_data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - sky0cloud_net
+
+volumes:
+  tuwunel_data:
+  element_site:
+  caddy_data:
+
+networks:
+  sky0cloud_net:
+    name: sky0cloud_net
+    driver: bridge
