@@ -1,34 +1,31 @@
 {
-    email chapmlinks@gmail.com
-    acme_ca https://acme.zerossl.com/v2/DV90
-    acme_eab {
-        key_id uWbcH3X52RrjW42TJECv9A
-        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
-
-    }
-
-    # Disable automatic HTTPS because Cloudflare provides the SSL
     auto_https off
 }
-http://sky0cloud.dpdns.org {
+
+# Use :80 as a catch-all. Caddy will serve this to ANY request on port 80.
+:80 {
     encode gzip
     root * /srv/element
 
+    # 1. Server Discovery
     handle_path /.well-known/matrix/* {
         root * /srv/element/.well-known/matrix
         header Access-Control-Allow-Origin *
         file_server
     }
 
+    # 2. Custom Branding
     @branding path /config.json /welcome.html /icon.png /background.jpg
     handle @branding {
         file_server
     }
 
+    # 3. Matrix API Proxy
     handle /_matrix/* {
         reverse_proxy tuwunel:6167
     }
 
+    # 4. Main App
     handle {
         try_files {path} {path}/ /index.html
         file_server
