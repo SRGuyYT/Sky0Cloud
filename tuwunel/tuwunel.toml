@@ -18,8 +18,8 @@ log_guest_registrations = true
 
 # --- AUTO JOIN ---
 auto_join_rooms = [
-   "!dqi0C6Y7g6jR2szrx4:sky0cloud.dpdns.org",
-   "!pTBO5J0iGIEySYJZTm:sky0cloud.dpdns.org"
+   "!lKP6TkVFKVCOTpGQHV:sky0cloud.dpdns.org",   # Info Server
+   "!sY6VaQPiY428XrWcWB:sky0cloud.dpdns.org"    # Chat Serer
 ]
 
 # --- PERFORMANCE (OPTIMIZED FOR 8GB RAM) ---
