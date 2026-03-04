@@ -6,19 +6,17 @@
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
 
-    # Disable automatic HTTPS because Cloudflare provides the SSL
     auto_https off
 }
 
-# Using :80 makes this a catch-all for any request on port 80
+# Catch-all for any request on port 80
 :80 {
-    encode gzip
+    # Set the root for the ENTIRE block first
     root * /srv/element
+    encode gzip
 
     # 1. Server Discovery
     handle_path /.well-known/matrix/* {
-        root * /srv/element/.well-known/matrix
-        header Access-Control-Allow-Origin *
         file_server
     }
 
