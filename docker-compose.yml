@@ -24,6 +24,7 @@ services:
       - ./config.json:/app/config.sky0cloud.dpdns.org.json:ro
       - ./element/icon.png:/app/icon.png:ro
       - ./element/background.jpg:/app/background.jpg:ro
+      - ./welcome.html:/app/welcome.html:ro
     networks:
       - sky0cloud_net
 
@@ -41,9 +42,11 @@ services:
       - element_site:/srv/element:ro
       - ./config.json:/srv/element/config.json:ro
       - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
-      - ./.well-known:/srv/element/.well-known:ro
+      - ./.well-known/client:/srv/element/.well-known/matrix/client:ro
+      - ./.well-known/server:/srv/element/.well-known/matrix/server:ro
       - ./element/icon.png:/srv/element/icon.png:ro
       - ./element/background.jpg:/srv/element/background.jpg:ro
+      - ./welcome.html:/srv/element/welcome.html:ro
       - caddy_data:/data
     networks:
       - sky0cloud_net

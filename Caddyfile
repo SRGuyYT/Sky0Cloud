@@ -7,7 +7,6 @@
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
 
-    # Stop Caddy from fighting the Tunnel's HTTP traffic
     auto_https disable_redirects
 
     servers {
@@ -20,19 +19,15 @@
 
 http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     encode gzip
-    
-    # Set the global root for all static files
     root * /srv/element
 
-    # 1. Server Discovery (Fixed Path)
-    # This now correctly points to where your compose mounts the folder
-    handle_path /.well-known/matrix/* {
+    @wellKnown path /.well-known/matrix/*
+    handle @wellKnown {
         header Access-Control-Allow-Origin *
         header Content-Type application/json
         file_server
     }
 
-    # 2. Matrix API Proxy
     handle /_matrix/* {
         header Access-Control-Allow-Origin *
         reverse_proxy tuwunel:6167 {
@@ -41,11 +36,8 @@ http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
         }
     }
 
-    # 3. Direct File Serving
     handle {
-        file_server
-        # Add a specific header to help debug
-        header +X-Debug-Status "Serving-Static"
         try_files {path} {path}/ /index.html
+        file_server
     }
 }
