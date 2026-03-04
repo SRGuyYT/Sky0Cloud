@@ -1,40 +1,32 @@
 {
-    email chapmlinks@gmail.com
-    acme_ca https://acme.zerossl.com/v2/DV90
-    acme_eab {
-        key_id uWbcH3X52RrjW42TJECv9A
-        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
-    }
-
-    # Keep auto_https off while Cloudflare handles the SSL edge
-    auto_https off
+  email {$ACME_EMAIL}
 }
 
-:80 {
-    root * /srv/element
-    encode gzip
+sky0cloud.dpdns.org {
+  encode zstd gzip
+  root * /srv/element
 
-    # 1. Matrix Discovery (Discovery must be public and accessible)
-    handle /.well-known/matrix/* {
-        header Access-Control-Allow-Origin "*"
-        header Content-Type "application/json"
-        file_server
-    }
+  # Matrix Client & Server discovery
+  handle /.well-known/matrix/server {
+    header Content-Type application/json
+    header Access-Control-Allow-Origin *
+    respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+  }
 
-    # 2. Custom Branding Assets
-    @branding path /config.json /welcome.html /icon.png /background.jpg /manifest.json /sw.js
-    handle @branding {
-        file_server
-    }
+  handle /.well-known/matrix/client {
+    header Content-Type application/json
+    header Access-Control-Allow-Origin *
+    respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"},"org.matrix.msc3575.proxy":{"url":"https://sky0cloud.dpdns.org"}}` 200
+  }
 
-    # 3. Matrix API Proxy (Routes traffic to Tuwunel)
-    handle /_matrix/* {
-        reverse_proxy tuwunel:6167
-    }
+  # Matrix APIs
+  handle_path /_matrix/* {
+    reverse_proxy tuwunel:6167
+  }
 
-    # 4. Element Web App (Fallback to index.html for Single Page App routing)
-    handle {
-        try_files {path} {path}/ /index.html
-        file_server
-    }
+  # Element web (local bind-mounted directory)
+  handle {
+    try_files {path} /index.html
+    file_server
+  }
 }

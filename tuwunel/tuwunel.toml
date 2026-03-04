@@ -1,85 +1,46 @@
 [global]
-
-# --- CORE ---
 server_name = "sky0cloud.dpdns.org"
-database_path = "/data"   # Updated to use mounted folder in repo
-new_user_displayname_suffix = ""
-
-# --- NETWORK ---
 address = ["0.0.0.0"]
 port = 6167
 
-# --- REGISTRATION (OPEN SETUP) ---
+database_path = "/data"
+
 allow_registration = true
-registration_token = "itoldyou"
-yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = true
-allow_guest_registration = true
-log_guest_registrations = true
+grant_admin_to_first_user = true
+allow_guest_registration = false
 
-# --- AUTO JOIN ---
-auto_join_rooms = [
-   "!lKP6TkVFKVCOTpGQHV:sky0cloud.dpdns.org",   # Info Server
-   "!sY6VaQPiY428XrWcWB:sky0cloud.dpdns.org"    # Chat Serer
-]
+max_request_size = 52_428_800
 
-# --- PERFORMANCE (OPTIMIZED FOR 8GB RAM) ---
-cache_capacity_modifier = 2.0
-client_sync_timeout_min = 300
-client_sync_timeout_default = 600
-client_sync_timeout_max = 900
-max_request_size = 52428800
+# Ryzen 3 + 8 GB RAM tuning
+# Keep worker counts conservative to avoid HDD seek amplification.
+db_pool_workers = 6
+db_pool_workers_limit = 12
+db_pool_max_workers = 24
 
-# --- DATABASE THREADING (Ryzen 3 SAFE LIMITS) ---
-db_pool_workers = 16
-db_pool_workers_limit = 32
-db_pool_max_workers = 128
+# Cache budget for 8 GB host; leaves RAM for kernel page cache and Caddy.
+cache_capacity_modifier = 1.4
 
-# --- ROCKSDB (HDD OPTIMIZED) ---
+# RocksDB tuning for spinning disks.
 rocksdb_optimize_for_spinning_disks = true
 rocksdb_direct_io = false
-rocksdb_parallelism_threads = 4
+rocksdb_parallelism_threads = 2
 rocksdb_compression_algo = "lz4"
-rocksdb_max_log_files = 3
-rocksdb_log_time_to_roll = 86400
+rocksdb_level_compaction_dynamic_level_bytes = true
+rocksdb_max_log_files = 4
 
-# --- FEDERATION ---
-allow_federation = true
-trusted_servers = ["sky0cloud.dpdns.org", "matrix.org"]
-max_join_attempts_per_join_request = 5
+trusted_servers = ["matrix.org", "sky0cloud.dpdns.org"]
 query_trusted_key_servers_first = true
 
-# --- PRESENCE ---
-allow_local_presence = true
-allow_incoming_presence = true
-allow_outgoing_presence = true
-presence_idle_timeout_s = 300
-presence_offline_timeout_s = 1800
-
-# --- TYPING / READ RECEIPTS ---
-allow_incoming_typing = true
-allow_outgoing_typing = true
-allow_incoming_read_receipts = true
-allow_outgoing_read_receipts = true
-
-# --- MEDIA / STORAGE SAFETY ---
-media_startup_check = true
-
-# --- LOGGING ---
 log = "info"
-log_colors = true
+log_colors = false
 log_compact = true
 
-# --- ADMIN ---
-grant_admin_to_first_user = true
-create_admin_room = true
-admin_room_notices = true
-
-# --- EMAIL & VERIFICATION ---
 [email]
-# Leaving these blank or commented out so they pull from .env
-# smtp_host = ""
-# smtp_port = 587
-# smtp_user = ""
-# smtp_pass = ""
-# smtp_from = ""
-require_verification = false
+# Keep SMTP keys under [email] to avoid unknown-parameter warnings.
+smtp_host = "smtp.mailgun.org"
+smtp_port = 587
+smtp_username = "postmaster@YOUR_MAILGUN_DOMAIN"
+smtp_password = "replace_with_mailgun_smtp_password"
+smtp_from = "Sky0Cloud <noreply@YOUR_MAILGUN_DOMAIN>"
+require_transport_security = true
+require_verification = true
