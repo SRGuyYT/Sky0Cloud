@@ -8,35 +8,27 @@
     # REMOVED: auto_https disable_redirects (let Caddy handle the redirect)
 }
 
-http://sky0cloud.dpdns.org:80 {
+:80 {
     encode gzip
+    root * /srv/element
 
-    # 1. Server Discovery
+    # 1. Server Discovery (Highest Priority)
     handle_path /.well-known/matrix/* {
-        root * /branding/.well-known/matrix
-        header Access-Control-Allow-Origin *
+        file_server {
+            root /srv/element/.well-known/matrix
+        }
+    }
+
+    # 2. Custom Branding Files
+    # If these exist in our mount, serve them; otherwise, move to handle block
+    @branding path /config.json /welcome.html /icon.png /background.jpg
+    handle @branding {
         file_server
     }
 
-    # 2. Branding Overrides
-    handle /config.json {
-        root * /branding
-        file_server
-    }
-    handle /welcome.html {
-        root * /branding
-        file_server
-    }
-
-    # 3. Matrix API Proxy
-    handle /_matrix/* {
-        reverse_proxy tuwunel:6167
-    }
-
-    # 4. Main Element App
+    # 3. Main App fallback
     handle {
-        root * /srv/element
-        file_server
         try_files {path} {path}/ /index.html
+        file_server
     }
 }
