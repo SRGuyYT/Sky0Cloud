@@ -48,7 +48,7 @@ services:
       - element_site:/srv/element:ro
       - ./config.json:/srv/element/config.json:ro
       - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
-      - ./.well-known:/srv/element/.well-known:ro
+      - ./tuwunel/.well-known:/srv/element/.well-known:ro
       - ./element/icon.png:/srv/element/icon.png:ro
       - ./element/background.jpg:/srv/element/background.jpg:ro
       - caddy_data:/data
