@@ -28,10 +28,6 @@ services:
       - ./config.json:/app/config.sky0cloud.dpdns.org.json:ro
       - ./element/icon.png:/app/icon.png:ro
       - ./element/background.jpg:/app/background.jpg:ro
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
     networks:
       - sky0cloud_net
 
