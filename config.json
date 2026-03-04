@@ -21,7 +21,7 @@
       "sky0cloud.dpdns.org"
     ]
   },
-  "email_verification_is_required": true,
+  "email_verification_is_required": false,
   "account_reserver": {
     "email": true,
     "phone": false
