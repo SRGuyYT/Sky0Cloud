@@ -6,32 +6,33 @@
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
 
+    # Keep auto_https off while Cloudflare handles the SSL edge
     auto_https off
 }
 
-# Catch-all for any request on port 80
 :80 {
-    # Set the root for the ENTIRE block first
     root * /srv/element
     encode gzip
 
-    # 1. Server Discovery
-    handle_path /.well-known/matrix/* {
+    # 1. Matrix Discovery (Discovery must be public and accessible)
+    handle /.well-known/matrix/* {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/json"
         file_server
     }
 
-    # 2. Custom Branding
-    @branding path /config.json /welcome.html /icon.png /background.jpg
+    # 2. Custom Branding Assets
+    @branding path /config.json /welcome.html /icon.png /background.jpg /manifest.json /sw.js
     handle @branding {
         file_server
     }
 
-    # 3. Matrix API Proxy
+    # 3. Matrix API Proxy (Routes traffic to Tuwunel)
     handle /_matrix/* {
         reverse_proxy tuwunel:6167
     }
 
-    # 4. Main App fallback
+    # 4. Element Web App (Fallback to index.html for Single Page App routing)
     handle {
         try_files {path} {path}/ /index.html
         file_server
