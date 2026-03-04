@@ -20,47 +20,31 @@
 
 http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
     encode gzip
+    
+    # Set the global root for all static files
+    root * /srv/element
 
-    # 1. Allow large media uploads (Important for "Full Media")
-    request_body {
-        max_size 100MB
-    }
-
-    # 2. Universal Matrix CORS & Forwarding
-    # This block allows FluffyChat, Cinny, and Element Mobile to connect
-    handle /_matrix/* {
-        header Access-Control-Allow-Origin *
-        header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        header Access-Control-Allow-Headers *
-        reverse_proxy tuwunel:6167 {
-            header_up Host {host}
-            header_up X-Forwarded-Proto https
-        }
-    }
-
-    handle /_synapse/* {
-        header Access-Control-Allow-Origin *
-        reverse_proxy tuwunel:6167 {
-            header_up Host {host}
-            header_up X-Forwarded-Proto https
-        }
-    }
-
-    # 3. Discovery (The "Clinting" Fix)
-    # Using 'handle' instead of 'handle_path' to ensure external apps 
-    # find the JSON files correctly
-    handle /.well-known/matrix/* {
+    # 1. Server Discovery (Fixed Path)
+    # This now correctly points to where your compose mounts the folder
+    handle_path /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
         header Content-Type application/json
-        root * /srv/well-known
         file_server
     }
 
-    # 4. Sky0Cloud Element UI
-    handle {
-        reverse_proxy element-web:80 {
+    # 2. Matrix API Proxy
+    handle /_matrix/* {
+        header Access-Control-Allow-Origin *
+        reverse_proxy tuwunel:6167 {
             header_up Host {host}
             header_up X-Forwarded-Proto https
         }
+    }
+
+    # 3. Direct File Serving (No more proxy to element-web:80)
+    # This serves config.json, background.jpg, and the UI directly
+    handle {
+        file_server
+        try_files {path} {path}/ /index.html
     }
 }
