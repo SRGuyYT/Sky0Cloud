@@ -8,7 +8,7 @@
     # REMOVED: auto_https disable_redirects (let Caddy handle the redirect)
 }
 
-https://sky0cloud.dpdns.org {
+http://sky0cloud.dpdns.org:80 {
     encode gzip
 
     # 1. Server Discovery
@@ -18,8 +18,7 @@ https://sky0cloud.dpdns.org {
         file_server
     }
 
-    # 2. Branding Overrides (Branding folder)
-    # This serves config.json and welcome.html from the /branding mount
+    # 2. Branding Overrides
     handle /config.json {
         root * /branding
         file_server
