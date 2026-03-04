@@ -28,9 +28,7 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - element_site:/srv/element:ro
-      # Mount the whole .well-known folder
-      - ./.well-known:/srv/element/.well-known:ro
-      # Mount individual files directly into the root
+      - ./.well-known:/srv/element/.well-known:ro # Mounts the folder you just checked
       - ./config.json:/srv/element/config.json:ro
       - ./welcome.html:/srv/element/welcome.html:ro
       - ./element/icon.png:/srv/element/icon.png:ro
