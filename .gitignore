@@ -1,5 +1,0 @@
-.env
-secrets/*.txt
-!secrets/.gitkeep
-backups/
-tuwunel/database/*
