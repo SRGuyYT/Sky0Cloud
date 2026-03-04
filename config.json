@@ -23,11 +23,11 @@
     "auth_footer_links": [
       {
         "text": "Login",
-        "url": "https://sky0cloud.dpdns.org/#/login"
+        "url": "/#/login"
       },
       {
         "text": "Signup",
-        "url": "https://sky0cloud.dpdns.org/#/register"
+        "url": "/#/register"
       },
       {
         "text": "Access Code?",
