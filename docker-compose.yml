@@ -27,15 +27,10 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # FIX: We use the local folder './element' instead of the volume 'element_site'
       - ./element:/srv/element:ro
-      - ./.well-known:/srv/element/.well-known:ro
-      - ./config.json:/srv/element/config.json:ro
-      - ./welcome.html:/srv/element/welcome.html:ro
       - caddy_data:/data
     networks:
       - sky0cloud_net
-
 volumes:
   tuwunel_data:
   caddy_data:
