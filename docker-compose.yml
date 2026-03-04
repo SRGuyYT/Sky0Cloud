@@ -10,15 +10,14 @@ services:
     environment:
       - TZ=UTC
       - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
-      # SMTP Configuration
-      - TUWUNEL_SMTP_HOST=smtp.mailgun.org
-      - TUWUNEL_SMTP_PORT=587
-      - TUWUNEL_SMTP_USER=official@no-reply.skyservers.qzz.io
+      # Mapping .env variables to Tuwunel's expected names
+      - TUWUNEL_SMTP_HOST=${SMTP_HOST}
+      - TUWUNEL_SMTP_PORT=${SMTP_PORT}
+      - TUWUNEL_SMTP_USER=${SMTP_USER}
       - TUWUNEL_SMTP_PASS=${SMTP_PASS}
-      - TUWUNEL_SMTP_FROM=Sky0Cloud <official@no-reply.skyservers.qzz.io>
-      # Registration & Verification Settings
-      - TUWUNEL_ALLOW_REGISTRATION=true
+      - TUWUNEL_SMTP_FROM=${SMTP_FROM}
       - TUWUNEL_USER_EMAIL_VERIFICATION=true
+      - TUWUNEL_ALLOW_REGISTRATION=true
     networks:
       - sky0cloud_net
 
