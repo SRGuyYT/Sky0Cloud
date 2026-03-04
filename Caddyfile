@@ -41,10 +41,11 @@ http://sky0cloud.dpdns.org, https://sky0cloud.dpdns.org {
         }
     }
 
-    # 3. Direct File Serving (No more proxy to element-web:80)
-    # This serves config.json, background.jpg, and the UI directly
+    # 3. Direct File Serving
     handle {
         file_server
+        # Add a specific header to help debug
+        header +X-Debug-Status "Serving-Static"
         try_files {path} {path}/ /index.html
     }
 }
