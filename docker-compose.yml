@@ -27,13 +27,14 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - element_site:/srv/element:ro
+      # NEW: Mount your custom files to a separate /branding folder
+      - ./.well-known:/branding/.well-known:ro
+      - ./config.json:/branding/config.json:ro
+      - ./welcome.html:/branding/welcome.html:ro
+      - ./element/icon.png:/branding/icon.png:ro
+      - ./element/background.jpg:/branding/background.jpg:ro
       - caddy_data:/data
-      # BIND MOUNTS: This avoids the "Read Only" folder creation error
-      - ./config.json:/srv/element/config.json:ro
-      - ./.well-known:/srv/element/.well-known:ro
-      - ./welcome.html:/srv/element/welcome.html:ro
-      - ./element/icon.png:/srv/element/icon.png:ro
-      - ./element/background.jpg:/srv/element/background.jpg:ro
     networks:
       - sky0cloud_net
 
