@@ -1,8 +1,16 @@
 {
+    email chapmlinks@gmail.com
+    acme_ca https://acme.zerossl.com/v2/DV90
+    acme_eab {
+        key_id uWbcH3X52RrjW42TJECv9A
+        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
+    }
+
+    # Disable automatic HTTPS because Cloudflare provides the SSL
     auto_https off
 }
 
-# Use :80 as a catch-all. Caddy will serve this to ANY request on port 80.
+# Using :80 makes this a catch-all for any request on port 80
 :80 {
     encode gzip
     root * /srv/element
@@ -25,7 +33,7 @@
         reverse_proxy tuwunel:6167
     }
 
-    # 4. Main App
+    # 4. Main App fallback
     handle {
         try_files {path} {path}/ /index.html
         file_server
