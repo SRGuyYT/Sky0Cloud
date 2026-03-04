@@ -19,12 +19,13 @@ services:
     depends_on:
       - tuwunel
     volumes:
-      - element_site:/app
-      - ./config.json:/app/config.json:ro
-      - ./config.json:/app/config.sky0cloud.dpdns.org.json:ro
-      - ./element/icon.png:/app/icon.png:ro
-      - ./element/background.jpg:/app/background.jpg:ro
-      - ./welcome.html:/app/welcome.html:ro
+      # Change /app to /srv/element
+      - element_site:/srv/element 
+      - ./config.json:/srv/element/config.json:ro
+      - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
+      - ./element/icon.png:/srv/element/icon.png:ro
+      - ./element/background.jpg:/srv/element/background.jpg:ro
+      - ./welcome.html:/srv/element/welcome.html:ro
     networks:
       - sky0cloud_net
 
