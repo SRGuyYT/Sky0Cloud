@@ -33,8 +33,9 @@ services:
     depends_on:
       - tuwunel
       - element-web
-    expose:
-      - "80"
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - element_site:/srv/element:ro
