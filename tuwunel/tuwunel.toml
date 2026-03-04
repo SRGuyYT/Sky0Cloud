@@ -73,3 +73,13 @@ log_compact = true
 grant_admin_to_first_user = true
 create_admin_room = true
 admin_room_notices = true
+
+# --- EMAIL & VERIFICATION ---
+[email]
+# Leaving these blank or commented out so they pull from .env
+# smtp_host = ""
+# smtp_port = 587
+# smtp_user = ""
+# smtp_pass = ""
+# smtp_from = ""
+require_verification = false
