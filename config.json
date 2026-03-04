@@ -30,7 +30,7 @@
     "https://scalar-staging.vector.im/api",
     "https://scalar-staging.riot.im/scalar/api"
   ],
-  "show_labs_settings": false,
+  "show_labs_settings": true,
   "features": {},
-  "map_style_url": "https://api.maptiler.com/maps/streets/style.json?key=__MAPTILER_API_KEY_PLACEHOLDER__"
+  "map_style_url": "https://api.maptiler.com/maps/streets-v2/?key=pUvnmFuYZ2QCGg0rpNta"
 }
