@@ -17,6 +17,12 @@ services:
     networks:
       - sky0cloud
 
+  element-web:
+    image: vectorim/element-web:latest
+    restart: unless-stopped
+    networks:
+      - sky0cloud
+
   caddy:
     image: caddy:2
     container_name: sky0cloud-caddy
