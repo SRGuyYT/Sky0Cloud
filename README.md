@@ -1,140 +1,89 @@
----
+# Sky0Cloud Matrix Stack
 
-# Sky0Cloud
+Production-oriented Matrix stack for **sky0cloud.dpdns.org** using:
+- **Tuwunel** (homeserver)
+- **Caddy** (reverse proxy + `.well-known`)
+- **Element Web** (served from local bind mount)
 
-Sky0Cloud is a self-hosted, privacy-focused Matrix server using **Tuwunel** (Construct-based), with **Element-Web** as the frontend, fully proxied via **Caddy**. It is designed to run on modest hardware and supports federation with other Matrix servers.
+## 1) Directory Layout
 
----
+All runtime data is consolidated in `~/Sky0Cloud` with bind mounts:
 
-## 🔹 Features
-
-* Fully open registration (optional token-based protection)
-* Guest accounts allowed
-* Auto-join rooms for all new users
-* Optimized for HDD/SSD and 8GB RAM
-* Federation-ready with trusted servers
-* Custom Element-Web branding (Sky0Cloud theme)
-* HTTPS with automatic Caddy reverse proxy
-* Logs, read receipts, typing notifications, and presence enabled
-* Media handling optimized for safety and performance
-
----
-
-## 🔹 Architecture
-
-```
-Element Static Files <--> Caddy <--> Tuwunel
-       ^                     ^
-       |                     |
-   Web Browser          Matrix Federation
+```text
+~/Sky0Cloud/
+├── docker-compose.yml
+├── Caddyfile
+├── .env
+├── .gitignore
+├── tuwunel/
+│   └── tuwunel.toml
+├── tuwunel_data/        # DB + media content
+└── element/
+    └── config.json      # Element branding + homeserver target
 ```
 
----
+## 2) Host Preparation (Ubuntu/Debian)
 
-## 🔹 Prerequisites
-
-* Docker & Docker Compose
-* At least 8GB RAM
-* HDD or SSD (config optimized for spinning disks)
-* Public domain with DNS configured
-
----
-
-## 🔹 Docker Compose Overview
-
-* **Tuwunel**: Matrix server backend
-* **Element static files (`./element`)**: Web frontend assets
-* **Caddy**: HTTPS, static file serving, reverse proxy, and `.well-known` handling
-* Internal Docker network for secure container communication
-
----
-
-## 🔹 Setup Instructions
-
-1. Clone the repository:
+Install official Docker Engine from Apt:
 
 ```bash
-git clone https://github.com/SRGuyYT/Sky0Cloud.git
-cd Sky0Cloud
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker "$USER"
 ```
 
-2. Edit configuration files if needed.
+Log out/in once after adding yourself to the `docker` group.
 
-3. Start containers:
+## 3) Start / Stop Operations
+
+From `~/Sky0Cloud`:
 
 ```bash
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
-4. Access your server via browser:
+Check health/logs:
 
+```bash
+docker compose ps
+docker compose logs -f tuwunel
+docker compose logs -f caddy
 ```
-https://your-domain.example/ (**NOTE: This is made for sky0cloud.dpdns.org. Your might be trying to go to ours!)**
+
+Stop stack:
+
+```bash
+docker compose down
 ```
 
-5. The first registered user automatically becomes admin and creates the admin room.
+Restart after config changes:
 
----
+```bash
+docker compose up -d --force-recreate
+```
 
-## 🔹 Configuration Details
+## 4) Notes on HDD Optimization
 
-* **Tuwunel Config (`tuwunel.toml`)**: Handles server identity, networking, registration, federation, database, RocksDB, presence, typing/read receipts, and logging.
-* **Element-Web Config (`config.json`, `manifest.json`)**: Custom branding, theme, server defaults, and PWA install identity (name/icon).
-* **Caddyfile**: Reverse proxy setup for HTTPS, Matrix API/media routing (`/_matrix`, `/_synapse/client`), static Element serving at `/`, `.well-known` discovery, and security/cache headers.
+- `database_path = "/data"` matches bind mount `./tuwunel_data:/data` to avoid media/DB path mismatch issues.
+- Tuwunel RocksDB options are tuned for spinning disks.
+- Worker and cache values are sized for Ryzen 3 + 8GB RAM while leaving room for OS file cache.
 
----
+## 5) Element Web Content
 
-## 🔹 Notes
+Caddy serves Element from `./element`. Ensure `index.html` and static assets exist there (official Element build output), with this repo-managed `element/config.json` for branding/homeserver defaults.
 
-* **Data migration**: If moving from an old Conduwuit instance, copy the data directory into the Tuwunel volume before starting the container.
-* **Security**: Only enable open registration if needed; otherwise, use a strong registration token or disable registration entirely.
-* **Backups**: Regularly back up the Tuwunel data volume.
-* **Performance tuning**: Adjust `cache_capacity_modifier`, RocksDB settings, and `db_pool_workers` according to your hardware.
+## 6) Security / Maintenance
 
----
-
-## 🔹 Branding / Web UI
-
-* Login background: `background.jpg`
-
-* Auth header logo: `icon.png`
-* Branding deep-dive: `docs/BRANDING.md`
-
-* Footer links:
-
-  * Privacy: `https://sky0cloud.dpdns.org/#/404`
-  * Help: `https://sky0cloud.dpdns.org/#/404`
-  * Access Code?: `https://github.com/SRGuyYT/Sky0Cloud/blob/main/README.md`
-
-* Default theme: dark
-
-* Guests and 3rd-party ID login disabled
-
-* `welcomeAppUrl` points to `https://sky0cloud.dpdns.org/#/login` (no server-side redirect loop)
-
-* Breadcrumbs, timestamps, and read receipts enabled
-
----
-
-## 🔹 Federation / Well-Known
-
-* `.well-known/matrix/client` points to your homeserver and identity server URLs.
-* `.well-known/matrix/server` defines the federation server for other homeservers.
-* Trusted servers include `matrix.org` and your own domain (`sky0cloud.dpdns.org`).
-* `itoldyou` Sky0Cloud Access Code
-
----
-
-## 🔹 Contact / Help
-
-* GitHub: [SRGuyYT/Sky0Cloud](https://github.com/SRGuyYT/Sky0Cloud)
-* Matrix: srguyyt@sky0cloud.dpdns.org
-* Support Email: [official@no-reply.skyservers.qzz.io](mailto:official@no-reply.skyservers.qzz.io)
-
----
-
-## 🔹 License
-
-Sky0Cloud is open-source and provided under the MIT License.
-
----
+- Keep `.env` private.
+- Back up `./tuwunel_data` regularly.
+- Use a strong registration policy/token in production.

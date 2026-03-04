@@ -1,0 +1,22 @@
+{
+  "default_server_name": "sky0cloud.dpdns.org",
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://sky0cloud.dpdns.org",
+      "server_name": "sky0cloud.dpdns.org"
+    }
+  },
+  "brand": "Sky0Cloud",
+  "default_theme": "dark",
+  "show_labs_settings": false,
+  "disable_custom_urls": false,
+  "disable_guests": false,
+  "room_directory": {
+    "servers": [
+      "sky0cloud.dpdns.org"
+    ]
+  },
+  "enable_registration": true,
+  "email_verification_is_required": true,
+  "features": {}
+}

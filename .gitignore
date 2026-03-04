@@ -1,5 +1,14 @@
+# Sensitive runtime env
 .env
-secrets/*.txt
-!secrets/.gitkeep
+.env.*
+
+# Matrix data (DB/media)
+tuwunel_data/
+
+# Caddy runtime state
+caddy_data/
+caddy_config/
+
+# Logs/backups
+*.log
 backups/
-tuwunel/database/*

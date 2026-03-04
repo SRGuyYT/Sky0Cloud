@@ -1,41 +1,40 @@
 services:
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: sky0cloud-tuwunel
+    user: "1000:1000"
     restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      TZ: UTC
+      TUWUNEL_CONFIG: /etc/tuwunel/tuwunel.toml
+    volumes:
+      - ./tuwunel/tuwunel.toml:/etc/tuwunel/tuwunel.toml:ro
+      - ./tuwunel_data:/data
     expose:
       - "6167"
-    volumes:
-      - ./tuwunel_data:/data
-      - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
-    environment:
-      - TZ=UTC
-      - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
     networks:
-      - sky0cloud_net
-
-  element-web:
-    image: vectorim/element-web:latest
-    restart: unless-stopped
-    networks:
-      - sky0cloud_net
+      - sky0cloud
 
   caddy:
     image: caddy:2
+    container_name: sky0cloud-caddy
+    user: "1000:1000"
     restart: unless-stopped
+    depends_on:
+      - tuwunel
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./element:/srv/element:ro
-      - caddy_data:/data
+      - ./caddy_data:/data
+      - ./caddy_config:/config
     networks:
-      - sky0cloud_net
-
-volumes:
-  tuwunel_data:
-  caddy_data:
+      - sky0cloud
 
 networks:
-  sky0cloud_net:
-    name: sky0cloud_net
+  sky0cloud:
+    driver: bridge
