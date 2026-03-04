@@ -10,13 +10,13 @@ services:
     environment:
       - TZ=UTC
       - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
-      # Mapping .env variables to Tuwunel's expected names
-      - TUWUNEL_SMTP_HOST=${SMTP_HOST}
-      - TUWUNEL_SMTP_PORT=${SMTP_PORT}
-      - TUWUNEL_SMTP_USER=${SMTP_USER}
-      - TUWUNEL_SMTP_PASS=${SMTP_PASS}
-      - TUWUNEL_SMTP_FROM=${SMTP_FROM}
-      - TUWUNEL_USER_EMAIL_VERIFICATION=true
+      # These MUST match the keys in your .env file
+      - TUWUNEL_EMAIL_SMTP_HOST=${SMTP_HOST}
+      - TUWUNEL_EMAIL_SMTP_PORT=${SMTP_PORT}
+      - TUWUNEL_EMAIL_SMTP_USER=${SMTP_USER}
+      - TUWUNEL_EMAIL_SMTP_PASS=${SMTP_PASS}
+      - TUWUNEL_EMAIL_SMTP_FROM=${SMTP_FROM}
+      - TUWUNEL_EMAIL_REQUIRE_VERIFICATION=false
       - TUWUNEL_ALLOW_REGISTRATION=true
     networks:
       - sky0cloud_net
