@@ -14,19 +14,23 @@
 
     # 1. Server Discovery (Highest Priority)
     handle_path /.well-known/matrix/* {
-        file_server {
-            root /srv/element/.well-known/matrix
-        }
+        root * /srv/element/.well-known/matrix
+        header Access-Control-Allow-Origin *
+        file_server
     }
 
     # 2. Custom Branding Files
-    # If these exist in our mount, serve them; otherwise, move to handle block
     @branding path /config.json /welcome.html /icon.png /background.jpg
     handle @branding {
         file_server
     }
 
-    # 3. Main App fallback
+    # 3. Matrix API Proxy
+    handle /_matrix/* {
+        reverse_proxy tuwunel:6167
+    }
+
+    # 4. Main App fallback
     handle {
         try_files {path} {path}/ /index.html
         file_server
