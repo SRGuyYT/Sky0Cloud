@@ -27,13 +27,14 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./element:/srv/element:ro
-      # NEW: Mount your custom files to a separate /branding folder
-      - ./.well-known:/branding/.well-known:ro
-      - ./config.json:/branding/config.json:ro
-      - ./welcome.html:/branding/welcome.html:ro
-      - ./element/icon.png:/branding/icon.png:ro
-      - ./element/background.jpg:/branding/background.jpg:ro
+      - element_site:/srv/element:ro
+      # Mount the whole .well-known folder
+      - ./.well-known:/srv/element/.well-known:ro
+      # Mount individual files directly into the root
+      - ./config.json:/srv/element/config.json:ro
+      - ./welcome.html:/srv/element/welcome.html:ro
+      - ./element/icon.png:/srv/element/icon.png:ro
+      - ./element/background.jpg:/srv/element/background.jpg:ro
       - caddy_data:/data
     networks:
       - sky0cloud_net
