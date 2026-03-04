@@ -40,13 +40,12 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - element_site:/srv/element:ro
+      # FIX: Mount the whole folder instead of individual files
+      - ./.well-known:/srv/element/.well-known:ro
       - ./config.json:/srv/element/config.json:ro
-      - ./config.json:/srv/element/config.sky0cloud.dpdns.org.json:ro
-      - ./.well-known/client:/srv/element/.well-known/matrix/client:ro
-      - ./.well-known/server:/srv/element/.well-known/matrix/server:ro
+      - ./welcome.html:/srv/element/welcome.html:ro
       - ./element/icon.png:/srv/element/icon.png:ro
       - ./element/background.jpg:/srv/element/background.jpg:ro
-      - ./welcome.html:/srv/element/welcome.html:ro
       - caddy_data:/data
     networks:
       - sky0cloud_net
