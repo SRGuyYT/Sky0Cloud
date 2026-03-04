@@ -19,7 +19,21 @@
   },
   "branding": {
     "welcome_background_url": "/background.jpg",
-    "auth_header_logo_url": "/icon.png"
+    "auth_header_logo_url": "/icon.png",
+    "auth_footer_links": [
+      {
+        "text": "Login",
+        "url": "https://sky0cloud.dpdns.org/#/login"
+      },
+      {
+        "text": "Signup",
+        "url": "https://sky0cloud.dpdns.org/#/register"
+      },
+      {
+        "text": "Access Code?",
+        "url": "https://github.com/SRGuyYT/Sky0Cloud#:~:text=dpdns.org).-,itoldyou,-Sky0Cloud%20Access%20Code"
+      }
+    ]
   },
   "integrations_ui_url": "https://scalar.vector.im/",
   "integrations_rest_url": "https://scalar.vector.im/api",
@@ -32,6 +46,5 @@
   ],
   "show_labs_settings": true,
   "features": {},
-  "map_style_url": "https://api.maptiler.com/maps/streets-v2/?key=pUvnmFuYZ2QCGg0rpNta",
-  "welcomeAppUrl": "https://sky0cloud.dpdns.org/welcome.html"
+  "map_style_url": "https://api.maptiler.com/maps/streets-v2/?key=pUvnmFuYZ2QCGg0rpNta"
 }
