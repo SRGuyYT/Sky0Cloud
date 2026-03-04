@@ -5,7 +5,7 @@ services:
     expose:
       - "6167"
     volumes:
-      - tuwunel_data:/data
+      - ./tuwunel_data:/data
       - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
     environment:
       - TZ=UTC
