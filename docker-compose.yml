@@ -27,7 +27,7 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - element_site:/srv/element:ro
+      - ./element:/srv/element:ro
       # NEW: Mount your custom files to a separate /branding folder
       - ./.well-known:/branding/.well-known:ro
       - ./config.json:/branding/config.json:ro
