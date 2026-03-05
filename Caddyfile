@@ -2,7 +2,7 @@
     email chapmlinks@gmail.com
 }
 
-sky0cloud.dpdns.org:443 {
+sky0cloud.dpdns.org {
     tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 
     # Max upload size (Match Cloudflare's limit or your preference)
