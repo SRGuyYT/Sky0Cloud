@@ -40,6 +40,11 @@
         reverse_proxy http://tuwunel:6167
     }
 
+    # Maubot dashboard
+    handle /maubot/* {
+        reverse_proxy http://maubot:29316
+    }
+
     handle {
         reverse_proxy http://element-web:80
     }
