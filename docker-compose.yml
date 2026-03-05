@@ -1,6 +1,7 @@
 services:
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: tuwunel
     restart: unless-stopped
     expose:
       - "6167"
@@ -13,26 +14,45 @@ services:
     networks:
       - sky0cloud_net
 
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: element-web
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - ./element/config.json:/app/config.json:ro
+    networks:
+      - sky0cloud_net
+
+  maubot:
+    image: dock.mau.dev/maubot/maubot:latest
+    container_name: maubot
+    restart: unless-stopped
+    expose:
+      - "29316"
+    volumes:
+      - ./maubot/data:/data
+      - ./maubot/plugins:/plugins
+      - ./maubot/config:/config
+    environment:
+      - UID=1000
+      - GID=1000
+      - TZ=UTC
+    networks:
+      - sky0cloud_net
+
   caddy:
     image: caddy:latest
+    container_name: caddy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    networks:
-      - sky0cloud_net
-
-  element-web:
-    image: vectorim/element-web:latest
-    restart: unless-stopped
-    expose:
-      - "80" # Allows Caddy to pull the web files from here
-    volumes:
-      - ./element/config.json:/app/config.json
     networks:
       - sky0cloud_net
 
