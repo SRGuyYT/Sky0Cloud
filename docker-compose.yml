@@ -30,6 +30,8 @@ services:
   element-web:
     image: vectorim/element-web:latest
     restart: unless-stopped
+    expose:
+      - "80" # Allows Caddy to pull the web files from here
     volumes:
       - ./element/config.json:/app/config.json
     networks:
