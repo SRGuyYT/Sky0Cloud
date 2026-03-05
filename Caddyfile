@@ -6,7 +6,7 @@ sky0cloud.dpdns.org {
     encode zstd gzip
     root * /srv/element
 
-    # Matrix Client & Server discovery
+    # Matrix discovery
     handle /.well-known/matrix/server {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
@@ -16,15 +16,15 @@ sky0cloud.dpdns.org {
     handle /.well-known/matrix/client {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"},"org.matrix.msc3575.proxy":{"url":"https://sky0cloud.dpdns.org"}}` 200
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Matrix APIs (Use 'handle' NOT 'handle_path')
+    # Matrix Proxy (NO handle_path, use handle to prevent 404s)
     handle /_matrix/* {
         reverse_proxy tuwunel:6167
     }
 
-    # Element web (local bind-mounted directory)
+    # Element Web UI
     handle {
         try_files {path} {path}/ /index.html
         file_server
