@@ -1,32 +1,32 @@
 {
-  email {$ACME_EMAIL}
+    email chapmlinks@gmail.com
 }
 
 sky0cloud.dpdns.org {
-  encode zstd gzip
-  root * /srv/element
+    encode zstd gzip
+    root * /srv/element
 
-  # Matrix Client & Server discovery
-  handle /.well-known/matrix/server {
-    header Content-Type application/json
-    header Access-Control-Allow-Origin *
-    respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
-  }
+    # Matrix Client & Server discovery
+    handle /.well-known/matrix/server {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+    }
 
-  handle /.well-known/matrix/client {
-    header Content-Type application/json
-    header Access-Control-Allow-Origin *
-    respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"},"org.matrix.msc3575.proxy":{"url":"https://sky0cloud.dpdns.org"}}` 200
-  }
+    handle /.well-known/matrix/client {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"},"org.matrix.msc3575.proxy":{"url":"https://sky0cloud.dpdns.org"}}` 200
+    }
 
-  # Matrix APIs
-  handle_path /_matrix/* {
-    reverse_proxy tuwunel:6167
-  }
+    # Matrix APIs (Use 'handle' NOT 'handle_path')
+    handle /_matrix/* {
+        reverse_proxy tuwunel:6167
+    }
 
-  # Element web (local bind-mounted directory)
-  handle {
-    try_files {path} /index.html
-    file_server
-  }
+    # Element web (local bind-mounted directory)
+    handle {
+        try_files {path} {path}/ /index.html
+        file_server
+    }
 }
