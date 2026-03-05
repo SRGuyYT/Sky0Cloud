@@ -1,15 +1,22 @@
-# Sensitive runtime env
+# --- Security & Secrets ---
+certs/origin.key
 .env
 .env.*
-certs/origin.key
 
-# Matrix data (DB/media)
+# --- Matrix Data & Databases ---
+# Hides the entire RocksDB database and user-uploaded media
 tuwunel_data/
 
-# Caddy runtime state
+# --- Element Web ---
+# Hides the static web files (Docker handles these)
+element/
+
+# --- Caddy Runtime ---
+# Hides internal Caddy state and auto-saved configs
 caddy_data/
 caddy_config/
 
-# Logs/backups
+# --- System & Logs ---
 *.log
 backups/
+.DS_Store
