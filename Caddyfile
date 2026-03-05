@@ -1,40 +1,40 @@
 {
-    email chapmlinks@gmail.com
-    acme_ca https://acme.zerossl.com/v2/DV90
-    acme_eab {
-        key_id uWbcH3X52RrjW42TJECv9A
-        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
-    }
+	email chapmlinks@gmail.com
+	acme_ca https://acme.zerossl.com/v2/DV90
+	acme_eab {
+		key_id uWbcH3X52RrjW42TJECv9A
+		mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
+	}
 
-    # Disable automatic HTTPS because Cloudflare provides the SSL
-    auto_https off
+	# Disable automatic HTTPS because Cloudflare provides the SSL
+	auto_https off
 }
 
 :80 {
-    encode zstd gzip
-    root * /srv/element
+	encode zstd gzip
+	root * /srv/element
 
-    # Matrix discovery
-    handle /.well-known/matrix/server {
-        header Content-Type application/json
-        header Access-Control-Allow-Origin *
-        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
-    }
+	# Matrix discovery
+	handle /.well-known/matrix/server {
+		header Content-Type application/json
+		header Access-Control-Allow-Origin *
+		respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+	}
 
-    handle /.well-known/matrix/client {
-        header Content-Type application/json
-        header Access-Control-Allow-Origin *
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
-    }
+	handle /.well-known/matrix/client {
+		header Content-Type application/json
+		header Access-Control-Allow-Origin *
+		respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+	}
 
-    # Matrix Proxy (NO handle_path, use handle to prevent 404s)
-    handle /_matrix/* {
-        reverse_proxy tuwunel:6167
-    }
+	# Matrix Proxy (NO handle_path, use handle to prevent 404s)
+	handle /_matrix/* {
+		reverse_proxy tuwunel:6167
+	}
 
-    # Element Web UI
-    handle {
-        try_files {path} {path}/ /index.html
-        file_server
-    }
+	# Element Web UI
+	handle {
+		try_files {path} {path}/ /index.html
+		file_server
+	}
 }
