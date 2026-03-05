@@ -2,7 +2,7 @@
     email chapmlinks@gmail.com
 }
 
-sky0cloud.dpdns.org {
+:80 {
     encode zstd gzip
     root * /srv/element
 
