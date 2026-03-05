@@ -5,14 +5,14 @@
 sky0cloud.dpdns.org:443 {
     tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 
-    # Increase max upload size to 500MB (Caddy default is usually fine, but good to be sure)
+    # Max upload size (Match Cloudflare's limit or your preference)
     request_body {
-        max_size 500MB
+        max_size 100MB
     }
 
-    # Security Headers - Specifically allowing media and blobs
+    # Security Headers - Vital for media rendering
     header {
-        # Allow images, video, and audio from 'self' and blob: (for encrypted media)
+        # Allow 'blob:' for decrypted media and 'unsafe-eval' for Element's JS
         Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' wss:; style-src 'self' 'unsafe-inline';"
         Strict-Transport-Security "max-age=31536000;"
         X-Content-Type-Options nosniff
@@ -20,9 +20,8 @@ sky0cloud.dpdns.org:443 {
     }
 
     encode zstd gzip
-    root * /srv/element
 
-    # Matrix Discovery
+    # 1. Matrix Discovery
     handle /.well-known/matrix/server {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
@@ -35,14 +34,14 @@ sky0cloud.dpdns.org:443 {
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Proxy EVERYTHING under /_matrix (Media, Client, Federation)
+    # 2. Matrix API & Media Proxy (Tuwunel)
     handle /_matrix/* {
         reverse_proxy tuwunel:6167
     }
 
-    # Element Web UI
+    # 3. Element Web UI Proxy
+    # This sends UI requests to your element-web container
     handle {
-        try_files {path} {path}/ /index.html
-        file_server
+        reverse_proxy element-web:80
     }
 }
