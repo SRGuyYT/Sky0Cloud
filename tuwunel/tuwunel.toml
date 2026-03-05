@@ -7,8 +7,10 @@ port = 6167
 database_path = "/data"
 
 allow_registration = true
+registration_token = "itoldyou"
+yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = true
 grant_admin_to_first_user = true
-allow_guest_registration = false
+allow_guest_registration = true
 
 max_request_size = 52_428_800
 
@@ -32,7 +34,7 @@ rocksdb_max_log_files = 4
 trusted_servers = ["matrix.org", "sky0cloud.dpdns.org"]
 query_trusted_key_servers_first = true
 
-log = "info"
+log = "all"
 log_colors = true
 log_compact = true
 
@@ -40,7 +42,7 @@ log_compact = true
 smtp_host = "smtp.mailgun.org"
 smtp_port = 587
 smtp_user = "official@no-reply.skyservers.qzz.io"
-smtp_pass = "be0576***************************"
+smtp_pass = "TheBoss123?com"
 smtp_from = "Sky0Cloud <official@no-reply.skyservers.qzz.io>"
 require_transport_security = true
 require_verification = true
