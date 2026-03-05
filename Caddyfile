@@ -32,10 +32,10 @@ sky0cloud.dpdns.org {
     }
 
     handle /_matrix/* {
-        reverse_proxy sky0cloud-tuwunel-1:6167
+        reverse_proxy tuwunel:6167
     }
 
     handle {
-        reverse_proxy sky0cloud-element-web-1:80
+        reverse_proxy element-web:80
     }
 }
