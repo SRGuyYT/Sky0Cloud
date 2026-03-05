@@ -1,5 +1,6 @@
 {
     email chapmlinks@gmail.com
+    auto_https disable_redirects
 }
 
 sky0cloud.dpdns.org {
