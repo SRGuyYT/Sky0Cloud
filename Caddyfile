@@ -13,13 +13,12 @@ sky0cloud.dpdns.org {
     encode zstd gzip
 
     header {
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' wss: https:; style-src 'self' 'unsafe-inline';"
+        Content-Security-Policy "default-src * data: blob: 'unsafe-inline' 'unsafe-eval';"
         Strict-Transport-Security "max-age=31536000;"
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
     }
 
-    # Matrix discovery
     handle /.well-known/matrix/server {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
@@ -32,13 +31,11 @@ sky0cloud.dpdns.org {
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Matrix API (Tuwunel)
     handle /_matrix/* {
         reverse_proxy sky0cloud-tuwunel-1:6167
     }
 
-    # Element Web UI
     handle {
-        reverse_proxy sky0cloud-element-web-1:8080
+        reverse_proxy sky0cloud-element-web-1:80
     }
 }
