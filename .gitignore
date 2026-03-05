@@ -1,6 +1,7 @@
 # Sensitive runtime env
 .env
 .env.*
+certs/origin.key
 
 # Matrix data (DB/media)
 tuwunel_data/
