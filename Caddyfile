@@ -4,13 +4,10 @@
 }
 
 sky0cloud.dpdns.org {
-    tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 
     request_body {
         max_size 100MB
     }
-
-    encode zstd gzip
 
     header {
         Content-Security-Policy "default-src * data: blob: 'unsafe-inline' 'unsafe-eval';"
@@ -18,6 +15,8 @@ sky0cloud.dpdns.org {
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
     }
+
+    encode zstd gzip
 
     handle /.well-known/matrix/server {
         header Content-Type application/json
@@ -32,10 +31,10 @@ sky0cloud.dpdns.org {
     }
 
     handle /_matrix/* {
-        reverse_proxy tuwunel:6167
+        reverse_proxy http://tuwunel:6167
     }
 
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy http://element-web:80
     }
 }
