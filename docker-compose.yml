@@ -39,13 +39,6 @@ services:
     container_name: synapse-admin
     restart: unless-stopped
 
-  baibot:
-    image: baibot/baibot:latest
-    container_name: baibot
-    restart: unless-stopped
-    env_file:
-      - .env
-
 volumes:
   caddy_data:
   caddy_config:
