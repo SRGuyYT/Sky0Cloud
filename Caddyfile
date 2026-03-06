@@ -37,7 +37,7 @@
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Matrix API → tuwunel
+    # Matrix API → Tuwunel
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up X-Forwarded-For {remote}
@@ -46,7 +46,36 @@
         }
     }
 
-    # Element web
+    # Admin GUI (inside Docker, internal port 8080 is fine)
+    handle /admin/* {
+        reverse_proxy http://admin-gui:8080
+    }
+
+    # NeoBoard
+    handle /neoboard/* {
+        reverse_proxy http://neoboard:8080
+    }
+
+    # Matrix Poll
+    handle /poll/* {
+        reverse_proxy http://matrix-poll:8080
+    }
+
+    # Bots (path-based routing)
+    handle /bots/baibot/* {
+        reverse_proxy http://baibot:80
+    }
+    handle /bots/mjolnir/* {
+        reverse_proxy http://mjolnir:80
+    }
+    handle /bots/eno/* {
+        reverse_proxy http://matrix-eno-bot:80
+    }
+    handle /bots/registration/* {
+        reverse_proxy http://matrix-registration-bot:80
+    }
+
+    # Element Web as fallback
     handle {
         reverse_proxy http://element-web:80
     }
