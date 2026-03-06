@@ -12,7 +12,12 @@ services:
       - TZ=UTC
       - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
     networks:
-      - sky0cloud_net
+      - matrix_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   element-web:
     image: vectorim/element-web:latest
@@ -23,7 +28,12 @@ services:
     volumes:
       - ./element/config.json:/app/config.json:ro
     networks:
-      - sky0cloud_net
+      - matrix_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   caddy:
     image: caddy:latest
@@ -37,10 +47,80 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - sky0cloud_net
+      - matrix_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  neoboard:
+    image: turt2live/matrix-neoboard:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  matrix-poll:
+    image: turt2live/matrix-poll:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  baibot:
+    image: baibot/baibot:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  mjolnir:
+    image: turt2live/mjolnir:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  matrix-eno-bot:
+    image: turt2live/matrix-eno-bot:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  matrix-registration-bot:
+    image: turt2live/matrix-registration-bot:latest
+    restart: unless-stopped
+    environment:
+      - HOMESERVER_URL=https://sky0cloud.dpdns.org
+      - ACCESS_TOKEN=itoldyou
+    networks:
+      - matrix_net
+
+  admin-gui:
+    image: etkecc/synapse-admin:latest
+    restart: unless-stopped
+    environment:
+      - SYNAPSE_URL=https://sky0cloud.dpdns.org
+      - ADMIN_TOKEN=itoldyou
+    ports:
+      - "8000:8080"
+    networks:
+      - matrix_net
 
 networks:
-  sky0cloud_net:
+  matrix_net:
     driver: bridge
 
 volumes:
