@@ -1,44 +1,33 @@
 {
     email chapmlinks@gmail.com
-    # Keep off because Cloudflare Tunnel handles the SSL termination
-    auto_https off
+    # Disable automatic HTTP->HTTPS redirects because the Tunnel handles entry
+    auto_https disable_redirects
 }
 
-:80 {
-    # Increase body size for media uploads
+https://sky0cloud.dpdns.org:443 {
+
     request_body {
-        max_size 500MB
+        max_size 200MB
     }
 
-    # FIXED SECURITY HEADERS
-    # This allows Cloudflare scripts, Recaptcha, and Matrix media to load
     header {
         Access-Control-Allow-Origin *
         Access-Control-Allow-Methods "GET, POST, OPTIONS"
         Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
+        # CSP fixed for Cloudflare and Element scripts
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
-        Strict-Transport-Security "max-age=31536000;"
-        X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
     }
 
     encode zstd gzip
 
-    # Well-knowns
-    handle /.well-known/matrix/server {
-        header Content-Type application/json
+    # Matrix Discovery
+    handle /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
-        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+        header Content-Type application/json
+        reverse_proxy http://tuwunel:6167
     }
 
-    handle /.well-known/matrix/client {
-        header Content-Type application/json
-        header Access-Control-Allow-Origin *
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
-    }
-
-    # FIXED MATRIX PROXY
-    # This tells 'tuwunel' that the request is coming from your domain and is secure
+    # THE 403 FIX: Matrix Media & API
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
