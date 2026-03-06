@@ -4,41 +4,46 @@
 }
 
 :80 {
+    # 1. Global Media/Request Limit
     request_body {
         max_size 500MB
     }
 
-    header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
-        # CSP fixed for Cloudflare analytics and Element
-        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
+    # 2. Fix the "Host" mismatch for everything Matrix
+    # We use 'reverse_proxy' with a global 'header_up' to ensure 
+    # the homeserver ALWAYS sees its own public domain name.
+    
+    handle /_matrix/* {
+        reverse_proxy http://tuwunel:6167 {
+            header_up Host sky0cloud.dpdns.org
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
+        }
     }
 
-    encode zstd gzip
+    # 3. Discovery (Essential for Federation and Media verification)
+    handle /.well-known/matrix/* {
+        reverse_proxy http://tuwunel:6167 {
+            header_up Host sky0cloud.dpdns.org
+        }
+    }
 
-    # Admin Panel Routing
+    # 4. Admin Panel
     handle /admin* {
         reverse_proxy http://synapse-admin:80
     }
 
-    # Matrix Well-knowns
-    handle /.well-known/matrix/* {
-        header Access-Control-Allow-Origin *
-        reverse_proxy http://tuwunel:6167
-    }
-
-    # THE 403 MEDIA FIX
-    handle /_matrix/* {
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-            header_up X-Forwarded-Proto https
-        }
-    }
-
-    # Element UI
+    # 5. Element UI
     handle {
         reverse_proxy http://element-web:80
+    }
+
+    # 6. Global Headers (CORS & CSP)
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
+        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
     }
 }
