@@ -8,12 +8,12 @@
         max_size 500MB
     }
 
-    # FIX: Admin Panel Routing
+    # 1. Admin Panel Routing
     handle /admin* {
         reverse_proxy http://synapse-admin:80
     }
 
-    # FIX: Matrix Well-knowns
+    # 2. Matrix Discovery
     handle /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
         reverse_proxy http://tuwunel:6167 {
@@ -21,24 +21,29 @@
         }
     }
 
-    # THE 403 MEDIA FIX: Hard-coded host and proto headers
+    # 3. MERGED MEDIA & API FIX
+    # This single block now handles all headers and authentication correctly
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
             header_up X-Forwarded-For {remote_host}
             header_up X-Real-IP {remote_host}
+            header_up Authorization {>Authorization}
         }
     }
 
-    # Element UI
+    # 4. Element UI
     handle {
         reverse_proxy http://element-web:80
     }
 
+    # 5. Global Security Headers
     header {
         Access-Control-Allow-Origin *
-        # CSP fixed for Cloudflare and Element scripts
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
+        Strict-Transport-Security "max-age=31536000;"
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
     }
 }
