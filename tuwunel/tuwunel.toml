@@ -27,7 +27,6 @@ db_pool_workers_limit = 12
 db_pool_max_workers = 24
 cache_capacity_modifier = 1.4
 rocksdb_optimize_for_spinning_disks = true
-rocksdb_direct_io = false
 rocksdb_parallelism_threads = 2
 rocksdb_compression_algo = "lz4"
 rocksdb_max_log_files = 4
