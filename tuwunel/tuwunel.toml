@@ -7,6 +7,12 @@ allow_registration = true
 registration_token = "itoldyou"
 yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = true
 
+# --- AUTO JOIN ---
+auto_join_rooms = [
+   "!lKP6TkVFKVCOTpGQHV:sky0cloud.dpdns.org",   # Info Server
+   "!sY6VaQPiY428XrWcWB:sky0cloud.dpdns.org"    # Chat Serer
+]
+
 # Performance and Behavior
 new_user_displayname_suffix = ""
 address = ["0.0.0.0"]
