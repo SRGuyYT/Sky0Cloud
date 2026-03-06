@@ -4,46 +4,41 @@
 }
 
 :80 {
-    # 1. Global Media/Request Limit
     request_body {
         max_size 500MB
     }
 
-    # 2. Fix the "Host" mismatch for everything Matrix
-    # We use 'reverse_proxy' with a global 'header_up' to ensure 
-    # the homeserver ALWAYS sees its own public domain name.
-    
-    handle /_matrix/* {
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
-            header_up X-Real-IP {remote_host}
-        }
-    }
-
-    # 3. Discovery (Essential for Federation and Media verification)
-    handle /.well-known/matrix/* {
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-        }
-    }
-
-    # 4. Admin Panel
+    # FIX: Admin Panel Routing
     handle /admin* {
         reverse_proxy http://synapse-admin:80
     }
 
-    # 5. Element UI
+    # FIX: Matrix Well-knowns
+    handle /.well-known/matrix/* {
+        header Access-Control-Allow-Origin *
+        reverse_proxy http://tuwunel:6167 {
+            header_up Host sky0cloud.dpdns.org
+        }
+    }
+
+    # THE 403 MEDIA FIX: Hard-coded host and proto headers
+    handle /_matrix/* {
+        reverse_proxy http://tuwunel:6167 {
+            header_up Host sky0cloud.dpdns.org
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Element UI
     handle {
         reverse_proxy http://element-web:80
     }
 
-    # 6. Global Headers (CORS & CSP)
     header {
         Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
-        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
+        # CSP fixed for Cloudflare and Element scripts
+        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
     }
 }
