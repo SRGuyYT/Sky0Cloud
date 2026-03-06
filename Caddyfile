@@ -3,7 +3,6 @@
     auto_https off
 }
 
-# Listen on port 80 only. The Tunnel will point here.
 :80 {
     request_body {
         max_size 500MB
@@ -13,32 +12,32 @@
         Access-Control-Allow-Origin *
         Access-Control-Allow-Methods "GET, POST, OPTIONS"
         Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
-        # CSP fixed to allow Cloudflare and Element scripts
+        # CSP fixed for Cloudflare analytics and Element
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
-        Strict-Transport-Security "max-age=31536000;"
-        X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
     }
 
     encode zstd gzip
 
-    # Matrix Discovery
+    # Admin Panel Routing
+    handle /admin* {
+        reverse_proxy http://synapse-admin:80
+    }
+
+    # Matrix Well-knowns
     handle /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
         reverse_proxy http://tuwunel:6167
     }
 
     # THE 403 MEDIA FIX
-    # This 'tricks' Tuwunel into thinking the request is an official secure domain request
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
-            header_up X-Real-IP {remote_host}
         }
     }
 
-    # Element Web
+    # Element UI
     handle {
         reverse_proxy http://element-web:80
     }
