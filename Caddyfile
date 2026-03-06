@@ -8,11 +8,11 @@
     auto_https off
 }
 
-sky0cloud.dpdns.org {
+:80 {
 
     encode gzip
 
-    # Matrix client discovery
+    # Matrix discovery
     handle /.well-known/matrix/client {
         header Content-Type application/json
         respond `{
@@ -22,7 +22,6 @@ sky0cloud.dpdns.org {
         }` 200
     }
 
-    # Matrix federation discovery
     handle /.well-known/matrix/server {
         header Content-Type application/json
         respond `{
@@ -39,7 +38,12 @@ sky0cloud.dpdns.org {
         reverse_proxy tuwunel:6167
     }
 
-    # Element web client
+    # Admin GUI
+    handle /admin* {
+        reverse_proxy synapse-admin:80
+    }
+
+    # Element Web
     handle {
         reverse_proxy element-web:80
     }
