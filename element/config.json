@@ -13,12 +13,14 @@
   },
   "default_identity_server_url": "https://vector.im",
   "disable_custom_urls": false,
-  "disable_guests": false,
-  "disable_3pid_login": false,
+  "disable_guests": true,
+  "disable_3pid_login": true,
   "permalink_prefix": "https://sky0cloud.dpdns.org",
   "room_directory": {
     "servers": [
       "sky0cloud.dpdns.org"
+    ]
+      "matrix.org"
     ]
   },
   "email_verification_is_required": false,
@@ -39,8 +41,8 @@
         "url": "/#/register"
       },
       {
-        "text": "Access Code?",
-        "url": "https://github.com/SRGuyYT/Sky0Cloud#:~:text=dpdns.org).-,itoldyou,-Sky0Cloud%20Access%20Code"
+        "text": "Access Code",
+        "url": "/#/register?token=itoldyou"
       }
     ]
   },
@@ -54,6 +56,14 @@
     "https://scalar-staging.riot.im/scalar/api"
   ],
   "show_labs_settings": true,
-  "features": {},
+  "features": {
+    "neoboard": true,
+    "matrix-poll": true,
+    "baibot": true,
+    "mjolnir": true,
+    "matrix-eno-bot": true,
+    "matrix-registration-bot": true,
+    "admin-gui": true
+  },
   "map_style_url": "https://api.maptiler.com/maps/streets-v2/?key=pUvnmFuYZ2QCGg0rpNta"
 }
