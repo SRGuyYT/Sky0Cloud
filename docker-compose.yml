@@ -21,17 +21,14 @@ services:
     restart: unless-stopped
     volumes:
       - ./element/config.json:/app/config.json
-      - ./element/icon.png:/app/icon.png
-      - ./element/background.jpg:/app/background.jpg
-      - ./element/manifest.json:/app/manifest.json
-      - ./element/sw.js:/app/sw.js
 
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
     container_name: tuwunel
     restart: unless-stopped
+    command: ["-c", "/etc/tuwunel.toml"]
     volumes:
-      - ./tuwunel/tuwunel.toml:/tuwunel.toml
+      - ./tuwunel/tuwunel.toml:/etc/tuwunel.toml
       - ./tuwunel_data:/data
 
   synapse-admin:
@@ -42,4 +39,3 @@ services:
 volumes:
   caddy_data:
   caddy_config:
-  tuwunel_data:
