@@ -25,7 +25,9 @@ services:
       - ./element/background.jpg:/app/background.jpg
       - ./element/manifest.json:/app/manifest.json
       - ./element/sw.js:/app/sw.js
-      - ./.well-known:/usr/share/nginx/html/.well-known   # ← ADD THIS
+      - ./.well-known:/usr/share/nginx/html/.well-known
+    expose:
+      - "80"
 
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
@@ -35,11 +37,15 @@ services:
     volumes:
       - ./tuwunel/tuwunel.toml:/etc/tuwunel.toml
       - ./tuwunel_data:/data
+    expose:
+      - "6167"
 
   synapse-admin:
     image: etkecc/synapse-admin:latest
     container_name: synapse-admin
     restart: unless-stopped
+    expose:
+      - "80"
 
 volumes:
   caddy_data:
