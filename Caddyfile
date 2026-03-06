@@ -8,44 +8,42 @@
         max_size 500MB
     }
 
-    # 1. FIX: Matrix Client Discovery
-    # This tells Element exactly where the server is.
+    # 1. FIX: Matrix Client Discovery & Identity Server
     handle /.well-known/matrix/client {
         header Access-Control-Allow-Origin *
         header Content-Type application/json
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"},"m.identity_server":{"base_url":"https://vector.im"}}` 200
     }
 
-    # 2. FIX: Matrix Server Discovery (Federation)
+    # 2. FIX: Matrix Server Discovery
     handle /.well-known/matrix/server {
         header Access-Control-Allow-Origin *
         header Content-Type application/json
         respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
     }
 
-    # 3. FIX: Admin Panel Routing
-    handle /admin* {
+    # 3. FIX: Admin Panel (Using handle_path to strip the directory)
+    handle_path /admin* {
         reverse_proxy http://synapse-admin:80
     }
 
-    # 4. THE 403 MEDIA & CONNECTION FIX
+    # 4. FIX: Matrix API & Media (Cleaned up redundant headers)
+    # Tuwunel handles its own CORS here, so we let it do its job.
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
-            header_up Authorization {>Authorization}
         }
     }
 
-    # 5. Element UI
+    # 5. Element UI & Static Headers
     handle {
         reverse_proxy http://element-web:80
-    }
-
-    header {
-        Access-Control-Allow-Origin *
-        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
+        
+        # We only apply these headers to Element, stopping the "Double CORS" crash
+        header {
+            Access-Control-Allow-Origin *
+            Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
+        }
     }
 }
