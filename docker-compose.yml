@@ -8,12 +8,21 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./certs:/certs
       - caddy_data:/data
       - caddy_config:/config
-    depends_on:
-      - element-web
-      - tuwunel
+    networks:
+      - sky0cloud_net
+
+  tuwunel:
+    image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: tuwunel
+    restart: unless-stopped
+    command: ["-c", "/etc/tuwunel.toml"]
+    volumes:
+      - ./tuwunel/tuwunel.toml:/etc/tuwunel.toml
+      - ./tuwunel_data:/data
+    networks:
+      - sky0cloud_net
 
   element-web:
     image: vectorim/element-web:latest
@@ -25,27 +34,35 @@ services:
       - ./element/background.jpg:/app/background.jpg
       - ./element/manifest.json:/app/manifest.json
       - ./element/sw.js:/app/sw.js
-      - ./.well-known:/usr/share/nginx/html/.well-known
-    expose:
-      - "80"
+    networks:
+      - sky0cloud_net
 
-  tuwunel:
-    image: ghcr.io/matrix-construct/tuwunel:latest
-    container_name: tuwunel
-    restart: unless-stopped
-    command: ["-c", "/etc/tuwunel.toml"]
-    volumes:
-      - ./tuwunel/tuwunel.toml:/etc/tuwunel.toml
-      - ./tuwunel_data:/data
-    expose:
-      - "6167"
-
+  # Admin Panel - No reset required, just points to your Tuwunel
   synapse-admin:
-    image: etkecc/synapse-admin:latest
+    image: awesomatix/synapse-admin
     container_name: synapse-admin
     restart: unless-stopped
-    expose:
-      - "80"
+    networks:
+      - sky0cloud_net
+
+  # coturn:
+  #   image: coturn/coturn
+  #   container_name: coturn
+  #   restart: unless-stopped
+  #   command: >
+  #     --realm=sky0cloud.dpdns.org
+  #     --listening-port=3478
+  #     --use-auth-secret
+  #     --static-auth-secret=TheBoss123?com
+  #   ports:
+  #     - "3478:3478/tcp"
+  #     - "3478:3478/udp"
+  #   networks:
+  #     - sky0cloud_net
+
+networks:
+  sky0cloud_net:
+    driver: bridge
 
 volumes:
   caddy_data:
