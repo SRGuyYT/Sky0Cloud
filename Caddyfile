@@ -8,42 +8,43 @@
         max_size 500MB
     }
 
-    # 1. Admin Panel Routing
-    handle /admin* {
-        reverse_proxy http://synapse-admin:80
-    }
-
-    # 2. Matrix Discovery (.well-known)
-    handle /.well-known/matrix/* {
+    # 1. Element Discovery (The ".well-known" fix)
+    # Without this, Element doesn't know where sky0cloud.dpdns.org is
+    handle /.well-known/matrix/server {
+        header Content-Type application/json
         header Access-Control-Allow-Origin *
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-        }
+        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
     }
 
-    # 3. MERGED MATRIX API & MEDIA FIX
-    # This single block handles all /_matrix/ requests including media
+    handle /.well-known/matrix/client {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+    }
+
+    # 2. Matrix API & Media (The merged fix)
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
             header_up X-Forwarded-For {remote_host}
             header_up X-Real-IP {remote_host}
-            # CRITICAL: Passes the auth token so media isn't "Unauthenticated"
             header_up Authorization {>Authorization}
         }
     }
 
-    # 4. Element UI
+    # 3. Admin Panel
+    handle /admin* {
+        reverse_proxy http://synapse-admin:80
+    }
+
+    # 4. Element Web UI
     handle {
         reverse_proxy http://element-web:80
     }
 
-    # 5. Security & CSP Headers
     header {
         Access-Control-Allow-Origin *
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
-        X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
     }
 }
