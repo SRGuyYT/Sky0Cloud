@@ -9,43 +9,20 @@
 }
 
 :80 {
-    encode zstd gzip
 
-    request_body {
-        max_size 1GB
+    encode gzip
+
+    # Matrix
+    handle_path /_matrix/* {
+        reverse_proxy tuwunel:6167
     }
 
-    header {
-        Content-Security-Policy "default-src * data: blob: 'unsafe-inline' 'unsafe-eval';"
-        Strict-Transport-Security "max-age=31536000;"
-        X-Content-Type-Options nosniff
-        X-Frame-Options SAMEORIGIN
-        Access-Control-Allow-Origin *
+    handle_path /_synapse/* {
+        reverse_proxy tuwunel:6167
     }
 
-    # Matrix server discovery
-    handle /.well-known/matrix/server {
-        header Content-Type application/json
-        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
-    }
-
-    # Matrix client discovery
-    handle /.well-known/matrix/client {
-        header Content-Type application/json
-        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
-    }
-
-    # Matrix API → Tuwunel
-    handle /_matrix/* {
-        reverse_proxy http://tuwunel:6167 {
-            header_up X-Forwarded-For {remote}
-            header_up X-Forwarded-Proto https
-            header_up Host {host}
-        }
-    }
-
-    # Element Web
+    # Element
     handle {
-        reverse_proxy http://element-web:80
+        reverse_proxy element-web:80
     }
 }
