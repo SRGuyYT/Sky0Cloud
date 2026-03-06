@@ -13,7 +13,7 @@
         reverse_proxy http://synapse-admin:80
     }
 
-    # 2. Matrix Discovery
+    # 2. Matrix Discovery (.well-known)
     handle /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
         reverse_proxy http://tuwunel:6167 {
@@ -21,14 +21,15 @@
         }
     }
 
-    # 3. MERGED MEDIA & API FIX
-    # This single block now handles all headers and authentication correctly
+    # 3. MERGED MATRIX API & MEDIA FIX
+    # This single block handles all /_matrix/ requests including media
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
             header_up X-Forwarded-For {remote_host}
             header_up X-Real-IP {remote_host}
+            # CRITICAL: Passes the auth token so media isn't "Unauthenticated"
             header_up Authorization {>Authorization}
         }
     }
@@ -38,11 +39,10 @@
         reverse_proxy http://element-web:80
     }
 
-    # 5. Global Security Headers
+    # 5. Security & CSP Headers
     header {
         Access-Control-Allow-Origin *
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
-        Strict-Transport-Security "max-age=31536000;"
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
     }
