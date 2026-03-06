@@ -18,8 +18,7 @@
   "permalink_prefix": "https://sky0cloud.dpdns.org",
   "room_directory": {
     "servers": [
-      "sky0cloud.dpdns.org"
-    ]
+      "sky0cloud.dpdns.org",
       "matrix.org"
     ]
   },
