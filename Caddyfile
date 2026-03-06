@@ -1,44 +1,46 @@
 {
     email chapmlinks@gmail.com
+    acme_ca https://acme.zerossl.com/v2/DV90
+    acme_eab {
+        key_id uWbcH3X52RrjW42TJECv9A
+        mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
+    }
+
     auto_https off
 }
 
 :80 {
+
     request_body {
-        max_size 500MB
-    }
-
-    # FIX: Admin Panel Routing
-    handle /admin* {
-        reverse_proxy http://synapse-admin:80
-    }
-
-    # FIX: Matrix Well-knowns
-    handle /.well-known/matrix/* {
-        header Access-Control-Allow-Origin *
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-        }
-    }
-
-    # THE 403 MEDIA FIX: Hard-coded host and proto headers
-    handle /_matrix/* {
-        reverse_proxy http://tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-            header_up X-Forwarded-Proto https
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Real-IP {remote_host}
-        }
-    }
-
-    # Element UI
-    handle {
-        reverse_proxy http://element-web:80
+        max_size 100MB
     }
 
     header {
-        Access-Control-Allow-Origin *
-        # CSP fixed for Cloudflare and Element scripts
-        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com; img-src 'self' https: data: blob:; media-src 'self' https: data: blob:;"
+        Content-Security-Policy "default-src * data: blob: 'unsafe-inline' 'unsafe-eval';"
+        Strict-Transport-Security "max-age=31536000;"
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+    }
+
+    encode zstd gzip
+
+    handle /.well-known/matrix/server {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+    }
+
+    handle /.well-known/matrix/client {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+    }
+
+    handle /_matrix/* {
+        reverse_proxy http://tuwunel:6167
+    }
+
+    handle {
+        reverse_proxy http://element-web:80
     }
 }
