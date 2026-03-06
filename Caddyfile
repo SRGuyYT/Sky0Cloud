@@ -1,60 +1,53 @@
 {
     email chapmlinks@gmail.com
+    # Keep off because Cloudflare Tunnel handles the SSL termination
     auto_https off
 }
 
-# Apply to all traffic on port 80
 :80 {
-    encode gzip
+    # Increase body size for media uploads
+    request_body {
+        max_size 500MB
+    }
 
     # FIXED SECURITY HEADERS
+    # This allows Cloudflare scripts, Recaptcha, and Matrix media to load
     header {
-        # Allow media and avatars to load from your own domain and others
         Access-Control-Allow-Origin *
         Access-Control-Allow-Methods "GET, POST, OPTIONS"
         Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
-        
-        # FIXED CSP: Added Cloudflare and Recaptcha sources which were causing your console errors
-        Content-Security-Policy "default-src 'self' data: blob: https://sky0cloud.dpdns.org; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://sky0cloud.dpdns.org; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
-        
+        Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
+        Strict-Transport-Security "max-age=31536000;"
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     }
 
-    # Matrix Well-Known Discovery
-    handle /.well-known/matrix/client {
-        header Content-Type application/json
-        header Access-Control-Allow-Origin *
-        respond `{"m.homeserver": {"base_url": "https://sky0cloud.dpdns.org"}}` 200
-    }
+    encode zstd gzip
 
+    # Well-knowns
     handle /.well-known/matrix/server {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
-        respond `{"m.server": "sky0cloud.dpdns.org:443"}` 200
+        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
     }
 
-    # FIXED MATRIX PROXY: Passes the correct Host header to stop the 403 errors
+    handle /.well-known/matrix/client {
+        header Content-Type application/json
+        header Access-Control-Allow-Origin *
+        respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
+    }
+
+    # FIXED MATRIX PROXY
+    # This tells 'tuwunel' that the request is coming from your domain and is secure
     handle /_matrix/* {
-        request_body {
-            max_size 1G
-        }
-        reverse_proxy tuwunel:6167 {
+        reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
-            header_up X-Forwarded-For {remote_host}
             header_up X-Forwarded-Proto https
         }
     }
 
-    handle /_synapse/* {
-        reverse_proxy tuwunel:6167 {
-            header_up Host sky0cloud.dpdns.org
-        }
-    }
-
-    # Element Web UI
+    # Element Web
     handle {
-        reverse_proxy element-web:80
+        reverse_proxy http://element-web:80
     }
 }
