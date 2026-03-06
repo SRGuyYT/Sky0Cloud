@@ -25,6 +25,7 @@ services:
       - ./element/background.jpg:/app/background.jpg
       - ./element/manifest.json:/app/manifest.json
       - ./element/sw.js:/app/sw.js
+      - ./.well-known:/usr/share/nginx/html/.well-known   # ← ADD THIS
 
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
