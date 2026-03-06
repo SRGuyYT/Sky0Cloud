@@ -27,10 +27,6 @@ services:
       - "80"
     volumes:
       - ./element/config.json:/app/config.json:ro
-      - ./element/background.jpg:/app/background.jpg:ro
-      - ./element/icon.png:/app/icon.png:ro
-      - ./element/manifest.json:/app/manifest.json:ro
-      - ./element/sw.js:/app/sw.js:ro
     networks:
       - matrix_net
     logging:
@@ -50,7 +46,6 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-      - ./certs:/etc/caddy/certs:ro
     networks:
       - matrix_net
     logging:
@@ -59,19 +54,11 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # Matrix Bots
-  neoboard:
-    image: turt2live/matrix-neoboard:latest
-    restart: unless-stopped
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${NEOBOARD_TOKEN}
-    networks:
-      - matrix_net
-
   matrix-poll:
     image: turt2live/matrix-poll:latest
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - HOMESERVER_URL=https://sky0cloud.dpdns.org
       - ACCESS_TOKEN=${MATRIX_POLL_TOKEN}
@@ -81,24 +68,19 @@ services:
   baibot:
     image: baibot/baibot:latest
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - HOMESERVER_URL=https://sky0cloud.dpdns.org
       - ACCESS_TOKEN=${BAIBOT_TOKEN}
     networks:
       - matrix_net
 
-  mjolnir:
-    image: turt2live/mjolnir:latest
-    restart: unless-stopped
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${MJOLNIR_TOKEN}
-    networks:
-      - matrix_net
-
   matrix-eno-bot:
     image: turt2live/matrix-eno-bot:latest
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - HOMESERVER_URL=https://sky0cloud.dpdns.org
       - ACCESS_TOKEN=${ENO_BOT_TOKEN}
@@ -108,6 +90,8 @@ services:
   matrix-registration-bot:
     image: turt2live/matrix-registration-bot:latest
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - HOMESERVER_URL=https://sky0cloud.dpdns.org
       - ACCESS_TOKEN=${REGISTRATION_BOT_TOKEN}
@@ -117,11 +101,13 @@ services:
   admin-gui:
     image: etkecc/synapse-admin:latest
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - SYNAPSE_URL=https://sky0cloud.dpdns.org
       - ADMIN_TOKEN=${ADMIN_GUI_TOKEN}
     ports:
-      - "8010:8080"  # Avoid port 8080 conflict
+      - "8000:8080"
     networks:
       - matrix_net
 
