@@ -21,6 +21,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./element/config.json:/app/config.json
+      - ./element/icon.png:/app/icon.png
+      - ./element/background.jpg:/app/background.jpg
+      - ./element/manifest.json:/app/manifest.json
+      - ./element/sw.js:/app/sw.js
 
   tuwunel:
     image: ghcr.io/matrix-construct/tuwunel:latest
