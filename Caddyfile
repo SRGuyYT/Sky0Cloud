@@ -8,11 +8,29 @@
     auto_https off
 }
 
-:80 {
+sky0cloud.dpdns.org {
 
     encode gzip
 
-    # Matrix
+    # Matrix client discovery
+    handle /.well-known/matrix/client {
+        header Content-Type application/json
+        respond `{
+            "m.homeserver": {
+                "base_url": "https://sky0cloud.dpdns.org"
+            }
+        }` 200
+    }
+
+    # Matrix federation discovery
+    handle /.well-known/matrix/server {
+        header Content-Type application/json
+        respond `{
+            "m.server": "sky0cloud.dpdns.org:443"
+        }` 200
+    }
+
+    # Matrix API
     handle_path /_matrix/* {
         reverse_proxy tuwunel:6167
     }
@@ -21,7 +39,7 @@
         reverse_proxy tuwunel:6167
     }
 
-    # Element
+    # Element web client
     handle {
         reverse_proxy element-web:80
     }
