@@ -1,41 +1,5 @@
 services:
-  tuwunel:
-    image: ghcr.io/matrix-construct/tuwunel:latest
-    container_name: tuwunel
-    restart: unless-stopped
-    expose:
-      - "6167"
-    volumes:
-      - ./tuwunel_data:/data
-      - ./tuwunel/tuwunel.toml:/etc/tuwunel/config.toml:ro
-    environment:
-      - TZ=UTC
-      - TUWUNEL_CONFIG=/etc/tuwunel/config.toml
-    networks:
-      - matrix_net
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  element-web:
-    image: vectorim/element-web:latest
-    container_name: element-web
-    restart: unless-stopped
-    expose:
-      - "80"
-    volumes:
-      - ./element/config.json:/app/config.json:ro
-    networks:
-      - matrix_net
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  caddy:
+   caddy:
     image: caddy:latest
     container_name: caddy
     restart: unless-stopped
@@ -43,77 +7,44 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./certs:/certs
       - caddy_data:/data
       - caddy_config:/config
-    networks:
-      - matrix_net
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    depends_on:
+      - element-web
+      - tuwunel
 
-  matrix-poll:
-    image: turt2live/matrix-poll:latest
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: element-web
     restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${MATRIX_POLL_TOKEN}
-    networks:
-      - matrix_net
+    volumes:
+      - ./element/config.json:/app/config.json
+      - ./element/icon.png:/app/icon.png
+      - ./element/background.jpg:/app/background.jpg
+      - ./element/manifest.json:/app/manifest.json
+      - ./element/sw.js:/app/sw.js
+
+  tuwunel:
+    image: ghcr.io/matrix-construct/tuwunel:latest
+    container_name: tuwunel
+    restart: unless-stopped
+    volumes:
+      - ./tuwunel/tuwunel.toml:/tuwunel.toml
+      - ./tuwunel_data:/data
+
+  synapse-admin:
+    image: etkecc/synapse-admin:latest
+    container_name: synapse-admin
+    restart: unless-stopped
 
   baibot:
     image: baibot/baibot:latest
+    container_name: baibot
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${BAIBOT_TOKEN}
-    networks:
-      - matrix_net
-
-  matrix-eno-bot:
-    image: turt2live/matrix-eno-bot:latest
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${ENO_BOT_TOKEN}
-    networks:
-      - matrix_net
-
-  matrix-registration-bot:
-    image: turt2live/matrix-registration-bot:latest
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - HOMESERVER_URL=https://sky0cloud.dpdns.org
-      - ACCESS_TOKEN=${REGISTRATION_BOT_TOKEN}
-    networks:
-      - matrix_net
-
-  admin-gui:
-    image: etkecc/synapse-admin:latest
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - SYNAPSE_URL=https://sky0cloud.dpdns.org
-      - ADMIN_TOKEN=${ADMIN_GUI_TOKEN}
-    ports:
-      - "8000:8080"
-    networks:
-      - matrix_net
-
-networks:
-  matrix_net:
-    driver: bridge
 
 volumes:
   caddy_data:
