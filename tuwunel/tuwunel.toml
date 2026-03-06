@@ -2,6 +2,7 @@
 server_name = "sky0cloud.dpdns.org"
 database_path = "/data"
 new_user_displayname_suffix = ""
+allow_unauthenticated_media = true
 
 # Registration
 allow_registration = true
