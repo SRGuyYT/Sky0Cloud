@@ -46,11 +46,6 @@
         }
     }
 
-    # Maubot dashboard
-    handle_path /maubot/* {
-        reverse_proxy http://maubot:29316
-    }
-
     # Element web
     handle {
         reverse_proxy http://element-web:80
