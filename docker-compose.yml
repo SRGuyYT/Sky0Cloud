@@ -25,23 +25,6 @@ services:
     networks:
       - sky0cloud_net
 
-  maubot:
-    image: dock.mau.dev/maubot/maubot:latest
-    container_name: maubot
-    restart: unless-stopped
-    expose:
-      - "29316"
-    volumes:
-      - ./maubot/data:/data
-      - ./maubot/plugins:/plugins
-      - ./maubot/config:/config
-    environment:
-      - UID=1000
-      - GID=1000
-      - TZ=UTC
-    networks:
-      - sky0cloud_net
-
   caddy:
     image: caddy:latest
     container_name: caddy
