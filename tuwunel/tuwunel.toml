@@ -27,7 +27,7 @@ rocksdb_compression_algo = "lz4"
 
 trusted_servers = ["matrix.org", "sky0cloud.dpdns.org"]
 query_trusted_key_servers_first = true
-log = "all"
+log = "all=trace"
 
 [email]
 smtp_host = "smtp.mailgun.org"
