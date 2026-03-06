@@ -39,7 +39,7 @@ services:
 
   # Admin Panel - No reset required, just points to your Tuwunel
   synapse-admin:
-    image: awesomatix/synapse-admin
+    image: awesometechnologies/synapse-admin
     container_name: synapse-admin
     restart: unless-stopped
     networks:
