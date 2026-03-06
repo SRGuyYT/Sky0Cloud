@@ -1,18 +1,10 @@
 {
     email chapmlinks@gmail.com
-    # Important: Since we are providing our own Cloudflare certs, 
-    # we tell Caddy not to try and get its own.
-    auto_https disable_redirects
+    auto_https off
 }
 
-# This block handles the Cloudflare Tunnel traffic
-https://sky0cloud.dpdns.org:443, :80 {
-
-    {
-        # This allows curl/tunnels to connect even if they don't use the full domain name
-        on_demand
-    }
-
+# Listen on port 80 only. The Tunnel will point here.
+:80 {
     request_body {
         max_size 500MB
     }
@@ -21,23 +13,28 @@ https://sky0cloud.dpdns.org:443, :80 {
         Access-Control-Allow-Origin *
         Access-Control-Allow-Methods "GET, POST, OPTIONS"
         Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
-        # CSP fixed for Cloudflare and Element
+        # CSP fixed to allow Cloudflare and Element scripts
         Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.recaptcha.net https://www.gstatic.com https://static.cloudflareinsights.com; connect-src 'self' https://sky0cloud.dpdns.org wss://sky0cloud.dpdns.org https://static.cloudflareinsights.com;"
+        Strict-Transport-Security "max-age=31536000;"
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
     }
 
     encode zstd gzip
 
-    # Matrix Well-knowns
+    # Matrix Discovery
     handle /.well-known/matrix/* {
         header Access-Control-Allow-Origin *
         reverse_proxy http://tuwunel:6167
     }
 
-    # THE 403 & 502 FIX: Reverse Proxy to Tuwunel
+    # THE 403 MEDIA FIX
+    # This 'tricks' Tuwunel into thinking the request is an official secure domain request
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
             header_up X-Forwarded-Proto https
+            header_up X-Real-IP {remote_host}
         }
     }
 
