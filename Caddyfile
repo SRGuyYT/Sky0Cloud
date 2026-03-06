@@ -8,8 +8,7 @@
 # This block handles the Cloudflare Tunnel traffic
 https://sky0cloud.dpdns.org:443, :80 {
 
-    # 1. Update these paths to match where the certs are INSIDE the docker container
-    tls /certs/origin.crt /certs/origin.key {
+    {
         # This allows curl/tunnels to connect even if they don't use the full domain name
         on_demand
     }
