@@ -8,21 +8,27 @@
         max_size 500MB
     }
 
-    # 1. Element Discovery (The ".well-known" fix)
-    # Without this, Element doesn't know where sky0cloud.dpdns.org is
-    handle /.well-known/matrix/server {
-        header Content-Type application/json
-        header Access-Control-Allow-Origin *
-        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
-    }
-
+    # 1. FIX: Matrix Client Discovery
+    # This tells Element exactly where the server is.
     handle /.well-known/matrix/client {
-        header Content-Type application/json
         header Access-Control-Allow-Origin *
+        header Content-Type application/json
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # 2. Matrix API & Media (The merged fix)
+    # 2. FIX: Matrix Server Discovery (Federation)
+    handle /.well-known/matrix/server {
+        header Access-Control-Allow-Origin *
+        header Content-Type application/json
+        respond `{"m.server":"sky0cloud.dpdns.org:443"}` 200
+    }
+
+    # 3. FIX: Admin Panel Routing
+    handle /admin* {
+        reverse_proxy http://synapse-admin:80
+    }
+
+    # 4. THE 403 MEDIA & CONNECTION FIX
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up Host sky0cloud.dpdns.org
@@ -33,12 +39,7 @@
         }
     }
 
-    # 3. Admin Panel
-    handle /admin* {
-        reverse_proxy http://synapse-admin:80
-    }
-
-    # 4. Element Web UI
+    # 5. Element UI
     handle {
         reverse_proxy http://element-web:80
     }
