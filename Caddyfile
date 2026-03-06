@@ -1,50 +1,51 @@
 {
     email chapmlinks@gmail.com
-    auto_https off
+    # Keep off if Cloudflare is handling SSL
+    auto_https off 
 }
 
-:80 {
-
+sky0cloud.dpdns.org:80 {
     encode gzip
 
-    # Security headers
+    # Global headers to allow media display and security
     header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Authorization, Content-Type, Origin"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options nosniff
         X-Frame-Options SAMEORIGIN
-        # CSP is optional; keep loose for Element Web if needed, tighten later
-        Content-Security-Policy "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval';"
+        Content-Security-Policy "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval' https://sky0cloud.dpdns.org;"
     }
 
     # Matrix discovery
     handle /.well-known/matrix/client {
         header Content-Type application/json
         header Access-Control-Allow-Origin *
-        respond `{
-            "m.homeserver": {"base_url": "https://sky0cloud.dpdns.org"}
-        }` 200
+        respond `{"m.homeserver": {"base_url": "https://sky0cloud.dpdns.org"}}` 200
     }
 
     handle /.well-known/matrix/server {
         header Content-Type application/json
-        respond `{
-            "m.server": "sky0cloud.dpdns.org:443"
-        }` 200
+        respond `{"m.server": "sky0cloud.dpdns.org:443"}` 200
     }
 
-    # Matrix API + media + federation
+    # Matrix API & Media
     handle /_matrix/* {
         request_body {
             max_size 500MB
         }
-        reverse_proxy tuwunel:6167
+        reverse_proxy tuwunel:6167 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 
     handle /_synapse/* {
         reverse_proxy tuwunel:6167
     }
 
-    # Element web (default catch-all)
+    # Element Web
     handle {
         reverse_proxy element-web:80
     }
