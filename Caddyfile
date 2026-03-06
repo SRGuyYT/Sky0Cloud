@@ -1,20 +1,18 @@
 {
-    auto_https off
     email chapmlinks@gmail.com
     acme_ca https://acme.zerossl.com/v2/DV90
-
     acme_eab {
         key_id uWbcH3X52RrjW42TJECv9A
         mac_key kHNR7DP4uoJA_jLmD8su0g6JN-V16gj08LX8PoyxR3FbHRE6WRagAn2HOvRbgTKpoTsmqC5bbUSbwQji3WGOkw
     }
+    auto_https off
 }
 
 :80 {
-
     encode zstd gzip
 
     request_body {
-        max_size 100MB
+        max_size 1GB
     }
 
     header {
@@ -37,7 +35,7 @@
         respond `{"m.homeserver":{"base_url":"https://sky0cloud.dpdns.org"}}` 200
     }
 
-    # Matrix API → tuwunel
+    # Matrix API → Tuwunel
     handle /_matrix/* {
         reverse_proxy http://tuwunel:6167 {
             header_up X-Forwarded-For {remote}
@@ -46,12 +44,7 @@
         }
     }
 
-    # Admin GUI
-    handle /admin/* {
-        reverse_proxy http://admin-gui:8080
-    }
-
-    # Element web
+    # Element Web
     handle {
         reverse_proxy http://element-web:80
     }
