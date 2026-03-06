@@ -2,41 +2,32 @@
 server_name = "sky0cloud.dpdns.org"
 database_path = "/data"
 
-# Registration Settings
+# Registration
 allow_registration = true
 registration_token = "itoldyou"
 yes_i_am_very_very_sure_i_want_an_open_registration_server_prone_to_abuse = true
 
-# --- AUTO JOIN ---
+# Auto Join Rooms
 auto_join_rooms = [
-   "!lKP6TkVFKVCOTpGQHV:sky0cloud.dpdns.org",   # Info Server
-   "!sY6VaQPiY428XrWcWB:sky0cloud.dpdns.org"    # Chat Serer
+   "!lKP6TkVFKVCOTpGQHV:sky0cloud.dpdns.org",
+   "!sY6VaQPiY428XrWcWB:sky0cloud.dpdns.org"
 ]
 
-# Performance and Behavior
-new_user_displayname_suffix = ""
+# Networking
 address = ["0.0.0.0"]
 port = 6167
 grant_admin_to_first_user = true
-allow_guest_registration = false
 max_request_size = 104857600
 
-# Ryzen 3 + 8 GB RAM tuning
+# Performance Tuning (Ryzen 3)
 db_pool_workers = 6
-db_pool_workers_limit = 12
 db_pool_max_workers = 24
-cache_capacity_modifier = 1.4
 rocksdb_optimize_for_spinning_disks = true
-rocksdb_parallelism_threads = 2
 rocksdb_compression_algo = "lz4"
-rocksdb_max_log_files = 4
 
 trusted_servers = ["matrix.org", "sky0cloud.dpdns.org"]
 query_trusted_key_servers_first = true
-
-log = "info"
-log_colors = true
-log_compact = true
+log = "all"
 
 [email]
 smtp_host = "smtp.mailgun.org"
@@ -45,4 +36,4 @@ smtp_user = "official@no-reply.skyservers.qzz.io"
 smtp_pass = "TheBoss123?com"
 smtp_from = "Sky0Cloud <official@no-reply.skyservers.qzz.io>"
 require_transport_security = true
-require_verification = true
+require_verification = false
